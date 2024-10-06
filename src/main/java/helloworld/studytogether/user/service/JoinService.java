@@ -1,10 +1,10 @@
-package helloworld.studytogether.service;
+package helloworld.studytogether.user.service;
 
 
-import helloworld.studytogether.dto.JoinDTO;
-import helloworld.studytogether.entity.Role;
-import helloworld.studytogether.entity.User;
-import helloworld.studytogether.repository.UserRepository;
+import helloworld.studytogether.user.dto.JoinDTO;
+import helloworld.studytogether.user.entity.Role;
+import helloworld.studytogether.user.entity.User;
+import helloworld.studytogether.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

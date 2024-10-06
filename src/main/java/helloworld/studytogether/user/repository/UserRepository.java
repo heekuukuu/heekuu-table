@@ -1,6 +1,6 @@
-package helloworld.studytogether.repository;
+package helloworld.studytogether.user.repository;
 
-import helloworld.studytogether.entity.User;
+import helloworld.studytogether.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.stereotype.Repository;

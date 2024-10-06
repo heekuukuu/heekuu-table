@@ -1,7 +1,6 @@
-package helloworld.studytogether.dto;
+package helloworld.studytogether.user.dto;
 
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,9 +1,9 @@
-package helloworld.studytogether.service;
+package helloworld.studytogether.user.service;
 
 
-import helloworld.studytogether.dto.CustomUserDetails;
-import helloworld.studytogether.entity.User;
-import helloworld.studytogether.repository.UserRepository;
+import helloworld.studytogether.user.dto.CustomUserDetails;
+import helloworld.studytogether.user.entity.User;
+import helloworld.studytogether.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

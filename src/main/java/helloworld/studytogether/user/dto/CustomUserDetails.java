@@ -1,10 +1,9 @@
-package helloworld.studytogether.dto;
+package helloworld.studytogether.user.dto;
 
-import helloworld.studytogether.entity.User;
+import helloworld.studytogether.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 

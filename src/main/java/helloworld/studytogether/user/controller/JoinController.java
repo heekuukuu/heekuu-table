@@ -1,8 +1,8 @@
-package helloworld.studytogether.controller;
+package helloworld.studytogether.user.controller;
 
 
-import helloworld.studytogether.dto.JoinDTO;
-import helloworld.studytogether.service.JoinService;
+import helloworld.studytogether.user.dto.JoinDTO;
+import helloworld.studytogether.user.service.JoinService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 

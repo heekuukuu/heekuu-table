@@ -1,13 +1,10 @@
-package helloworld.studytogether.entity;
+package helloworld.studytogether.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
 import java.sql.Date;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
