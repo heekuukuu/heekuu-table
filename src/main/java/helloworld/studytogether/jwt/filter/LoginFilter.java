@@ -120,7 +120,7 @@ private void addRefreshToken(User user, String refreshToken, Long expiredMs) {
   Date expirationDate = new Date(System.currentTimeMillis() + expiredMs);
 
   RefreshToken refreshTokenEntity = new RefreshToken();
-  refreshTokenEntity.setUserId(user); // User 객체를 설정
+  refreshTokenEntity.setUser(user); // User 객체를 설정
   refreshTokenEntity.setRefresh(refreshToken);
   refreshTokenEntity.setExpiration(expirationDate.toString());
 

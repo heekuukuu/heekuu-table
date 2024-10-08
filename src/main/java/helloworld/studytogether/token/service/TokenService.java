@@ -13,6 +13,7 @@ import java.util.Date;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TokenService {
@@ -93,12 +94,14 @@ public class TokenService {
   }
 
 
-
+@Transactional
   private void addRefreshToken(User user, String refreshToken, Long expiredMs) {
     Date expirationDate = new Date(System.currentTimeMillis() + expiredMs);
-
+    if (user.getUserId() == null) {
+      throw new IllegalArgumentException("User ID cannot be null");
+    }
     RefreshToken refreshTokenEntity = new RefreshToken();
-    refreshTokenEntity.setUserId(user); // User 객체를 설정
+    refreshTokenEntity.setUser(user); // User 객체를 설정
     refreshTokenEntity.setRefresh(refreshToken);
     refreshTokenEntity.setExpiration(expirationDate.toString());
 

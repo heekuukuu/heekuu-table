@@ -40,7 +40,7 @@ public class User {
     private Date created_at;
 
     // RefreshToken과의 일대일 관계 설정
-    @OneToOne(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private RefreshToken refreshToken;
 
 
