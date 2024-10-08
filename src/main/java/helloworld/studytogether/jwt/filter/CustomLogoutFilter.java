@@ -4,7 +4,7 @@ import helloworld.studytogether.jwt.util.JWTUtil;
 import helloworld.studytogether.token.repository.RefreshTokenRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.GenericFilter;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -80,8 +80,8 @@ public class CustomLogoutFilter extends GenericFilterBean {
     }
 
     // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
-    String category = jwtUtil.getCategory(refresh);
-    if (!category.equals("refresh")) {
+    String tokenType = jwtUtil.getTokenType(refresh);
+    if (!tokenType.equals("refresh")) {
 
       //response status code
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); //만료토큰 401

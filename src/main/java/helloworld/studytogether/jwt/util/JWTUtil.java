@@ -1,6 +1,7 @@
 package helloworld.studytogether.jwt.util;
 
 import io.jsonwebtoken.Jwts;
+import helloworld.studytogether.user.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,15 +22,15 @@ public class JWTUtil {
         Jwts.SIG.HS256.key().build().getAlgorithm());
   }
 
-  public String getUsername(String token) {
+  public Long getUserId(String token) {
 
     return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-        .get("username", String.class);
+        .get("userid", Long.class);
   }
-  public String getCategory(String token) {
+  public String getTokenType(String token) {
 
     return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-        .get("category", String.class);
+        .get("tokenType", String.class);
 
   }
 
@@ -48,15 +49,16 @@ public class JWTUtil {
   }
 
   // 토큰생성
-  public String createJwt(String category, String username, String role, Long expiredMs) {
+  public String createJwt(String tokenType, User user, String role, Long expiredMs) {
 
     return Jwts.builder()
-        .claim("category", category) // 토큰확인 ( 리프레시 토큰 or 엑세스 토큰)
-        .claim("username", username)
+        .claim("tokenType", tokenType) // 토큰확인 ( 리프레시 토큰 or 엑세스 토큰)
+        .claim("userid", user.getUserId())
         .claim("role", role)
         .issuedAt(new Date(System.currentTimeMillis()))
         .expiration(new Date(System.currentTimeMillis() + expiredMs))
         .signWith(secretKey)
+
         .compact();
   }
 }

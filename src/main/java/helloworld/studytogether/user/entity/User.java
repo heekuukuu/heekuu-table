@@ -1,5 +1,6 @@
 package helloworld.studytogether.user.entity;
 
+import helloworld.studytogether.token.entity.RefreshToken;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +17,8 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(nullable = false, unique = true)
+    private Long userId;
 
     @Column(nullable = false, unique = true)
     private String username;
@@ -37,6 +39,10 @@ public class User {
     @Column(nullable = false)
     private Date created_at;
 
+    // RefreshToken과의 일대일 관계 설정
+    @OneToOne(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private RefreshToken refreshToken;
+
 
 
     @Column(nullable = true)
@@ -51,4 +57,7 @@ public class User {
     protected void onUpdate() {
         this.updated_at = Date.valueOf(LocalDate.now());
 }
+
+;
+
 }

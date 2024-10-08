@@ -5,6 +5,7 @@ import helloworld.studytogether.jwt.filter.CustomLogoutFilter;
 import helloworld.studytogether.jwt.util.JWTUtil;
 import helloworld.studytogether.jwt.filter.LoginFilter;
 import helloworld.studytogether.token.repository.RefreshTokenRepository;
+import helloworld.studytogether.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,13 +27,15 @@ public class SecurityConfig {
   private final JWTUtil jwtUtil;
   private final RefreshTokenRepository refreshTokenRepository;
 
+  private final UserRepository userRepository;
 
   public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil,
-      RefreshTokenRepository refreshTokenRepository) {
+      RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
 
     this.authenticationConfiguration = authenticationConfiguration;
     this.jwtUtil = jwtUtil;
     this.refreshTokenRepository = refreshTokenRepository;
+    this.userRepository = userRepository;
 
   }
 
@@ -65,13 +68,13 @@ public class SecurityConfig {
             .requestMatchers("/login", "/", "/join").permitAll()
             .requestMatchers("/admin").hasRole("ADMIN")
             .requestMatchers("/reissue").permitAll()
-
             .anyRequest().authenticated());
 
     http
         .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
-                refreshTokenRepository),
+                refreshTokenRepository, userRepository),
             UsernamePasswordAuthenticationFilter.class);
+
     //.addFilterAt(new LoginFilter(), UsernamePasswordAuthenticationFilter.class);
     http
         .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository),

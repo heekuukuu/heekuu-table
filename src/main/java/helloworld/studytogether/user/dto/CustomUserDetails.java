@@ -60,4 +60,11 @@ public class CustomUserDetails implements UserDetails {
 
         return true;
     }
+    // User 객체를 반환하는 메서드 추가
+    public User getUser() {
+        return user;
+    }
+    public Long getUserId() {
+        return user.getUserId(); // userId 반환
+    }
 }

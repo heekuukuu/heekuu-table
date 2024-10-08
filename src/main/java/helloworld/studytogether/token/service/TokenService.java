@@ -3,6 +3,8 @@ package helloworld.studytogether.token.service;
 import helloworld.studytogether.jwt.util.JWTUtil;
 import helloworld.studytogether.token.entity.RefreshToken;
 import helloworld.studytogether.token.repository.RefreshTokenRepository;
+import helloworld.studytogether.user.entity.User;
+import helloworld.studytogether.user.repository.UserRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,17 +17,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class TokenService {
 
+  private User user;
   private RefreshToken refreshToken;
 
   private final JWTUtil jwtUtil;
-
+  private final UserRepository userRepository;
   private final RefreshTokenRepository refreshTokenRepository;
 
 
-  public TokenService(JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
+  public TokenService(JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, UserRepository userRepository
+  ) {
 
     this.jwtUtil = jwtUtil;
     this.refreshTokenRepository = refreshTokenRepository;
+    this.userRepository = userRepository;
 
   }
 
@@ -45,39 +50,41 @@ public class TokenService {
       return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
     }
 
-    // 리프레시 토근만료확인
+    // 리프레시 토큰 만료 확인
     try {
-      JWTUtil.isExpired(refresh);
+      jwtUtil.isExpired(refresh);
     } catch (ExpiredJwtException e) {
       return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
     }
 
-    // 토큰이 refresh 인지 확인
-    String category = jwtUtil.getCategory(refresh);
-
-    if (!category.equals("refresh")) {
+    // 토큰이 refresh인지 확인
+    String tokenType = jwtUtil.getTokenType(refresh);
+    if (!tokenType.equals("refresh")) {
       return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
     }
-   //DB에 저장되어 있는지 확인
+
+    // DB에 저장되어 있는지 확인
     boolean isExist = refreshTokenRepository.existsByRefresh(refresh);
     if (!isExist) {
-
-      //response body
       return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
     }
 
-    String username = jwtUtil.getUsername(refresh);
+    Long userId = jwtUtil.getUserId(refresh);
     String role = jwtUtil.getRole(refresh);
 
-    // 새로운 access 토큰 발급 /갱신
-    String newAccess = jwtUtil.createJwt("access", username, role, 600000L);
-    String newRefresh = jwtUtil.createJwt("refresh", username, role, 60480000L);
+    // User 객체를 조회
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("User not found"));
 
-    //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
+    // 새로운 access 토큰 발급 / 갱신
+    String newAccess = jwtUtil.createJwt("access",user, role, 600000L);
+    String newRefresh = jwtUtil.createJwt("refresh",user , role, 60480000L);
+
+    // Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
     refreshTokenRepository.deleteByRefresh(refresh);
-    addRefreshToken(username, newRefresh, 60480000L);
+    addRefreshToken(user, newRefresh, 60480000L); // user 객체를 넘김
 
-    // response, 갱신작업
+    // response, 갱신 작업
     response.setHeader("access", newAccess);
     response.addCookie(createCookie("refresh", newRefresh));
 
@@ -85,16 +92,17 @@ public class TokenService {
     return new ResponseEntity<>(newAccess, HttpStatus.OK);
   }
 
-  private void addRefreshToken(String username, String refresh, Long expiredMs) {
 
-    Date date = new Date(System.currentTimeMillis() + expiredMs);
 
-    RefreshToken refreshToken = new RefreshToken();
-    refreshToken.setUsername(username);
-    refreshToken.setRefresh(refresh);
-    refreshToken.setExpiration(date.toString());
+  private void addRefreshToken(User user, String refreshToken, Long expiredMs) {
+    Date expirationDate = new Date(System.currentTimeMillis() + expiredMs);
 
-    refreshTokenRepository.save(refreshToken);
+    RefreshToken refreshTokenEntity = new RefreshToken();
+    refreshTokenEntity.setUserId(user); // User 객체를 설정
+    refreshTokenEntity.setRefresh(refreshToken);
+    refreshTokenEntity.setExpiration(expirationDate.toString());
+
+    refreshTokenRepository.save(refreshTokenEntity);
   }
   private Cookie createCookie(String key, String value) {
 

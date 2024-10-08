@@ -1,122 +1,151 @@
 package helloworld.studytogether.jwt.filter;
 
+import helloworld.studytogether.user.dto.CustomUserDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import helloworld.studytogether.jwt.util.JWTUtil;
 import helloworld.studytogether.token.entity.RefreshToken;
 import helloworld.studytogether.token.repository.RefreshTokenRepository;
+import helloworld.studytogether.user.dto.LoginDTO;
+import helloworld.studytogether.user.entity.User;
+import helloworld.studytogether.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.BufferedReader;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.*;
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
-  private final AuthenticationManager authenticationManager;
 
   private final JWTUtil jwtUtil;
-
   private final RefreshTokenRepository refreshTokenRepository;
+  private final UserRepository userRepository;
 
   public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
-      RefreshTokenRepository refreshTokenRepository) {
-
-    this.authenticationManager = authenticationManager;
+      RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
+    super.setAuthenticationManager(authenticationManager);
     this.jwtUtil = jwtUtil;
+    this.userRepository = userRepository;
     this.refreshTokenRepository = refreshTokenRepository;
-
   }
+
 
   @Override
-  public Authentication attemptAuthentication(HttpServletRequest request,
-      HttpServletResponse response) throws AuthenticationException {
-    String username = obtainUsername(request);
-    String password = obtainPassword(request);
+  public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
+    try {
+      BufferedReader reader = request.getReader();
+      StringBuilder json = new StringBuilder();
+      String line;
+      while ((line = reader.readLine()) != null) {
+        json.append(line);
+      }
+//1-> eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlblR5cGUiOiJyZWZyZXNoIiwidXNlcmlkIjo2LCJyb2xlIjoiVVNFUiIsImlhdCI6MTcyODM3MzIwOCwiZXhwIjoxNzI4OTc4MDA4fQ.PKosYVHlSs8H976PPQEbplJwZiE85JzDhcn-CFjP1X0; Max-Age=86400; Expires=Wed, 09 Oct 2024 07:40:08 GMT; HttpOnly
+//
+      // JSON을 파싱해서 customUserDetails 객체로 변환
+      ObjectMapper mapper = new ObjectMapper();
+      LoginDTO loginDTO = mapper.readValue(json.toString(),LoginDTO.class);
 
-    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-        username, password, Collections.emptyList());
+      String username = loginDTO.getUsername();
+      String password = loginDTO.getPassword();
 
-    return authenticationManager.authenticate(authToken);
+      if (username == null || username.isEmpty()) {
+        throw new UsernameNotFoundException("Username cannot be empty");
+      }
+
+      UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+      return this.getAuthenticationManager().authenticate(authRequest);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
+//  @Override
+//  public Authentication attemptAuthentication(HttpServletRequest request,
+//      HttpServletResponse response) {
+//    String username = request.getParameter("username");
+//    String password = request.getParameter("password");
+//
+//    System.out.println("Username: " + username);
+//    System.out.println("Password: " + password);
+//    if (username == null || username.isEmpty()) {
+//      throw new UsernameNotFoundException("Username cannot be empty");
+//    }
+//    System.out.println(1);
+//    UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
+//        username, password);
+//    System.out.println(2);
+//    return this.getAuthenticationManager().authenticate(authRequest);
+//  }
 
-  //로그인 성공
   @Override
   protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
       FilterChain chain, Authentication authentication) throws IOException {
-    // 사용자 정보
-    String username = authentication.getName();
-
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal(); // User 객체를 가져옵니다.
+    User user = userDetails.getUser(); // CustomUserDetails에서 User 객체를 가져옴
+    Long userId = user.getUserId(); // user_id 가져오기
     Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-    Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-    GrantedAuthority auth = iterator.next();
-    String role = auth.getAuthority();
+    String role = authorities.iterator().next().getAuthority();
 
     // 토큰 생성
+    String accessToken = jwtUtil.createJwt("access", user, role, Duration.ofMinutes(10).toMillis());
+    String refreshToken = jwtUtil.createJwt("refresh", user, role, Duration.ofDays(7).toMillis());
 
-    String access = jwtUtil.createJwt("access", username, role, 600000L); // 10분
-    String refresh = jwtUtil.createJwt("refresh", username, role, 60480000L); // 일주일
-
-    //Refresh 토큰 저장
-    addRefreshToken(username, refresh, 60480000L);
+    // Refresh 토큰 저장
+    addRefreshToken(user, refreshToken, Duration.ofDays(7).toMillis()); // User 객체를 전달
 
     // 응답 설정
-    //엑세스 토큰  ->
-    //리프레시 토큰 -> 쿠키에 발급
     Map<String, String> tokens = new HashMap<>();
-    tokens.put("accessToken", access);
+    tokens.put("accessToken", accessToken);
 
-    response.addCookie(createCookie("refresh", refresh));
-
+    response.addCookie(createCookie("refresh", refreshToken));
     response.setContentType("application/json");
     response.setCharacterEncoding("UTF-8");
 
     new ObjectMapper().writeValue(response.getWriter(), tokens);
-
     response.setStatus(HttpStatus.OK.value());
   }
 
-  private void addRefreshToken(String username, String refresh, Long expiredMs) {
+private void addRefreshToken(User user, String refreshToken, Long expiredMs) {
+  Date expirationDate = new Date(System.currentTimeMillis() + expiredMs);
 
-    Date date = new Date(System.currentTimeMillis() + expiredMs);
+  RefreshToken refreshTokenEntity = new RefreshToken();
+  refreshTokenEntity.setUserId(user); // User 객체를 설정
+  refreshTokenEntity.setRefresh(refreshToken);
+  refreshTokenEntity.setExpiration(expirationDate.toString());
 
-    RefreshToken refreshToken = new RefreshToken();
-    refreshToken.setUsername(username);
-    refreshToken.setRefresh(refresh);
-    refreshToken.setExpiration(date.toString());
-
-    refreshTokenRepository.save(refreshToken);
-  }
+  refreshTokenRepository.save(refreshTokenEntity);
+}
 
   private Cookie createCookie(String key, String value) {
-
     Cookie cookie = new Cookie(key, value);
     cookie.setMaxAge(24 * 60 * 60);
-    //cookie.setSecure(true);
-    //cookie.setPath("/");
     cookie.setHttpOnly(true);
-
     return cookie;
   }
 
-  //실패
+  // 실패 처리
   @Override
   protected void unsuccessfulAuthentication(HttpServletRequest request,
-      HttpServletResponse response, AuthenticationException failed) {
-    response.setStatus(401);
+      HttpServletResponse response, AuthenticationException failed) throws IOException {
+    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+
+    Map<String, String> error = new HashMap<>();
+    error.put("error", "Authentication failed");
+
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
+
+    new ObjectMapper().writeValue(response.getWriter(), error);
   }
 }
