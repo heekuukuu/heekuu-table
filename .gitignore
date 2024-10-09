@@ -40,3 +40,6 @@ out/
 src/main/resources/application.yml
 application.properties
 docker-compose.yml
+data
+docker-entrypoint-initdb.ddata
+docker-entrypoint-initdb.d
