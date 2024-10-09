@@ -25,6 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
+import org.springframework.transaction.annotation.Transactional;
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -53,7 +54,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
       }
 //1-> eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlblR5cGUiOiJyZWZyZXNoIiwidXNlcmlkIjo2LCJyb2xlIjoiVVNFUiIsImlhdCI6MTcyODM3MzIwOCwiZXhwIjoxNzI4OTc4MDA4fQ.PKosYVHlSs8H976PPQEbplJwZiE85JzDhcn-CFjP1X0; Max-Age=86400; Expires=Wed, 09 Oct 2024 07:40:08 GMT; HttpOnly
 //
-      // JSON을 파싱해서 customUserDetails 객체로 변환
+
       ObjectMapper mapper = new ObjectMapper();
       LoginDTO loginDTO = mapper.readValue(json.toString(),LoginDTO.class);
 
@@ -70,24 +71,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
       throw new RuntimeException(e);
     }
   }
-//  @Override
-//  public Authentication attemptAuthentication(HttpServletRequest request,
-//      HttpServletResponse response) {
-//    String username = request.getParameter("username");
-//    String password = request.getParameter("password");
-//
-//    System.out.println("Username: " + username);
-//    System.out.println("Password: " + password);
-//    if (username == null || username.isEmpty()) {
-//      throw new UsernameNotFoundException("Username cannot be empty");
-//    }
-//    System.out.println(1);
-//    UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-//        username, password);
-//    System.out.println(2);
-//    return this.getAuthenticationManager().authenticate(authRequest);
-//  }
 
+  @Transactional
   @Override
   protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
       FilterChain chain, Authentication authentication) throws IOException {

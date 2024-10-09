@@ -22,7 +22,7 @@ public class ReissueController {
   }
 
 
-  @PostMapping("/reissue")
+  @PostMapping("users/reissue")
   public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
     ResponseEntity<?> result = tokenService.reissueToken(request, response);
 
