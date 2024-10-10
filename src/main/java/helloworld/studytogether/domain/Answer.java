@@ -28,7 +28,7 @@ public class Answer {
      private Answer parentAnswer;
 
      @ManyToOne(fetch = FetchType.LAZY)
-     @JoinColumn(name = "user_id", nullable = false)
+     @JoinColumn(name = "userId", nullable = false)
      private User user;
      */
     @Column(columnDefinition = "TEXT", nullable = false)
