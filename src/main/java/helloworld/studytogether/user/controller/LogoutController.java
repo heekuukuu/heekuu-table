@@ -24,7 +24,7 @@ public class LogoutController {
     this.jwtUtil = jwtUtil;
   }
 
-  @DeleteMapping("/users/logout")
+  @DeleteMapping("/logout")
   @Transactional //트랜잭션 처리
   public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
     String refresh = getRefreshTokenFromCookies(request);
