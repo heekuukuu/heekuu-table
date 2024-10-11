@@ -1,5 +1,6 @@
 package helloworld.studytogether.answer.entity;
 
+import helloworld.studytogether.user.entity.User;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -22,7 +23,7 @@ public class Answer {
      @ManyToOne(fetch = FetchType.LAZY)
      @JoinColumn(name = "question_id", nullable = false)
      private Question question;
-
+    */
      @ManyToOne(fetch = FetchType.LAZY)
      @JoinColumn(name = "parent_answer_id")
      private Answer parentAnswer;
@@ -30,7 +31,7 @@ public class Answer {
      @ManyToOne(fetch = FetchType.LAZY)
      @JoinColumn(name = "userId", nullable = false)
      private User user;
-     */
+
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
