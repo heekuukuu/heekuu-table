@@ -1,4 +1,4 @@
-package helloworld.studytogether.domain;
+package helloworld.studytogether.answer.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

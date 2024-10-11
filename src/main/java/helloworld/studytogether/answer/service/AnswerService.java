@@ -1,6 +1,6 @@
-package helloworld.studytogether.service;
+package helloworld.studytogether.answer.service;
 
-import helloworld.studytogether.dto.AnswerDTO;
+import helloworld.studytogether.answer.dto.AnswerDTO;
 
 public interface AnswerService {
     AnswerDTO createAnswer(AnswerDTO answerDTO);

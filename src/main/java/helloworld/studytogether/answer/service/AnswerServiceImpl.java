@@ -1,15 +1,14 @@
-package helloworld.studytogether.service;
+package helloworld.studytogether.answer.service;
 
-import helloworld.studytogether.domain.Answer;
-import helloworld.studytogether.dto.AnswerDTO;
-import helloworld.studytogether.repository.AnswerRepository;
+import helloworld.studytogether.answer.entity.Answer;
+import helloworld.studytogether.answer.dto.AnswerDTO;
+import helloworld.studytogether.answer.repository.AnswerRepository;
 //import helloworld.studytogether.domain.question.Question;
-//import helloworld.studytogether.domain.user.User;
+import helloworld.studytogether.user.entity.User;
+import helloworld.studytogether.user.entity.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 public class AnswerServiceImpl implements AnswerService {

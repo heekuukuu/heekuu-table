@@ -1,6 +1,6 @@
-package helloworld.studytogether.repository;
+package helloworld.studytogether.answer.repository;
 
-import helloworld.studytogether.domain.Answer;
+import helloworld.studytogether.answer.entity.Answer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

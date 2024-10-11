@@ -1,7 +1,7 @@
-package helloworld.studytogether.controller;
+package helloworld.studytogether.answer.controller;
 
-import helloworld.studytogether.dto.AnswerDTO;
-import helloworld.studytogether.service.AnswerService;
+import helloworld.studytogether.answer.dto.AnswerDTO;
+import helloworld.studytogether.answer.service.AnswerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
