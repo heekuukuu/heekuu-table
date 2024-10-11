@@ -19,6 +19,6 @@ public class Dictionary {
     @Column(name = "dictionary_id", nullable = false)
     private Integer dictionaryId;  // integer
 
-    @Column(name = "word")
+    @Column(name = "word", length = 225)
     private String word;  // varchar
 }
