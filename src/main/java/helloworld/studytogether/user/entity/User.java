@@ -15,49 +15,48 @@ import java.time.LocalDate;
 @Table(name = "users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, unique = true)
-    private Long userId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long userId;
 
-    @Column(nullable = false, unique = true)
-    private String username;
+  @Column(nullable = false, unique = true)
+  private String username;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+  @Column(nullable = false, unique = true)
+  private String email;
 
-    @Column(nullable = false)
-    private String password;
+  @Column(nullable = false)
+  private String password;
 
-    @Column(nullable = false, unique = true)
-    private String nickname;
+  @Column(nullable = false, unique = true)
+  private String nickname;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
-
-    @Column(nullable = false)
-    private Date created_at;
-
-    // RefreshToken과의 일대일 관계 설정
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private RefreshToken refreshToken;
+  @Enumerated(EnumType.STRING)
+  private Role role;
 
 
+  @Column(nullable = false)
+  private Date created_at;
 
-    @Column(nullable = true)
-    private Date updated_at;
+  // RefreshToken과의 일대일 관계 설정
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private RefreshToken refreshToken;
 
 
-    @PrePersist
-    protected void onCreate() {
-        this.created_at = Date.valueOf(LocalDate.now());
-    }
-    @PreUpdate
-    protected void onUpdate() {
-        this.updated_at = Date.valueOf(LocalDate.now());
-}
+  @Column(nullable = true)
+  private Date updated_at;
 
-;
+
+  @PrePersist
+  protected void onCreate() {
+    this.created_at = Date.valueOf(LocalDate.now());
+  }
+
+  @PreUpdate
+  protected void onUpdate() {
+    this.updated_at = Date.valueOf(LocalDate.now());
+  }
+
+
 
 }

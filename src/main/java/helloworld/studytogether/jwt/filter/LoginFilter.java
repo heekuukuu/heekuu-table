@@ -27,6 +27,7 @@ import java.time.Duration;
 import java.util.*;
 import org.springframework.transaction.annotation.Transactional;
 
+
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 
@@ -40,11 +41,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     this.jwtUtil = jwtUtil;
     this.userRepository = userRepository;
     this.refreshTokenRepository = refreshTokenRepository;
+    //this.setFilterProcessesUrl("/users/login");
   }
 
 
   @Override
-  public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
+  public Authentication attemptAuthentication(HttpServletRequest request,
+      HttpServletResponse response) {
     try {
       BufferedReader reader = request.getReader();
       StringBuilder json = new StringBuilder();
@@ -52,20 +55,20 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
       while ((line = reader.readLine()) != null) {
         json.append(line);
       }
-//1-> eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlblR5cGUiOiJyZWZyZXNoIiwidXNlcmlkIjo2LCJyb2xlIjoiVVNFUiIsImlhdCI6MTcyODM3MzIwOCwiZXhwIjoxNzI4OTc4MDA4fQ.PKosYVHlSs8H976PPQEbplJwZiE85JzDhcn-CFjP1X0; Max-Age=86400; Expires=Wed, 09 Oct 2024 07:40:08 GMT; HttpOnly
-//
 
       ObjectMapper mapper = new ObjectMapper();
-      LoginDTO loginDTO = mapper.readValue(json.toString(),LoginDTO.class);
+      LoginDTO loginDTO = mapper.readValue(json.toString(), LoginDTO.class);
 
       String username = loginDTO.getUsername();
       String password = loginDTO.getPassword();
-
+      // 비밀번호 확인 로그 추가
+      System.out.println("Username: " + username + ", Password: " + password);
       if (username == null || username.isEmpty()) {
         throw new UsernameNotFoundException("Username cannot be empty");
       }
 
-      UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+      UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
+          username, password);
       return this.getAuthenticationManager().authenticate(authRequest);
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -81,36 +84,49 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     Long userId = user.getUserId(); // user_id 가져오기
     Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
     String role = authorities.iterator().next().getAuthority();
+    try {
+      // 토큰 생성
+      String accessToken = jwtUtil.createJwt("access", user, role,
+          Duration.ofMinutes(10).toMillis());
+      String refreshToken = jwtUtil.createJwt("refresh", user, role, Duration.ofDays(7).toMillis());
 
-    // 토큰 생성
-    String accessToken = jwtUtil.createJwt("access", user, role, Duration.ofMinutes(10).toMillis());
-    String refreshToken = jwtUtil.createJwt("refresh", user, role, Duration.ofDays(7).toMillis());
+      System.out.println("Access Token: " + accessToken);
+      System.out.println("Refresh Token: " + refreshToken);
+      // Refresh 토큰 저장
+      addRefreshToken(user, refreshToken, Duration.ofDays(7).toMillis()); // User 객체를 전달
 
-    // Refresh 토큰 저장
-    addRefreshToken(user, refreshToken, Duration.ofDays(7).toMillis()); // User 객체를 전달
+      // 응답 설정
+      Map<String, String> tokens = new HashMap<>();
+      tokens.put("accessToken", accessToken);
 
-    // 응답 설정
-    Map<String, String> tokens = new HashMap<>();
-    tokens.put("accessToken", accessToken);
+      response.addCookie(createCookie("refresh", refreshToken));
+      response.setContentType("application/json");
+      response.setCharacterEncoding("UTF-8");
 
-    response.addCookie(createCookie("refresh", refreshToken));
-    response.setContentType("application/json");
-    response.setCharacterEncoding("UTF-8");
+      new ObjectMapper().writeValue(response.getWriter(), tokens);
+      response.setStatus(HttpStatus.OK.value());
+    } catch (Exception e) {
+      // 토큰 생성 실패 시 예외 처리
+      response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+      Map<String, String> error = new HashMap<>();
+      error.put("error", "Failed to generate tokens: " + e.getMessage());
 
-    new ObjectMapper().writeValue(response.getWriter(), tokens);
-    response.setStatus(HttpStatus.OK.value());
+      response.setContentType("application/json");
+      response.setCharacterEncoding("UTF-8");
+      new ObjectMapper().writeValue(response.getWriter(), error);
+    }
   }
 
-private void addRefreshToken(User user, String refreshToken, Long expiredMs) {
-  Date expirationDate = new Date(System.currentTimeMillis() + expiredMs);
+  private void addRefreshToken(User user, String refreshToken, Long expiredMs) {
+    Date expirationDate = new Date(System.currentTimeMillis() + expiredMs);
 
-  RefreshToken refreshTokenEntity = new RefreshToken();
-  refreshTokenEntity.setUser(user); // User 객체를 설정
-  refreshTokenEntity.setRefresh(refreshToken);
-  refreshTokenEntity.setExpiration(expirationDate.toString());
+    RefreshToken refreshTokenEntity = new RefreshToken();
+    refreshTokenEntity.setUser(user); // User 객체를 설정
+    refreshTokenEntity.setRefresh(refreshToken);
+    refreshTokenEntity.setExpiration(expirationDate.toString());
 
-  refreshTokenRepository.save(refreshTokenEntity);
-}
+    refreshTokenRepository.save(refreshTokenEntity);
+  }
 
   private Cookie createCookie(String key, String value) {
     Cookie cookie = new Cookie(key, value);
@@ -133,4 +149,5 @@ private void addRefreshToken(User user, String refreshToken, Long expiredMs) {
 
     new ObjectMapper().writeValue(response.getWriter(), error);
   }
+
 }

@@ -20,14 +20,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 public class JWTFilter extends OncePerRequestFilter {
 
-  @Autowired
-  private final UserRepository userepository;
+  private final UserRepository userRepository;
   private final JWTUtil jwtUtil;
-  private UserRepository userRepository
-      ;
 
-  public JWTFilter(UserRepository userepository, JWTUtil jwtUtil) {
-    this.userepository = userepository;
+
+  public JWTFilter(UserRepository userRepository, JWTUtil jwtUtil) {
+    this.userRepository = userRepository;
 
     this.jwtUtil = jwtUtil;
 
@@ -99,7 +97,7 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
 
   // 토큰 만료 확인 및 처리
   try {
-    jwtUtil.isExpired(accessToken); // 토큰 만료 여부 확인
+    JWTUtil.isExpired(accessToken); // 토큰 만료 여부 확인
   } catch (ExpiredJwtException e) {
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     response.getWriter().print("access token is expired");

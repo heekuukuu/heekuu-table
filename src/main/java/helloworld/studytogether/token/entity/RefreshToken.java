@@ -1,5 +1,6 @@
 package helloworld.studytogether.token.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -14,11 +15,14 @@ import helloworld.studytogether.user.entity.User; // User 엔티티 import
 @Getter
 @Setter
 @Entity
+
 public class RefreshToken {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "token_id")
   private Long tokenId;
+
 
   private String refresh;
 

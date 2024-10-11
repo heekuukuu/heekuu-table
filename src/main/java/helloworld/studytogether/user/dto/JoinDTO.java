@@ -16,4 +16,6 @@ public class JoinDTO {
 
     private String email;
 
+
+
 }
