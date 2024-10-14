@@ -26,21 +26,21 @@ public class AnswerController {
     }
 
     // 특정 ID로 답변 조회
-    @GetMapping("/{id}")
+    @GetMapping("/{answer_id}")
     public ResponseEntity<AnswerDTO> getAnswer(@PathVariable Long id) {
         AnswerDTO answerDTO = answerService.getAnswerById(id);
         return ResponseEntity.ok(answerDTO);
     }
 
     // 답변 수정
-    @PutMapping("/{id}")
+    @PutMapping("/{answer_id}")
     public ResponseEntity<AnswerDTO> updateAnswer(@PathVariable Long id, @RequestBody AnswerDTO answerDTO) {
         AnswerDTO updatedAnswer = answerService.updateAnswer(id, answerDTO);
         return ResponseEntity.ok(updatedAnswer);
     }
 
     // 답변 삭제
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{answer_id}")
     public ResponseEntity<Void> deleteAnswer(@PathVariable Long id) {
         answerService.deleteAnswer(id);
         return ResponseEntity.noContent().build();
@@ -48,21 +48,21 @@ public class AnswerController {
 
     /**
     // 답변 좋아요
-    @PostMapping("/{id}/like")
+    @PostMapping("/{answer_id}/like")
     public ResponseEntity<Void> likeAnswer(@PathVariable Long id) {
         answerService.likeAnswer(id);
         return ResponseEntity.ok().build();
     }
 
     // 답변 좋아요 취소
-    @DeleteMapping("/{id}/like")
+    @DeleteMapping("/{answer_id}/like")
     public ResponseEntity<Void> unlikeAnswer(@PathVariable Long id) {
         answerService.unlikeAnswer(id);
         return ResponseEntity.ok().build();
     }
 
     // 대댓글 작성
-    @PostMapping("/{id}/comments")
+    @PostMapping("/{answer_id}/comments")
     public ResponseEntity<AnswerDTO> createComment(@PathVariable Long id, @RequestBody AnswerDTO commentDTO) {
         AnswerDTO createdComment = answerService.createComment(id, commentDTO);
         return new ResponseEntity<>(createdComment, HttpStatus.CREATED);

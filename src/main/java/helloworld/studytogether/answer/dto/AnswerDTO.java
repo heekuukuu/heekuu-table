@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Setter
 public class AnswerDTO {
 
-    private Long id;
+    private Long answerId;
     private Long questionId;
     private Long parentAnswerId;
     private Long userId;
