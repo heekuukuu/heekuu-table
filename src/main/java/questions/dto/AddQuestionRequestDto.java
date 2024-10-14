@@ -26,8 +26,5 @@ public class AddQuestionRequestDto {
 
   private MultipartFile image;
 
-  @NotNull
-  private boolean isSolved;
-
-  private LocalDate createdAt;
+  private boolean isSolved = false;
 }
