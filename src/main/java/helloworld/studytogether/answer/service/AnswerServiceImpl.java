@@ -64,7 +64,7 @@ public class AnswerServiceImpl implements AnswerService {
 
     private AnswerDTO convertToDTO(Answer answer) {
         AnswerDTO answerDTO = new AnswerDTO();
-        answerDTO.setId(answer.getId());
+        answerDTO.setAnswerId(answer.getId());
         answerDTO.setContent(answer.getContent());
         answerDTO.setCreatedAt(answer.getCreatedAt());
         answerDTO.setUpdatedAt(answer.getUpdatedAt());
