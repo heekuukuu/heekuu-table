@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 import questions.type.SubjectNames;
 
 /**
- * 질문 항목을 나타내는 클래스
+ * 질문 항목을 나타내는 entity 클래스
  */
 @Getter
 @Entity
@@ -62,6 +62,14 @@ public class Question extends BaseEntity {
     this.subjectName = subjectName;
     this.content = content;
     this.image = image;
+    this.isSolved = isSolved;
+  }
+
+  /**
+   * 해결여부를 동적으로 관리하기 위한 메서드
+   * @param isSolved boolean 받아온 해결여부
+   */
+  public void updateSolvedStatus(boolean isSolved) {
     this.isSolved = isSolved;
   }
 }
