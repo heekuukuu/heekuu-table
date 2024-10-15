@@ -36,7 +36,7 @@ public class LogoutController {
 
     // 만료 체크
     try {
-      JWTUtil.isExpired(refresh);
+      jwtUtil.isExpired(refresh);
     } catch (ExpiredJwtException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Refresh token is expired");
     }

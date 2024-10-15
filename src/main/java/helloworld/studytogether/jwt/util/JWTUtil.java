@@ -1,64 +1,71 @@
 package helloworld.studytogether.jwt.util;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import helloworld.studytogether.user.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 
-//jwt 발급 검증
 @Component
 public class JWTUtil {
 
-  private static SecretKey secretKey;
-
+  private final Key key;
 
   public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
-    secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
-        Jwts.SIG.HS256.key().build().getAlgorithm());
+    byte[] keyBytes = secret.getBytes();
+    this.key = Keys.hmacShaKeyFor(keyBytes); // 최신 방식으로 키 생성
+  }
+
+  public String getTokenType(String token) {
+    Claims claims = Jwts.parserBuilder()
+        .setSigningKey(key)
+        .build()
+        .parseClaimsJws(token)
+        .getBody();
+    return claims.get("tokenType", String.class);
   }
 
   public Long getUserId(String token) {
-
-    return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-        .get("userid", Long.class);
+    Claims claims = Jwts.parserBuilder()
+        .setSigningKey(key)
+        .build()
+        .parseClaimsJws(token)
+        .getBody();
+    return claims.get("userid", Long.class);
   }
-  public String getTokenType(String token) {
-
-    return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-        .get("tokenType", String.class);
-
-  }
-
 
   public String getRole(String token) {
-
-    return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-        .get("role", String.class);
+    Claims claims = Jwts.parserBuilder()
+        .setSigningKey(key)
+        .build()
+        .parseClaimsJws(token)
+        .getBody();
+    return claims.get("role", String.class);
   }
 
-  // 토큰 만료여부확인
-  public static void isExpired(String token) {
-
-    Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
+  public boolean isExpired(String token) {
+    Date expiration = Jwts.parserBuilder()
+        .setSigningKey(key)
+        .build()
+        .parseClaimsJws(token)
+        .getBody()
         .getExpiration();
+    return expiration.before(new Date());
   }
 
-  // 토큰생성
+  // 토큰 생성
   public String createJwt(String tokenType, User user, String role, Long expiredMs) {
-
     return Jwts.builder()
-        .claim("tokenType", tokenType) // 토큰확인 ( 리프레시 토큰 or 엑세스 토큰)
+        .claim("tokenType", tokenType)
         .claim("userid", user.getUserId())
         .claim("role", role)
-        .issuedAt(new Date(System.currentTimeMillis()))
-        .expiration(new Date(System.currentTimeMillis() + expiredMs))
-        .signWith(secretKey)
-
+        .setIssuedAt(new Date())
+        .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
+        .signWith(key)  // signWith 메서드 사용시 Key 객체 필요
         .compact();
   }
 }

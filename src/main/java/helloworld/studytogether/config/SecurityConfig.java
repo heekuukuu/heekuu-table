@@ -2,6 +2,7 @@ package helloworld.studytogether.config;
 
 
 import helloworld.studytogether.jwt.filter.CustomLogoutFilter;
+import helloworld.studytogether.jwt.filter.JWTFilter;
 import helloworld.studytogether.jwt.util.JWTUtil;
 import helloworld.studytogether.jwt.filter.LoginFilter;
 import helloworld.studytogether.token.repository.RefreshTokenRepository;
@@ -65,7 +66,7 @@ public class SecurityConfig {
 
     http
         .authorizeHttpRequests((auth) -> auth
-
+            .requestMatchers("/user/**").hasAuthority("USER")
             .requestMatchers("/","/logout","/login", "/join", "/reissue").permitAll()
             //.requestMatchers("/admin/**").hasRole("ADMIN")
             .anyRequest().authenticated());
@@ -75,7 +76,9 @@ public class SecurityConfig {
                 refreshTokenRepository, userRepository),
             UsernamePasswordAuthenticationFilter.class);
 
-    //.addFilterAt(new LoginFilter(), UsernamePasswordAuthenticationFilter.class);
+    http
+        .addFilterBefore(new JWTFilter(userRepository, jwtUtil), UsernamePasswordAuthenticationFilter.class);
+
     http
         .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository),
             LogoutFilter.class);
