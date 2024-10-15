@@ -1,7 +1,7 @@
 package helloworld.studytogether.answer.entity;
 
 import helloworld.studytogether.user.entity.User;
-import helloworld.studytogether.questions.entity.Question;
+import questions.entity.Question;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
