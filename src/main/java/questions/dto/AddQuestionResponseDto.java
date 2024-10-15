@@ -1,6 +1,6 @@
 package questions.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +18,7 @@ public class AddQuestionResponseDto {
   private final String content;
   private final byte[] image;
   private final boolean isSolved;
-  private final LocalDate createdAt;
+  private final LocalDateTime createdAt;
 
   public static AddQuestionResponseDto fromEntity(Question question){
     return AddQuestionResponseDto.builder()
