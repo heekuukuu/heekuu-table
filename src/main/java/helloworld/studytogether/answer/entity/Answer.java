@@ -1,6 +1,7 @@
 package helloworld.studytogether.answer.entity;
 
 import helloworld.studytogether.user.entity.User;
+import helloworld.studytogether.questions.entity.Question;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -19,11 +20,11 @@ public class Answer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "answer_id")
     private Long id;
-    /**
+
      @ManyToOne(fetch = FetchType.LAZY)
      @JoinColumn(name = "question_id", nullable = false)
      private Question question;
-    */
+
      @ManyToOne(fetch = FetchType.LAZY)
      @JoinColumn(name = "parent_answer_id")
      private Answer parentAnswer;
