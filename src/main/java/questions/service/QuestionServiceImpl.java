@@ -6,6 +6,7 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import questions.dto.AddQuestionRequestDto;
 import questions.entity.Question;
 import questions.repository.QuestionRepository;
@@ -13,7 +14,7 @@ import questions.repository.QuestionRepository;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class QuestionServiceImpl implements QuestionService{
+public class QuestionServiceImpl implements QuestionService {
 
   private final QuestionRepository questionRepository;
   private final UserRepository userRepository;
@@ -24,18 +25,38 @@ public class QuestionServiceImpl implements QuestionService{
    * @return 저장한 질문 정보를 반환합니다.
    * @throws IOException 이미지 처리 중 문제가 발생할 경우 발생합니다.
    */
+  @Transactional
   public Question saveQuestion(AddQuestionRequestDto request) throws IOException {
 
     User user = userRepository.findByUserId(request.getUserId())
-        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다" + request.getUserId()));
+        .orElseThrow(() -> {
+          log.error("User not found with ID: {}", request.getUserId());
+          return new IllegalArgumentException("사용자를 찾을 수 없습니다: " + request.getUserId());
+        });
 
     byte[] imageBytes = null;
     if (request.getImage() != null && !request.getImage().isEmpty()) {
-      imageBytes = request.getImage().getBytes();
+      try {
+        imageBytes = request.getImage().getBytes();
+        log.debug("Image processed successfully. Size: {} bytes", imageBytes.length);
+
+      } catch (IOException e) {
+        log.error("Error processing image", e);
+        throw new IOException("이미지 처리 중 오류가 발생했습니다", e);
+      }
     }
 
     Question question = toEntity(request, user, imageBytes);
-    return questionRepository.save(question);
+
+    try {
+      Question savedQuestion = questionRepository.save(question);
+      log.debug("Question saved successfully. ID: {}", savedQuestion.getQuestionId());
+      return savedQuestion;
+
+    } catch (Exception e) {
+      log.error("Error saving question", e);
+      throw new RuntimeException("질문 저장 중 오류가 발생했습니다", e);
+    }
   }
 
   private Question toEntity(AddQuestionRequestDto request, User user, byte[] imageBytes) {
