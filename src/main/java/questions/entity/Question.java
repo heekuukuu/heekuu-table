@@ -50,13 +50,12 @@ public class Question extends BaseEntity {
   private byte[] image;
 
   @Column(name = "is_solved", nullable = false)
-  private boolean isSolved;
+  private boolean isSolved = false;
 
   @Builder
   public Question(
-      Long questionId, User user, String title, SubjectNames subjectName, String content, byte[] image, boolean isSolved
+      User user, String title, SubjectNames subjectName, String content, byte[] image, boolean isSolved
   ) {
-    this.questionId = questionId;
     this.user = user;
     this.title = title;
     this.subjectName = subjectName;
