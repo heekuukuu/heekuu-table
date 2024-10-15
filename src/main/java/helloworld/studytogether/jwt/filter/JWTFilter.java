@@ -30,12 +30,64 @@ public class JWTFilter extends OncePerRequestFilter {
     this.jwtUtil = jwtUtil;
 
   }
-
+  //
+//  @Override
+//  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+//      throws IOException, ServletException {
+//    // 헤더에서 엑세스키에 담긴 토큰 꺼냄
+//    String accessToken = request.getHeader("access");
+//
+//    // 엑세스 토큰이 없다면 다음필터로 넘김
+//    if (accessToken == null) {
+//      filterChain.doFilter(request, response);
+//      return;
+//    }
+//    //토큰 만료시 다음필터로 넘기지않음
+//    try {
+//      JWTUtil.isExpired(accessToken);// 토큰만료 여부 확인
+//    } catch (ExpiredJwtException e) {
+//      //response body
+//      PrintWriter writer = response.getWriter();
+//      writer.print("access token is expired");
+//
+//      //response status code
+//      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//      return;
+//    }
+//    // 토큰이 access 인지 확인 (발급시 페이로드 명시)
+//    String tokenType = jwtUtil.getTokenType(accessToken);
+//    if (!tokenType.equals("access")) {
+//      //response body
+//      PrintWriter writer = response.getWriter();
+//      writer.print("invalidaccess token");
+//
+//      //response status code
+//      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//      return;
+//    }
+//
+//// user_id, role 값을 획득
+//    User user_id = jwtUtil.getUser_id(accessToken);
+//    String role = jwtUtil.getRole(accessToken);
+//
+//    User user = new User();
+//    user.setUser_id(user_id);
+//    user.setRole(Role.valueOf(role));
+//    CustomUserDetails customUserDetails = new CustomUserDetails(user);
+//
+//    Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null,
+//        customUserDetails.getAuthorities());
+//    SecurityContextHolder.getContext().setAuthentication(authToken);
+//
+//    filterChain.doFilter(request, response);
+//
+//
+//  }
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws IOException, ServletException {
     // 헤더에서 액세스 토큰을 꺼냄
-    String accessToken = request.getHeader("Authentication");
+    String accessToken = request.getHeader("access");
 
     // 액세스 토큰이 없다면 다음 필터로 넘김
     if (accessToken == null) {

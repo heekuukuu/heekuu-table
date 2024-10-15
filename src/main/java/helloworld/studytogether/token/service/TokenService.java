@@ -94,7 +94,7 @@ public class TokenService {
   }
 
 
-@Transactional
+  @Transactional
   private void addRefreshToken(User user, String refreshToken, Long expiredMs) {
     Date expirationDate = new Date(System.currentTimeMillis() + expiredMs);
     if (user.getUserId() == null) {
@@ -117,5 +117,4 @@ public class TokenService {
     return cookie;
   }
 }
-
 
