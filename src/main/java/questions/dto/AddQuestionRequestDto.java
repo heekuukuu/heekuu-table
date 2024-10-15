@@ -13,8 +13,6 @@ import questions.type.SubjectNames;
 @Getter
 public class AddQuestionRequestDto {
 
-  private Long userId;
-
   @NotNull
   private String title;
 
@@ -25,6 +23,4 @@ public class AddQuestionRequestDto {
   private String content;
 
   private MultipartFile image;
-
-  private boolean isSolved = false;
 }
