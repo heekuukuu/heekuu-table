@@ -86,7 +86,7 @@
 
 ## ERD
 
-![ERD](./src/main/resources/static/images/study_erd_v2.png)
+![ERD](./src/main/resources/static/images/study_erd_v3.png)
 
 ## WBS
 
