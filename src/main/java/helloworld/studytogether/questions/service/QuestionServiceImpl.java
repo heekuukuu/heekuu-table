@@ -71,7 +71,6 @@ public class QuestionServiceImpl implements QuestionService {
         .subjectName(request.getSubjectName())
         .content(request.getContent())
         .image(imageBytes)
-        .isSolved(request.isSolved())
         .build();
   }
 }

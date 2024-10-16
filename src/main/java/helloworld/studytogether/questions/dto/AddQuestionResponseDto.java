@@ -1,11 +1,11 @@
 package helloworld.studytogether.questions.dto;
 
+import helloworld.studytogether.questions.entity.Question;
+import helloworld.studytogether.questions.type.SubjectNames;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import helloworld.studytogether.questions.entity.Question;
-import helloworld.studytogether.questions.type.SubjectNames;
 
 @Builder
 @Getter
