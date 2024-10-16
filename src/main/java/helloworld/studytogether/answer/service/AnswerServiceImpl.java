@@ -6,6 +6,7 @@ import helloworld.studytogether.answer.repository.AnswerRepository;
 //import helloworld.studytogether.domain.question.Question;
 import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.user.entity.Role;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,5 +73,17 @@ public class AnswerServiceImpl implements AnswerService {
         // answerDTO.setQuestionId(answer.getQuestion().getId());
         // answerDTO.setUserId(answer.getUser().getId());
         return answerDTO;
+    }
+
+    @Transactional
+    @Override
+    public void likeAnswer(Long answerId) {
+        // 답변 조회
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new EntityNotFoundException("Answer not found with id: " + answerId));
+
+        // '좋아요' 증가
+        answer.setLikes(answer.getLikes() + 1);
+        answerRepository.save(answer);
     }
 }  //엔티티를 dto로 변환하여 클라이언트와 데이터 전송 시 필요한 형식으로 변경

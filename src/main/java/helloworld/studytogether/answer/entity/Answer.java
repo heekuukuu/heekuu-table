@@ -1,8 +1,8 @@
 package helloworld.studytogether.answer.entity;
 
 import helloworld.studytogether.user.entity.User;
-import questions.entity.Question;
-import common.entity.BaseEntity;
+import helloworld.studytogether.questions.entity.Question;
+import helloworld.studytogether.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,6 +38,14 @@ public class Answer extends BaseEntity {
 
     @Column
     private Integer likes = 0;
+
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
+
+    public int getLikes() {
+        return likes;
+    }
 
     @Column(name = "is_selected", nullable = false)
     private boolean isSelected = false;
