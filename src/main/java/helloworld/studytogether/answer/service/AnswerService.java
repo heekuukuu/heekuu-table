@@ -8,4 +8,5 @@ public interface AnswerService {
     AnswerDTO updateAnswer(Long id, AnswerDTO answerDTO);
     void deleteAnswer(Long id);
     void likeAnswer(Long answerId);
+    void unlikeAnswer(Long answerId);
 }
