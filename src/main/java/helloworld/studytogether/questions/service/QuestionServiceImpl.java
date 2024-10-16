@@ -1,4 +1,4 @@
-package questions.service;
+package helloworld.studytogether.questions.service;
 
 import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.user.repository.UserRepository;
@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import questions.dto.AddQuestionRequestDto;
-import questions.entity.Question;
-import questions.repository.QuestionRepository;
+import helloworld.studytogether.questions.dto.AddQuestionRequestDto;
+import helloworld.studytogether.questions.entity.Question;
+import helloworld.studytogether.questions.repository.QuestionRepository;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -66,7 +66,6 @@ public class QuestionServiceImpl implements QuestionService {
         .subjectName(request.getSubjectName())
         .content(request.getContent())
         .image(imageBytes)
-        .isSolved(request.isSolved())
         .build();
   }
 }
