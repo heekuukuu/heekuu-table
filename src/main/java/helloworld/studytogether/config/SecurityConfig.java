@@ -9,6 +9,7 @@ import helloworld.studytogether.token.repository.RefreshTokenRepository;
 import helloworld.studytogether.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -66,10 +67,12 @@ public class SecurityConfig {
 
     http
         .authorizeHttpRequests((auth) -> auth
-
+            .requestMatchers(HttpMethod.GET, "/admin/**").hasAuthority("ADMIN")  // GET 메서드에 대해 ADMIN 권한 필요
+            .requestMatchers(HttpMethod.PUT, "/admin/**").hasAuthority("ADMIN")  // PUT 메서드에 대해 ADMIN 권한 필요
+            .requestMatchers(HttpMethod.DELETE, "/admin/**").hasAuthority("ADMIN")
             .requestMatchers("/user/**").hasAuthority("USER")  // USER (접두사 없이직접권한확인 )
             .requestMatchers("/","/logout","/login", "/join", "/reissue").permitAll()
-            .requestMatchers("/admin/**").hasAuthority("ADMIN")
+            //.requestMatchers("/admin/**").hasAuthority("ADMIN")
             .anyRequest().authenticated());
 
     http

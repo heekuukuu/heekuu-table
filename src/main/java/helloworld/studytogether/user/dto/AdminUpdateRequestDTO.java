@@ -1,4 +1,3 @@
-// UserResponseDTO.java
 package helloworld.studytogether.user.dto;
 
 import lombok.Getter;
@@ -6,12 +5,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
+// 어드민  업데이트페이지
+public class AdminUpdateRequestDTO {
 
-public class UserResponseDTO {
-  //private Long userId;
-  private String username;
+
   private String email;
   private String nickname;
-  private String role;
 
 }

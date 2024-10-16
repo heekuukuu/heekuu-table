@@ -209,7 +209,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
   private void logAuthenticatedUser(CustomUserDetails userDetails) throws IOException {
     UserResponseDTO userResponse = new UserResponseDTO();
-    userResponse.setUserId(userDetails.getUserId());
+    //userResponse.setUserId(userDetails.getUserId());
     userResponse.setUsername(userDetails.getUsername());
     userResponse.setEmail(userDetails.getEmail());
     userResponse.setNickname(userDetails.getNickname());

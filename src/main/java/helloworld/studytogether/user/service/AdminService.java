@@ -1,5 +1,6 @@
 package helloworld.studytogether.user.service;
 
+import helloworld.studytogether.user.dto.AdminUpdateRequestDTO;
 import helloworld.studytogether.user.dto.UserResponseDTO;
 import helloworld.studytogether.user.entity.Role;
 import helloworld.studytogether.user.entity.User;
@@ -25,7 +26,7 @@ public class AdminService {
     List<User> users = userRepository.findAll();
     return users.stream().map(user -> {
       UserResponseDTO dto = new UserResponseDTO();
-      dto.setUserId(user.getUserId());
+      //dto.setUserId(user.getUserId());
       dto.setUsername(user.getUsername());
       dto.setEmail(user.getEmail());
       dto.setNickname(user.getNickname());
@@ -43,7 +44,7 @@ public class AdminService {
     }
     User user = userOptional.get();
     UserResponseDTO dto = new UserResponseDTO();
-    dto.setUserId(user.getUserId());
+    //dto.setUserId(user.getUserId());
     dto.setUsername(user.getUsername());
     dto.setEmail(user.getEmail());
     dto.setNickname(user.getNickname());
@@ -60,7 +61,7 @@ public class AdminService {
     userRepository.save(user);
 
     UserResponseDTO dto = new UserResponseDTO();
-    dto.setUserId(user.getUserId());
+    //dto.setUserId(user.getUserId());
     dto.setUsername(user.getUsername());
     dto.setEmail(user.getEmail());
     dto.setNickname(user.getNickname());
@@ -68,6 +69,33 @@ public class AdminService {
     return dto;
   }
 
+  public UserResponseDTO updateUserInfo(Long userId, AdminUpdateRequestDTO adminUpdateRequestDTO) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+
+    // 업데이트할 필드 설정
+
+    // 업데이트할 필드 설정 (null이 아닐 경우에만 업데이트)
+    if (adminUpdateRequestDTO.getEmail() != null) {
+      user.setEmail(adminUpdateRequestDTO.getEmail());
+    }
+
+    if (adminUpdateRequestDTO.getNickname() != null) {
+      user.setNickname(adminUpdateRequestDTO.getNickname());
+    }
+
+    userRepository.save(user); // 변경된 사용자 정보 저장
+
+    // 수정된 사용자 정보를 반환
+    UserResponseDTO userResponseDTO = new UserResponseDTO();
+    //userResponseDTO.setUserId(user.getUserId());
+    userResponseDTO.setUsername(user.getUsername());
+    userResponseDTO.setEmail(user.getEmail());
+    userResponseDTO.setNickname(user.getNickname());
+    userResponseDTO.setRole(user.getRole().toString());
+
+    return userResponseDTO;
+  }
   // 사용자 삭제 (Admin 전용)
   @PreAuthorize("hasAuthority('ADMIN')")
   public void deleteUser(Long userId) {
