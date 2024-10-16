@@ -1,8 +1,8 @@
 package helloworld.studytogether.answer.entity;
 
 import helloworld.studytogether.user.entity.User;
-import questions.entity.Question;
-import common.entity.BaseEntity;
+import helloworld.studytogether.questions.entity.Question;
+import helloworld.studytogether.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

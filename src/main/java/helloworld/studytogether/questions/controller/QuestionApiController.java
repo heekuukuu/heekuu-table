@@ -1,5 +1,8 @@
-package questions.controller;
+package helloworld.studytogether.questions.controller;
 
+import helloworld.studytogether.questions.dto.AddQuestionRequestDto;
+import helloworld.studytogether.questions.dto.AddQuestionResponseDto;
+import helloworld.studytogether.questions.entity.Question;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -11,10 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import questions.dto.AddQuestionRequestDto;
-import questions.dto.AddQuestionResponseDto;
-import questions.entity.Question;
-import questions.service.QuestionService;
+import helloworld.studytogether.questions.service.QuestionService;
 
 @Slf4j
 @RequiredArgsConstructor
