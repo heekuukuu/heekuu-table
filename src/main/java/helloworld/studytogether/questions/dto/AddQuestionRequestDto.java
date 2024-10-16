@@ -1,12 +1,11 @@
-package questions.dto;
+package helloworld.studytogether.questions.dto;
 
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
-import questions.type.SubjectNames;
+import helloworld.studytogether.questions.type.SubjectNames;
 
 @NoArgsConstructor
 @AllArgsConstructor

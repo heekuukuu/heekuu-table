@@ -1,6 +1,6 @@
-package questions.entity;
+package helloworld.studytogether.questions.entity;
 
-import common.entity.BaseEntity;
+import helloworld.studytogether.common.entity.BaseEntity;
 import helloworld.studytogether.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,7 +17,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import questions.type.SubjectNames;
+import helloworld.studytogether.questions.type.SubjectNames;
 
 /**
  * 질문 항목을 나타내는 entity 클래스

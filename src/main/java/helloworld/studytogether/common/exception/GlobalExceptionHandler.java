@@ -1,4 +1,4 @@
-package common.exception;
+package helloworld.studytogether.common.exception;
 
 import java.util.HashMap;
 import java.util.Map;

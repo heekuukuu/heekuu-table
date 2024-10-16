@@ -1,4 +1,4 @@
-package questions.type;
+package helloworld.studytogether.questions.type;
 
 
 public enum SubjectNames {
