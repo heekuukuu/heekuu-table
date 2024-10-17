@@ -26,21 +26,21 @@ public class AnswerController {
     }
 
     // 특정 ID로 답변 조회
-    @GetMapping("/{answer_id}")
+    @GetMapping("/{answerId}")
     public ResponseEntity<AnswerDTO> getAnswer(@PathVariable Long id) {
         AnswerDTO answerDTO = answerService.getAnswerById(id);
         return ResponseEntity.ok(answerDTO);
     }
 
     // 답변 수정
-    @PutMapping("/{answer_id}")
+    @PutMapping("/{answerId}")
     public ResponseEntity<AnswerDTO> updateAnswer(@PathVariable Long id, @RequestBody AnswerDTO answerDTO) {
         AnswerDTO updatedAnswer = answerService.updateAnswer(id, answerDTO);
         return ResponseEntity.ok(updatedAnswer);
     }
 
     // 답변 삭제
-    @DeleteMapping("/{answer_id}")
+    @DeleteMapping("/{answerId}")
     public ResponseEntity<Void> deleteAnswer(@PathVariable Long id) {
         answerService.deleteAnswer(id);
         return ResponseEntity.noContent().build();
@@ -48,21 +48,21 @@ public class AnswerController {
 
 
     // 답변 좋아요
-    @PostMapping("/{answer_id}/like")
+    @PostMapping("/{answerId}/like")
     public ResponseEntity<Void> likeAnswer(@PathVariable Long id) {
         answerService.likeAnswer(id);
         return ResponseEntity.ok().build();
     }
 
     // 답변 좋아요 취소
-    @DeleteMapping("/{answer_id}/like")
+    @DeleteMapping("/{answerId}/like")
     public ResponseEntity<Void> unlikeAnswer(@PathVariable Long id) {
         answerService.unlikeAnswer(id);
         return ResponseEntity.ok().build();
     }
     /**
     // 대댓글 작성
-    @PostMapping("/{answer_id}/comments")
+    @PostMapping("/{answerId}/comments")
     public ResponseEntity<AnswerDTO> createComment(@PathVariable Long id, @RequestBody AnswerDTO commentDTO) {
         AnswerDTO createdComment = answerService.createComment(id, commentDTO);
         return new ResponseEntity<>(createdComment, HttpStatus.CREATED);
@@ -71,7 +71,7 @@ public class AnswerController {
     */
 
     /** 답변 채택
-    @PatchMapping("/questions/{question_id}/select-answer/{answer_id}")
+    @PatchMapping("/questions/{questionId}/select-answer/{answerId}")
     public ResponseEntity<Void> selectAnswer(@PathVariable Long question_id, @PathVariable Long answer_id) {
         answerService.selectAnswer(question_id, answer_id);
         return ResponseEntity.ok().build();
