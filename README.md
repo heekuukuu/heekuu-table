@@ -90,6 +90,6 @@
 
 ## WBS
 
-[개발계획서 확인하기](https://docs.google.com/spreadsheets/d/18YZ0-OuTypVbIbnMl6kPdKGM3txDf3VCotl0mbziRT8/edit?gid=2096235861#gid=2096235861)
+[개발계획서 확인하기](https://docs.google.com/spreadsheets/d/18RMGTYxbYgOConEWBEimqM98LEe77v5X0QPRmsEeRSo/edit?gid=6147939#gid=6147939)
 
 
