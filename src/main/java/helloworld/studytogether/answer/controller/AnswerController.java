@@ -27,36 +27,35 @@ public class AnswerController {
 
     // 특정 ID로 답변 조회
     @GetMapping("/{answerId}")
-    public ResponseEntity<AnswerDTO> getAnswer(@PathVariable Long id) {
+    public ResponseEntity<AnswerDTO> getAnswer(@PathVariable("answerId") Long id) {
         AnswerDTO answerDTO = answerService.getAnswerById(id);
         return ResponseEntity.ok(answerDTO);
     }
 
     // 답변 수정
     @PutMapping("/{answerId}")
-    public ResponseEntity<AnswerDTO> updateAnswer(@PathVariable Long id, @RequestBody AnswerDTO answerDTO) {
+    public ResponseEntity<AnswerDTO> updateAnswer(@PathVariable("answerId") Long id, @RequestBody AnswerDTO answerDTO) {
         AnswerDTO updatedAnswer = answerService.updateAnswer(id, answerDTO);
         return ResponseEntity.ok(updatedAnswer);
     }
 
     // 답변 삭제
     @DeleteMapping("/{answerId}")
-    public ResponseEntity<Void> deleteAnswer(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAnswer(@PathVariable("answerId") Long id) {
         answerService.deleteAnswer(id);
         return ResponseEntity.noContent().build();
     }
 
-
     // 답변 좋아요
     @PostMapping("/{answerId}/like")
-    public ResponseEntity<Void> likeAnswer(@PathVariable Long id) {
+    public ResponseEntity<Void> likeAnswer(@PathVariable("answerId") Long id) {
         answerService.likeAnswer(id);
         return ResponseEntity.ok().build();
     }
 
     // 답변 좋아요 취소
     @DeleteMapping("/{answerId}/like")
-    public ResponseEntity<Void> unlikeAnswer(@PathVariable Long id) {
+    public ResponseEntity<Void> unlikeAnswer(@PathVariable("answerId") Long id) {
         answerService.unlikeAnswer(id);
         return ResponseEntity.ok().build();
     }
