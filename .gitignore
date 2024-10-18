@@ -47,3 +47,7 @@ docker-entrypoint-initdb.ddata
 docker-entrypoint-initdb.d
 src/main/application.yml
 src/main/dev-application.yml
+build.gradle
+README.md
+application.yaml
+settings.gradle
