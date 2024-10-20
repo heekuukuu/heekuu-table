@@ -23,8 +23,7 @@ public class JWTUtil {
     this.key = Keys.hmacShaKeyFor(keyBytes); // 키 생성
   }
 
-  // Claims 추출 메서드 (공통화)
-  private Claims extractAllClaims(String token) {
+  private Claims getClaims(String token) {
     return Jwts.parser()
         .setSigningKey(key)
         .build()
@@ -32,30 +31,30 @@ public class JWTUtil {
         .getBody();
   }
 
-  // 토큰에서 특정 데이터를 추출하는 함수
-  public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-    final Claims claims = extractAllClaims(token);
-    return claimsResolver.apply(claims);
+
+  // User ID 추출
+  public Long getUserId(String token) {
+    Claims claims = getClaims(token);
+    return claims.get("userid", Long.class);
   }
 
   // 토큰 타입 추출
   public String getTokenType(String token) {
-    return extractClaim(token, claims -> claims.get("tokenType", String.class));
+    Claims claims = getClaims(token);
+    return claims.get("tokenType", String.class);
   }
 
-  // User ID 추출
-  public Long getUserId(String token) {
-    return extractClaim(token, claims -> claims.get("userid", Long.class));
-  }
 
   // Role 추출
   public String getRole(String token) {
-    return extractClaim(token, claims -> claims.get("role", String.class));
+    Claims claims = getClaims(token);
+    return claims.get("role", String.class);
   }
 
   // 토큰 만료 여부 확인
   public boolean isExpired(String token) {
-    return extractClaim(token, Claims::getExpiration).before(new Date());
+    Claims claims = getClaims(token);
+    return claims.getExpiration().before(new Date());
   }
 
   // 토큰 생성
@@ -67,8 +66,8 @@ public class JWTUtil {
         .claim("tokenType", tokenType)
         .claim("userid", user.getUserId())
         .claim("role", role)
-        .setIssuedAt(now)  // deprecated 되었지만, 아직 사용 가능
-        .setExpiration(expiration)  // deprecated 되었지만, 아직 사용 가능
+        .setIssuedAt(now)  //
+        .setExpiration(expiration)  //
         .signWith(key)
         .compact();
   }
