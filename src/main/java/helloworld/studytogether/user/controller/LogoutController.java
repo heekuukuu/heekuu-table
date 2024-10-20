@@ -47,7 +47,8 @@ public class LogoutController {
     }
 
     // Refresh 토큰 DB에서 제거
-    refreshTokenRepository.deleteByRefresh(refresh);
+    Long userId =jwtUtil.getUserId(refresh);
+    refreshTokenRepository.deleteByUserId(userId);
 
     // 쿠키 삭제
     deleteRefreshCookie(response);
