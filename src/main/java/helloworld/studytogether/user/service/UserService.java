@@ -238,7 +238,7 @@ public class UserService {
 
   // 사용자 권한 변경 메서드
   @Transactional
-  public UserResponseDTO updateUserRole(Long userId, String newRole) {
+  public UserResponseDTO updateUserRole(Long userId, String newRole, String refresh) {
     // 사용자 정보 조회
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new RuntimeException("User not found"));
@@ -250,9 +250,9 @@ public class UserService {
     // 새로운 액세스 및 리프레시 토큰 발급
     String newAccessToken = jwtUtil.createJwt("access", user, newRole, 600000L); // 10분
     String newRefreshToken = jwtUtil.createJwt("refresh", user, newRole, 604800000L); // 7일
-
+    refreshTokenRepository.deleteByRefresh(refresh);
     // 기존 리프레시 토큰 삭제 후 새로 저장
-    refreshTokenRepository.deleteByUserId(userId);
+   // refreshTokenRepository.deleteByUserId(userId);
     addRefreshToken(user, newRefreshToken, 604800000L); // 새로운 리프레시 토큰 저장
 
     // 업데이트된 정보를 UserResponseDTO로 반환

@@ -113,14 +113,14 @@ public class UserController {
   }
 
   /**
-   * 사용자 삭제
+   * 사용자 삭제 (ussr, admin 같이사용)
    *
    * @return 204 No Content
    */
-  @DeleteMapping("/delete")
-  public ResponseEntity<Void> deleteUser() {
+  @DeleteMapping("/delete/{userId}")
+  public ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId) {
     try {
-      userService.deleteUser();
+      userService.deleteUser(); // 유저 삭제 로직 호출
       return ResponseEntity.noContent().build(); // 204 No Content 응답 반환
     } catch (RuntimeException e) {
       logger.error("사용자 삭제 실패: {}", e.getMessage());

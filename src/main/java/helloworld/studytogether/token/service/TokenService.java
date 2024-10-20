@@ -34,7 +34,7 @@ public class TokenService {   // 리프레시토큰 발급 및 관리
     this.userRepository = userRepository;
 
   }
-
+@Transactional
   public ResponseEntity<?> reissueToken(HttpServletRequest request, HttpServletResponse response) {
     // get refresh token
     String refresh = null;
@@ -83,6 +83,7 @@ public class TokenService {   // 리프레시토큰 발급 및 관리
 
     // Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
     refreshTokenRepository.deleteByRefresh(refresh);
+
     addRefreshToken(user, newRefresh, 604800000L); // user 객체를 넘김
 
     // response, 갱신 작업

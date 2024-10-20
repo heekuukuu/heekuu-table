@@ -130,6 +130,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -138,9 +139,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+@Slf4j
 public class JWTFilter extends OncePerRequestFilter {
 
-  private static final Logger log = LoggerFactory.getLogger(JWTFilter.class);
+
   private final UserRepository userRepository;
   private final JWTUtil jwtUtil;
 
@@ -155,7 +157,8 @@ public class JWTFilter extends OncePerRequestFilter {
     log.debug("JWTFilter 실행 중");
 
     String requestURI = request.getRequestURI();
-    if (requestURI.equals("/login") || requestURI.equals("/join") || requestURI.equals("/reissue")) {
+    if (requestURI.equals("/login") || requestURI.equals("/join") || requestURI.equals(
+        "/reissue")) {
       filterChain.doFilter(request, response);
       return;
     }
@@ -167,7 +170,7 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
     accessToken = accessToken.substring(7);
-
+    log.debug("Extracted JWT Token: " + accessToken);
     try {
       if (jwtUtil.isExpired(accessToken)) {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -191,7 +194,15 @@ public class JWTFilter extends OncePerRequestFilter {
       SecurityContextHolder.getContext().setAuthentication(authToken);
 
       logAuthenticatedUser(customUserDetails);
-
+      // 여기서 권한 확인
+      String role = jwtUtil.getRole(accessToken);
+      log.debug("Token Role: " + role); // ADMIN 권한 확인
+      if (!role.equals("ADMIN")) {
+        log.debug("권한 부족: ADMIN 권한이 아님");
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.getWriter().print("Forbidden: ADMIN 권한 필요");
+        return;
+      }
     } catch (ExpiredJwtException e) {
       log.error("토큰 만료: ", e);
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -216,14 +227,10 @@ public class JWTFilter extends OncePerRequestFilter {
     userResponse.setRole(userDetails.getRole());
 
     ObjectMapper objectMapper = new ObjectMapper();
-    String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(userResponse);
+    String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(userResponse);
     log.debug("Authenticated User Details: " + jsonResponse);
+
   }
 }
 
-//
-///* 1. ROLE 설정 로직제거,
-//   2. 에러 처리강화
-//   3. 불필요한 로직제거
-// */
-///*//

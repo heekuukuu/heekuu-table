@@ -100,5 +100,6 @@ public class AdminService {
   @PreAuthorize("hasAuthority('ADMIN')")
   public void deleteUser(Long userId) {
     userRepository.deleteById(userId);
+
   }
 }
