@@ -67,13 +67,11 @@ public class SecurityConfig {
 
     http
         .authorizeHttpRequests((auth) -> auth
-            .requestMatchers(HttpMethod.GET, "/admin/**")
-            .hasAuthority("ADMIN")  // GET 메서드에 대해 ADMIN 권한 필요
-            .requestMatchers(HttpMethod.PUT, "/admin/**")
-            .hasAuthority("ADMIN")  // PUT 메서드에 대해 ADMIN 권한 필요
-            .requestMatchers(HttpMethod.DELETE, "/admin/**").hasAuthority("ADMIN")
+   
+            .requestMatchers( "/admin/**").hasAuthority("ADMIN")
             .requestMatchers("/user/**").hasAuthority("USER")  // USER (접두사 없이직접권한확인 )
             .requestMatchers("/", "/logout", "/login", "/join", "/reissue").permitAll()
+
             .anyRequest().authenticated());
 
     http
