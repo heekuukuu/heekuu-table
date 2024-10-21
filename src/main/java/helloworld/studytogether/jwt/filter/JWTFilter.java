@@ -140,7 +140,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
-public class JWTFilter extends OncePerRequestFilter {
+public class  JWTFilter extends OncePerRequestFilter {
 
 
   private final UserRepository userRepository;
