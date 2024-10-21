@@ -69,6 +69,8 @@ public class SecurityConfig {
         .authorizeHttpRequests((auth) -> auth
    
             .requestMatchers( "/admin/**").hasAuthority("ADMIN")
+            .requestMatchers("/api/answers/**").hasAnyAuthority("USER", "ADMIN")
+            .requestMatchers("/question").hasAnyAuthority("USER", "ADMIN")
             .requestMatchers("/user/**").hasAuthority("USER")  // USER (접두사 없이직접권한확인 )
             .requestMatchers("/", "/logout", "/login", "/join", "/reissue").permitAll()
 
