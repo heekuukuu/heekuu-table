@@ -16,106 +16,109 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class TokenService {
-
-  private User user;
-  private RefreshToken refreshToken;
+public class TokenService {   // 리프레시 토큰 발급 및 관리
 
   private final JWTUtil jwtUtil;
   private final UserRepository userRepository;
   private final RefreshTokenRepository refreshTokenRepository;
 
-
-  public TokenService(JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, UserRepository userRepository
-  ) {
-
+  public TokenService(JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository,
+      UserRepository userRepository) {
     this.jwtUtil = jwtUtil;
     this.refreshTokenRepository = refreshTokenRepository;
     this.userRepository = userRepository;
-
   }
 
+  @Transactional
   public ResponseEntity<?> reissueToken(HttpServletRequest request, HttpServletResponse response) {
-    // get refresh token
-    String refresh = null;
-    Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-      for (Cookie cookie : cookies) {
-        if (cookie.getName().equals("refresh")) {
-          refresh = cookie.getValue();
-        }
-      }
-    }
+    String refresh = extractRefreshTokenFromCookies(request);
 
     if (refresh == null) { // 리프레시 토큰이 비어있다면
       return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
     }
 
     // 리프레시 토큰 만료 확인
-    try {
-      jwtUtil.isExpired(refresh);
-    } catch (ExpiredJwtException e) {
+    if (isTokenExpired(refresh)) {
       return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
     }
 
     // 토큰이 refresh인지 확인
-    String tokenType = jwtUtil.getTokenType(refresh);
-    if (!tokenType.equals("refresh")) {
+    if (!isRefreshToken(refresh)) {
       return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
     }
 
     // DB에 저장되어 있는지 확인
-    boolean isExist = refreshTokenRepository.existsByRefresh(refresh);
-    if (!isExist) {
+    if (!refreshTokenRepository.existsByRefresh(refresh)) {
       return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
     }
 
+    // 유저 정보 확인 및 새로운 토큰 발급
     Long userId = jwtUtil.getUserId(refresh);
     String role = jwtUtil.getRole(refresh);
-
-    // User 객체를 조회
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new RuntimeException("User not found"));
 
-    // 새로운 access 토큰 발급 / 갱신
-    String newAccess = jwtUtil.createJwt("access",user, role, 600000L);
-    String newRefresh = jwtUtil.createJwt("refresh",user , role, 60480000L);
+    // 새로운 access 및 refresh 토큰 발급
+    String newAccess = jwtUtil.createJwt("access", user, role, 600000L); // 10분
+    String newRefresh = jwtUtil.createJwt("refresh", user, role, 604800000L); // 7일
 
-    // Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
-    refreshTokenRepository.deleteByRefresh(refresh);
-    addRefreshToken(user, newRefresh, 60480000L); // user 객체를 넘김
+    // 기존 refresh 토큰 삭제 후 새 토큰 저장
+    refreshTokenRepository.deleteByUserId(userId);
+    //refreshTokenRepository.deleteByRefresh(refresh);
+    saveRefreshToken(user, newRefresh, 604800000L); // 새로운 refresh 토큰 저장
 
-    // response, 갱신 작업
+    // 갱신된 토큰을 응답으로 전송
     response.setHeader("access", newAccess);
     response.addCookie(createCookie("refresh", newRefresh));
 
-    // 응답으로 access 토큰 반환
     return new ResponseEntity<>(newAccess, HttpStatus.OK);
   }
 
-
-@Transactional
-  private void addRefreshToken(User user, String refreshToken, Long expiredMs) {
-    Date expirationDate = new Date(System.currentTimeMillis() + expiredMs);
-    if (user.getUserId() == null) {
-      throw new IllegalArgumentException("User ID cannot be null");
+  // 쿠키에서 refresh 토큰 추출
+  private String extractRefreshTokenFromCookies(HttpServletRequest request) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if ("refresh".equals(cookie.getName())) {
+          return cookie.getValue();
+        }
+      }
     }
+    return null;
+  }
+
+  // 토큰 만료 여부 확인
+  private boolean isTokenExpired(String token) {
+    try {
+      jwtUtil.isExpired(token);
+      return false;
+    } catch (ExpiredJwtException e) {
+      return true;
+    }
+  }
+
+  // refresh 토큰 여부 확인
+  private boolean isRefreshToken(String token) {
+    return "refresh".equals(jwtUtil.getTokenType(token));
+  }
+
+  // Refresh 토큰 저장
+  @Transactional
+  private void saveRefreshToken(User user, String refreshToken, Long expiredMs) {
+    Date expirationDate = new Date(System.currentTimeMillis() + expiredMs);
     RefreshToken refreshTokenEntity = new RefreshToken();
-    refreshTokenEntity.setUser(user); // User 객체를 설정
+    refreshTokenEntity.setUser(user);
     refreshTokenEntity.setRefresh(refreshToken);
     refreshTokenEntity.setExpiration(expirationDate.toString());
 
     refreshTokenRepository.save(refreshTokenEntity);
   }
-  private Cookie createCookie(String key, String value) {
 
+  // 쿠키 생성 메서드
+  private Cookie createCookie(String key, String value) {
     Cookie cookie = new Cookie(key, value);
-    cookie.setMaxAge(24 * 60 * 60);
-    //cookie.setSecure(true)
-    //cookie.setPath("/")
+    cookie.setMaxAge(24 * 60 * 60); // 하루
     cookie.setHttpOnly(true);
     return cookie;
   }
 }
-
-
