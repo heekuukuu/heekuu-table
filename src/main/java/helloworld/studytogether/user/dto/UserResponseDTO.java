@@ -13,5 +13,6 @@ public class UserResponseDTO {
   private String email;
   private String nickname;
   private String role;
+  private CountDTO count;
 
 }
