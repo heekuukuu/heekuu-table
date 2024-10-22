@@ -46,7 +46,4 @@ qodana.yaml
 docker-entrypoint-initdb.ddata
 docker-entrypoint-initdb.d
 src/main/application.yml
-src/main/dev-application.yml
 application.yaml
-build.gradle
-qodana.yaml

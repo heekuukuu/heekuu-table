@@ -200,7 +200,7 @@ public class UserService {
         .orElseThrow(() -> new RuntimeException("User not found"));
 
     UserResponseDTO userResponse = new UserResponseDTO();
-    //userResponse.setUserId(user.getUserId());
+    userResponse.setUserId(user.getUserId());
     userResponse.setUsername(user.getUsername());
     userResponse.setEmail(user.getEmail());
     userResponse.setNickname(user.getNickname());
@@ -228,7 +228,7 @@ public class UserService {
 
     // 업데이트된 정보를 UserResponseDTO로 변환하여 반환
     UserResponseDTO userResponse = new UserResponseDTO();
-    //userResponse.setUserId(user.getUserId());
+    userResponse.setUserId(user.getUserId());
     userResponse.setUsername(user.getUsername());
     userResponse.setEmail(user.getEmail());
     userResponse.setNickname(user.getNickname());
@@ -257,7 +257,7 @@ public class UserService {
 
     // 업데이트된 정보를 UserResponseDTO로 반환
     UserResponseDTO userResponse = new UserResponseDTO();
-    //userResponse.setUserId(user.getUserId());
+    userResponse.setUserId(user.getUserId());
     userResponse.setUsername(user.getUsername());
     userResponse.setEmail(user.getEmail());
     userResponse.setNickname(user.getNickname());
