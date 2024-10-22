@@ -140,7 +140,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
-public class JWTFilter extends OncePerRequestFilter {
+public class  JWTFilter extends OncePerRequestFilter {
 
 
   private final UserRepository userRepository;
@@ -197,10 +197,10 @@ public class JWTFilter extends OncePerRequestFilter {
       // 여기서 권한 확인
       String role = jwtUtil.getRole(accessToken);
       log.debug("Token Role: " + role); // ADMIN 권한 확인
-      if (!role.equals("ADMIN")) {
-        log.debug("권한 부족: ADMIN 권한이 아님");
+      if (!role.equals("USER") && !role.equals("ADMIN")) {
+        log.debug("권한 부족: USER 또는 ADMIN 권한이 아님");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        response.getWriter().print("Forbidden: ADMIN 권한 필요");
+        response.getWriter().print("Forbidden: USER 또는 ADMIN 권한 필요");
         return;
       }
     } catch (ExpiredJwtException e) {

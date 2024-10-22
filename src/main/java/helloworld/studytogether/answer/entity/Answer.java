@@ -27,7 +27,7 @@ public class Answer extends BaseEntity {
     private Answer parentAnswer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_Id", nullable = false)
     private User user;
 
     @Column(columnDefinition = "TEXT", nullable = false)

@@ -36,7 +36,7 @@ public class User {
 
 
   @Column(nullable = false)
-  private Date created_at;
+  private Date created_At;
 
   // RefreshToken과의 일대일 관계 설정
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -44,19 +44,18 @@ public class User {
 
 
   @Column(nullable = true)
-  private Date updated_at;
+  private Date updated_At;
 
 
   @PrePersist
   protected void onCreate() {
-    this.created_at = Date.valueOf(LocalDate.now());
+    this.created_At = Date.valueOf(LocalDate.now());
   }
 
   @PreUpdate
   protected void onUpdate() {
-    this.updated_at = Date.valueOf(LocalDate.now());
+    this.updated_At = Date.valueOf(LocalDate.now());
   }
-
 
 
 }
