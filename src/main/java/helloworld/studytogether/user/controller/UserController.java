@@ -28,7 +28,7 @@ public class UserController {
    *
    * @return 로그인된 사용자 정보 DTO
    */
-  @GetMapping("/user")
+  @GetMapping("/users")
   public ResponseEntity<UserResponseDTO> getMe() {
     try {
       UserResponseDTO userResponse = userService.getLoggedInUser();
