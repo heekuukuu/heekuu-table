@@ -5,5 +5,5 @@ import helloworld.studytogether.questions.entity.Question;
 import java.io.IOException;
 
 public interface QuestionService {
-  Question saveQuestion(AddQuestionRequestDto requestDto) throws IOException;
+  Question saveQuestion(AddQuestionRequestDto requestDto, Long userId) throws IOException;
 }

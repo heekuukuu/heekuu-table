@@ -2,12 +2,14 @@ package helloworld.studytogether.config;
 
 
 import helloworld.studytogether.jwt.filter.CustomLogoutFilter;
+import helloworld.studytogether.jwt.filter.JWTFilter;
 import helloworld.studytogether.jwt.util.JWTUtil;
 import helloworld.studytogether.jwt.filter.LoginFilter;
 import helloworld.studytogether.token.repository.RefreshTokenRepository;
 import helloworld.studytogether.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -65,8 +67,13 @@ public class SecurityConfig {
 
     http
         .authorizeHttpRequests((auth) -> auth
-            .requestMatchers("/","users/logout","/login", "users/join", "/reissue").permitAll()
-            //.requestMatchers("/admin/**").hasRole("ADMIN")
+   
+            .requestMatchers( "/admin/**").hasAuthority("ADMIN")
+            .requestMatchers("/api/answers/**").hasAnyAuthority("USER", "ADMIN")
+            .requestMatchers("/question").hasAnyAuthority("USER", "ADMIN")
+            .requestMatchers("/user/**").hasAuthority("USER")  // USER (접두사 없이직접권한확인 )
+            .requestMatchers("/", "/logout", "/login", "/join", "/reissue").permitAll()
+
             .anyRequest().authenticated());
 
     http
@@ -74,7 +81,10 @@ public class SecurityConfig {
                 refreshTokenRepository, userRepository),
             UsernamePasswordAuthenticationFilter.class);
 
-    //.addFilterAt(new LoginFilter(), UsernamePasswordAuthenticationFilter.class);
+    http
+        .addFilterBefore(new JWTFilter(userRepository, jwtUtil),
+            UsernamePasswordAuthenticationFilter.class);
+
     http
         .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository),
             LogoutFilter.class);
