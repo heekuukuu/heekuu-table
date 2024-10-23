@@ -1,6 +1,7 @@
 package helloworld.studytogether.questions.service;
 
 import helloworld.studytogether.questions.dto.GetQuestionResponseDto;
+import helloworld.studytogether.questions.type.SubjectNames;
 import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.user.repository.UserRepository;
 import java.io.IOException;
@@ -67,6 +68,7 @@ public class QuestionServiceImpl implements QuestionService {
 
   /**
    * 사용자별 등록한 질문 목록을 조회합니다.
+   *
    * @param userId 조회할 질문 목록의 사용자 ID
    * @param pageable 페이지네이션 정보
    * @return 조회한 질문 목록을 반환합니다.
@@ -76,6 +78,19 @@ public class QuestionServiceImpl implements QuestionService {
     return questions.map(GetQuestionResponseDto::fromEntity);
   }
 
-
-
+  /**
+   *
+   * @param userId 조회할 질문 목록의 사용자 ID
+   * @param subjectNames 사용자가 선택한 과목 이름
+   * @param pageable 페이지네이션 정보
+   * @return 조회한 질문 목록을 반환합니다.
+   */
+  public Page<GetQuestionResponseDto> getQuestionListBySubject(
+      Long userId,
+      SubjectNames subjectNames,
+      Pageable pageable
+  ){
+    Page<Question> questions = questionRepository.findAllByUser_UserIdAndSubjectName(userId, subjectNames, pageable);
+    return questions.map(GetQuestionResponseDto::fromEntity);
+  }
 }
