@@ -1,16 +1,15 @@
 package helloworld.studytogether.jwt.util;
 
+import helloworld.studytogether.user.entity.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import helloworld.studytogether.user.entity.User;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.security.Key;
 import java.util.Date;
-import java.util.function.Function;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class JWTUtil {
@@ -53,8 +52,13 @@ public class JWTUtil {
 
   // 토큰 만료 여부 확인
   public boolean isExpired(String token) {
-    Claims claims = getClaims(token);
-    return claims.getExpiration().before(new Date());
+    try {
+      Claims claims = getClaims(token);
+      return claims.getExpiration().before(new Date());
+    } catch (ExpiredJwtException e) {
+      // JWT가 만료된 경우 예외가 발생하므로, true 반환
+      return true;
+    }
   }
 
   // 토큰 생성

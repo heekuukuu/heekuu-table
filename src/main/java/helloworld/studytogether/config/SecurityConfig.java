@@ -3,13 +3,12 @@ package helloworld.studytogether.config;
 
 import helloworld.studytogether.jwt.filter.CustomLogoutFilter;
 import helloworld.studytogether.jwt.filter.JWTFilter;
-import helloworld.studytogether.jwt.util.JWTUtil;
 import helloworld.studytogether.jwt.filter.LoginFilter;
+import helloworld.studytogether.jwt.util.JWTUtil;
 import helloworld.studytogether.token.repository.RefreshTokenRepository;
 import helloworld.studytogether.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,11 +24,10 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 public class SecurityConfig {
 
   private final AuthenticationConfiguration authenticationConfiguration;
-
   private final JWTUtil jwtUtil;
   private final RefreshTokenRepository refreshTokenRepository;
-
   private final UserRepository userRepository;
+
 
   public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil,
       RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {

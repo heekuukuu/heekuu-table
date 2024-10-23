@@ -19,4 +19,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUserId(Long userId);// 메서드 이름을 카멜케이스로 변경
     Optional<User> findByUsername(String username);
+
 }

@@ -1,5 +1,6 @@
 package helloworld.studytogether.jwt.filter;
 
+import helloworld.studytogether.common.exception.CustomException;
 import helloworld.studytogether.user.dto.CustomUserDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import helloworld.studytogether.jwt.util.JWTUtil;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,7 +29,7 @@ import java.time.Duration;
 import java.util.*;
 import org.springframework.transaction.annotation.Transactional;
 
-
+@Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 
@@ -48,6 +50,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
   @Override
   public Authentication attemptAuthentication(HttpServletRequest request,
       HttpServletResponse response) {
+
     try {
       BufferedReader reader = request.getReader();
       StringBuilder json = new StringBuilder();
@@ -61,9 +64,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
       String username = loginDTO.getUsername();
       String password = loginDTO.getPassword();
+
       // 비밀번호 확인 로그 추가
       System.out.println("Username: " + username + ", Password: " + password);
+
       if (username == null || username.isEmpty()) {
+        log.warn("로그인 실패: 아이디가 비어있습니다.");
         throw new UsernameNotFoundException("Username cannot be empty");
       }
 
@@ -71,7 +77,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
           username, password);
       return this.getAuthenticationManager().authenticate(authRequest);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      log.error("로그인 요청 데이터 처리 중 오류 발생: {}", e.getMessage());
+      throw new CustomException("로그인 데이터 처리 중 오류가 발생했습니다.", HttpStatus.BAD_REQUEST);
+    } catch (AuthenticationException ex) {
+      log.warn("잘못된 로그인 시도: {}", ex.getMessage());
+      throw new CustomException("아이디 또는 비밀번호가 잘못되었습니다.", HttpStatus.UNAUTHORIZED);
     }
   }
 
@@ -83,7 +93,20 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     User user = userDetails.getUser(); // CustomUserDetails에서 User 객체를 가져옴
     Long userId = user.getUserId(); // user_id 가져오기
     Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+    // String role = authorities.iterator().next().getAuthority();
+
+    // User 객체 유효성 검사
+    if (user == null || userId == null) {
+      log.error("User 객체가 null이거나 userId가 설정되지 않았습니다.");
+      throw new CustomException("User 정보가 올바르지 않습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    // 권한 가져오기
     String role = authorities.iterator().next().getAuthority();
+    if (role == null) {
+      log.error("User 권한 정보가 null입니다.");
+      throw new CustomException("권한 정보가 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     try {
       // 기존 RefreshToken 삭제
       refreshTokenRepository.deleteByUserId(userId);
@@ -92,8 +115,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
           Duration.ofMinutes(10).toMillis());
       String refreshToken = jwtUtil.createJwt("refresh", user, role, Duration.ofDays(7).toMillis());
 
-      System.out.println("Access Token: " + accessToken);
-      System.out.println("Refresh Token: " + refreshToken);
+      log.info("Access Token 생성 완료: {}", accessToken);
+      log.info("Refresh Token 생성 완료: {}", refreshToken);
       // Refresh 토큰 저장
       addRefreshToken(user, refreshToken, Duration.ofDays(7).toMillis()); // User 객체를 전달
 
@@ -109,6 +132,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
       response.setStatus(HttpStatus.OK.value());
     } catch (Exception e) {
       // 토큰 생성 실패 시 예외 처리
+      log.error("토큰 생성 실패: {}", e.getMessage());
       response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
       Map<String, String> error = new HashMap<>();
       error.put("error", "Failed to generate tokens: " + e.getMessage());
@@ -141,8 +165,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
   @Override
   protected void unsuccessfulAuthentication(HttpServletRequest request,
       HttpServletResponse response, AuthenticationException failed) throws IOException {
-    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+    log.warn("로그인 실패: {}", failed.getMessage());
 
+    response.setStatus(HttpStatus.UNAUTHORIZED.value());
     Map<String, String> error = new HashMap<>();
     error.put("error", "Authentication failed");
 
