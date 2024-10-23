@@ -8,9 +8,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import helloworld.studytogether.questions.dto.QuestionRequestDto;
+import helloworld.studytogether.questions.dto.QuestionRequest;
 import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.questions.repository.QuestionRepository;
 
@@ -30,12 +31,13 @@ public class QuestionServiceImpl implements QuestionService {
    * @throws IOException 이미지 처리 중 문제가 발생할 경우 발생합니다.
    */
   @Transactional
-  public Question saveQuestion(QuestionRequestDto request) throws IOException {
+  @Override
+  public Question saveQuestion(QuestionRequest request, Long userId) throws IOException {
 
-    User user = userRepository.findByUserId(request.getUserId())
+    User user = userRepository.findById(userId)
         .orElseThrow(() -> {
-          log.error("User not found with ID: {}", request.getUserId());
-          return new IllegalArgumentException("사용자를 찾을 수 없습니다: " + request.getUserId());
+          log.error("User not found with ID: {}", userId);
+          return new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId);
         });
 
     byte[] imageBytes = null;
