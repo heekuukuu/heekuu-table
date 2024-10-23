@@ -3,6 +3,7 @@ package helloworld.studytogether.answer.service;
 import helloworld.studytogether.answer.entity.Answer;
 import helloworld.studytogether.answer.dto.AnswerDTO;
 import helloworld.studytogether.answer.repository.AnswerRepository;
+import jakarta.persistence.EntityNotFoundException;
 import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.questions.repository.QuestionRepository;
 import helloworld.studytogether.user.entity.User;
