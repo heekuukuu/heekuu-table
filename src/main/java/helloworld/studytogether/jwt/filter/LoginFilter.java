@@ -85,6 +85,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
     String role = authorities.iterator().next().getAuthority();
     try {
+      // 기존 RefreshToken 삭제
+      refreshTokenRepository.deleteByUserId(userId);
       // 토큰 생성
       String accessToken = jwtUtil.createJwt("access", user, role,
           Duration.ofMinutes(10).toMillis());

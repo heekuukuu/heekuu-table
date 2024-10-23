@@ -24,7 +24,7 @@ public class LogoutController {
     this.jwtUtil = jwtUtil;
   }
 
-  @DeleteMapping("/users/logout")
+  @DeleteMapping("/logout")
   @Transactional //트랜잭션 처리
   public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
     String refresh = getRefreshTokenFromCookies(request);
@@ -36,7 +36,7 @@ public class LogoutController {
 
     // 만료 체크
     try {
-      JWTUtil.isExpired(refresh);
+      jwtUtil.isExpired(refresh);
     } catch (ExpiredJwtException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Refresh token is expired");
     }
@@ -47,7 +47,8 @@ public class LogoutController {
     }
 
     // Refresh 토큰 DB에서 제거
-    refreshTokenRepository.deleteByRefresh(refresh);
+    Long userId =jwtUtil.getUserId(refresh);
+    refreshTokenRepository.deleteByUserId(userId);
 
     // 쿠키 삭제
     deleteRefreshCookie(response);

@@ -8,6 +8,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import java.util.Date;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import helloworld.studytogether.user.entity.User; // User 엔티티 import
@@ -29,7 +31,7 @@ public class RefreshToken {
   private String expiration; // 만료시간
 
   @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
+  @JoinColumn(name = "user_id", nullable = false, unique = true)
   private User user;
 
 

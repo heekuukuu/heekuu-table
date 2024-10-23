@@ -30,6 +30,7 @@ public class ReissueController {
     if (result.getStatusCode() == HttpStatus.OK) {
       String newAccessToken = (String) result.getBody();
       return ResponseEntity.ok().body(Map.of("access_token", newAccessToken));
+
     }
 
     return result;

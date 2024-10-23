@@ -3,10 +3,12 @@ package helloworld.studytogether.answer.service;
 import helloworld.studytogether.answer.entity.Answer;
 import helloworld.studytogether.answer.dto.AnswerDTO;
 import helloworld.studytogether.answer.repository.AnswerRepository;
-//import helloworld.studytogether.domain.question.Question;
+import helloworld.studytogether.questions.entity.Question;
+import helloworld.studytogether.questions.repository.QuestionRepository;
 import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.user.entity.Role;
 import jakarta.persistence.EntityNotFoundException;
+import helloworld.studytogether.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,24 +17,41 @@ import org.springframework.transaction.annotation.Transactional;
 public class AnswerServiceImpl implements AnswerService {
 
     private final AnswerRepository answerRepository;
-
+    private final QuestionRepository questionRepository;
+    private final UserRepository userRepository;
     @Autowired
-    public AnswerServiceImpl(AnswerRepository answerRepository) {
+    public AnswerServiceImpl(AnswerRepository answerRepository,
+        QuestionRepository questionRepository, UserRepository userRepository) {
         this.answerRepository = answerRepository;
+      this.questionRepository = questionRepository;
+      this.userRepository = userRepository;
     }
-
     @Override
     @Transactional
     public AnswerDTO createAnswer(AnswerDTO answerDTO) {
+        // Question 객체 찾기 (questionId로)
+        Question question = questionRepository.findById(answerDTO.getQuestionId())
+            .orElseThrow(() -> new RuntimeException("Question not found with id: " + answerDTO.getQuestionId()));
+
+        // User 객체 찾기 (userId로)
+        User user = userRepository.findById(answerDTO.getUserId())
+            .orElseThrow(() -> new RuntimeException("User not found with id: " + answerDTO.getUserId()));
+
+        // Answer 엔티티 생성 및 값 설정
         Answer answer = new Answer();
         answer.setContent(answerDTO.getContent());
-        // 필요한 경우 Question과 User 객체를 가져와서 설정
-        // answer.setQuestion(new Question(answerDTO.getQuestionId()));
-        // answer.setUser(new User(answerDTO.getUserId()));
+        answer.setQuestion(question);  // Question 설정
+        answer.setUser(user);  // User 설정
+        answer.setImage(answerDTO.getImage());
+        answer.setLikes(answerDTO.getLikes());
+        answer.setSelected(answerDTO.isSelected());
 
+        // Answer 저장
         Answer savedAnswer = answerRepository.save(answer);
+
+        // 저장된 엔티티를 DTO로 변환하여 반환
         return convertToDTO(savedAnswer);
-    }  //새 답변을 생성하고 저장
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -70,8 +89,8 @@ public class AnswerServiceImpl implements AnswerService {
         answerDTO.setCreatedAt(answer.getCreatedAt());
         answerDTO.setUpdatedAt(answer.getUpdatedAt());
         // 필요한 경우, 다른 필드도 DTO에 설정
-        // answerDTO.setQuestionId(answer.getQuestion().getId());
-        // answerDTO.setUserId(answer.getUser().getId());
+         answerDTO.setQuestionId(answer.getQuestion().getQuestionId());
+         answerDTO.setUserId(answer.getUser().getUserId());
         return answerDTO;
     }
 
