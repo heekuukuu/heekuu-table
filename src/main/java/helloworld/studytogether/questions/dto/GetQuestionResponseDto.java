@@ -25,6 +25,7 @@ public class GetQuestionResponseDto {
     return GetQuestionResponseDto.builder()
         .questionId(question.getQuestionId())
         .userId(question.getUser().getUserId())
+        .subjectName(question.getSubjectName())
         .title(question.getTitle())
         .content(question.getContent())
         .image(question.getImage())
