@@ -46,7 +46,7 @@ public class AnswerController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
+
     // 답변 좋아요
     @PostMapping("/{answer_id}/like")
     public ResponseEntity<Void> likeAnswer(@PathVariable Long id) {
@@ -60,7 +60,7 @@ public class AnswerController {
         answerService.unlikeAnswer(id);
         return ResponseEntity.ok().build();
     }
-
+    /**
     // 대댓글 작성
     @PostMapping("/{answer_id}/comments")
     public ResponseEntity<AnswerDTO> createComment(@PathVariable Long id, @RequestBody AnswerDTO commentDTO) {
