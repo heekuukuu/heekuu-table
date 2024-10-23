@@ -217,9 +217,9 @@ public class UserService {
         .orElseThrow(() -> new RuntimeException("User not found"));
 
     // Count 값은 동적으로 계산하여 반환
-    int questionCount = questionRepository.countByUser(user);
-    int answerCount = answerRepository.countByUser(user);
-    int selectedAnswerCount = answerRepository.countByUserAndIsSelectedTrue(user);
+    int questionCount = questionRepository.countByUser_UserId(user.getUserId());
+    int answerCount = answerRepository.countByUser_UserId(user.getUserId());
+    int selectedAnswerCount = answerRepository.countByUser_UserIdAndIsSelectedTrue(user.getUserId());
 
 
     // UserResponseDTO로 반환
@@ -259,9 +259,9 @@ public class UserService {
     user = userRepository.save(user); // 업데이트된 사용자 정보 저장
 
     // Count 값은 동적으로 계산하여 반환
-    int questionCount = questionRepository.countByUser(user);
-    int answerCount = answerRepository.countByUser(user);
-    int selectedAnswerCount = answerRepository.countByUserAndIsSelectedTrue(user);
+    int questionCount = questionRepository.countByUser_UserId(user.getUserId());
+    int answerCount = answerRepository.countByUser_UserId(user.getUserId());
+    int selectedAnswerCount = answerRepository.countByUser_UserIdAndIsSelectedTrue(user.getUserId());
 
 
 

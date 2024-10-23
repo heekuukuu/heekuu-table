@@ -46,7 +46,7 @@ public class User {
    * User 엔티티와 Count 엔티티를 연결
    */
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-//  @JoinColumn(name = "count_id", nullable = false)
+  @JoinColumn(name = "count_id", nullable = false)
   private Count count;
 
 

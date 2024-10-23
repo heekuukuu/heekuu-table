@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
-    int countByUser(User user);  // 특정 사용자의 작성한 답변 개수 계산
-    int countByUserAndIsSelectedTrue(User user);  // 특정 사용자의 채택된 답변 개수 계산
+    int countByUser_UserId(Long userId);  // 특정 사용자의 작성한 답변 개수 계산
+    int countByUser_UserIdAndIsSelectedTrue(Long userId);  // 특정 사용자의 채택된 답변 개수 계산
 }
