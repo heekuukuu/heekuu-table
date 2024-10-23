@@ -3,11 +3,11 @@ package helloworld.studytogether.answer.service;
 import helloworld.studytogether.answer.entity.Answer;
 import helloworld.studytogether.answer.dto.AnswerDTO;
 import helloworld.studytogether.answer.repository.AnswerRepository;
-//import helloworld.studytogether.domain.question.Question;
 import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.questions.repository.QuestionRepository;
 import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.user.entity.Role;
+import jakarta.persistence.EntityNotFoundException;
 import helloworld.studytogether.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -92,5 +92,33 @@ public class AnswerServiceImpl implements AnswerService {
          answerDTO.setQuestionId(answer.getQuestion().getQuestionId());
          answerDTO.setUserId(answer.getUser().getUserId());
         return answerDTO;
+    }
+
+    @Transactional
+    @Override
+    public void likeAnswer(Long answerId) {
+        // 답변 조회
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new EntityNotFoundException("Answer not found with id: " + answerId));
+
+        // '좋아요' 증가
+        answer.setLikes(answer.getLikes() + 1);
+        answerRepository.save(answer);
+    }
+
+    @Transactional
+    @Override
+    public void unlikeAnswer(Long answerId) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new EntityNotFoundException("Answer not found with id: " + answerId));
+
+        // '좋아요' 수가 0보다 크면 1 감소
+        if (answer.getLikes() > 0) {
+            answer.setLikes(answer.getLikes() - 1);
+        } else {
+            throw new IllegalStateException("좋아요를 취소할 수 없습니다.");
+        }
+
+        answerRepository.save(answer);
     }
 }  //엔티티를 dto로 변환하여 클라이언트와 데이터 전송 시 필요한 형식으로 변경
