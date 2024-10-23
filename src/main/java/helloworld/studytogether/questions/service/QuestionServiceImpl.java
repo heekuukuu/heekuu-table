@@ -15,8 +15,6 @@ import helloworld.studytogether.questions.repository.QuestionRepository;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@Getter
-@Setter
 public class QuestionServiceImpl implements QuestionService {
 
   private final QuestionRepository questionRepository;
