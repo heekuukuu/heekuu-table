@@ -8,6 +8,7 @@ import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.questions.repository.QuestionRepository;
 import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.user.entity.Role;
+import jakarta.persistence.EntityNotFoundException;
 import helloworld.studytogether.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
