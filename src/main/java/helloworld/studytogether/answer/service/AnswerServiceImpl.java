@@ -41,7 +41,7 @@ public class AnswerServiceImpl implements AnswerService {
         // Answer 엔티티 생성 및 값 설정
         Answer answer = new Answer();
         answer.setContent(answerDTO.getContent());
-        answer.setQuestion(question);  // Question 설정
+        answer.setQuestionId(question);  // Question 설정
         answer.setUser(user);  // User 설정
         answer.setImage(answerDTO.getImage());
         answer.setLikes(answerDTO.getLikes());
@@ -85,12 +85,12 @@ public class AnswerServiceImpl implements AnswerService {
 
     private AnswerDTO convertToDTO(Answer answer) {
         AnswerDTO answerDTO = new AnswerDTO();
-        answerDTO.setAnswerId(answer.getId());
+        answerDTO.setAnswerId(answer.getAnswerId());
         answerDTO.setContent(answer.getContent());
         answerDTO.setCreatedAt(answer.getCreatedAt());
         answerDTO.setUpdatedAt(answer.getUpdatedAt());
         // 필요한 경우, 다른 필드도 DTO에 설정
-         answerDTO.setQuestionId(answer.getQuestion().getQuestionId());
+         answerDTO.setQuestionId(answer.getQuestionId().getQuestionId());
          answerDTO.setUserId(answer.getUser().getUserId());
         return answerDTO;
     }
