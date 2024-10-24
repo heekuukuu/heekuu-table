@@ -1,11 +1,14 @@
 package helloworld.studytogether.answer.entity;
 
+import helloworld.studytogether.comment.entity.Comment;
 import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,6 +20,9 @@ public class Answer extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "answer_id")
     private Long answerId;
+
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comment> comments;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)

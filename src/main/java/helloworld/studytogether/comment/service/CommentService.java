@@ -3,6 +3,8 @@ package helloworld.studytogether.comment.service;
 import helloworld.studytogether.answer.repository.AnswerRepository;
 import helloworld.studytogether.comment.entity.Comment;
 import helloworld.studytogether.comment.repository.CommentRepository;
+import helloworld.studytogether.user.entity.Count;
+import helloworld.studytogether.user.repository.CountRepository;
 import helloworld.studytogether.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,12 +17,14 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final AnswerRepository answerRepository;
     private final UserRepository userRepository;
+    private final CountRepository countRepository;
 
     @Autowired
-    public CommentService(CommentRepository commentRepository, AnswerRepository answerRepository, UserRepository userRepository) {
+    public CommentService(CommentRepository commentRepository, AnswerRepository answerRepository, UserRepository userRepository, CountRepository countRepository) {
         this.commentRepository = commentRepository;
         this.answerRepository = answerRepository;
         this.userRepository = userRepository;
+        this.countRepository = countRepository;
     }
 
     public Comment createComment(Long answerId, Long userId, String content, Long parentCommentId) {
@@ -38,6 +42,9 @@ public class CommentService {
         comment.setContent(content);
         comment.setParentComment(parentComment);
         comment.setCreatedAt(LocalDateTime.now());
+
+        Comment savedComment = commentRepository.save(comment);
+        updateCommentCount(userId);
 
         return commentRepository.save(comment);
     }
@@ -80,5 +87,11 @@ public class CommentService {
         }
 
         commentRepository.delete(comment);
+    }
+
+    private void updateCommentCount(Long userId) {
+        Count userCount = countRepository.findByUserId(userId);
+        userCount.setCommentCount(userCount.getCommentCount() + 1);  // 댓글 수 증가
+        countRepository.save(userCount);
     }
 }
