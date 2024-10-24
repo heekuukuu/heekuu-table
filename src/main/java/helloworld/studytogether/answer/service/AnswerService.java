@@ -7,4 +7,6 @@ public interface AnswerService {
     AnswerDTO getAnswerById(Long id);
     AnswerDTO updateAnswer(Long id, AnswerDTO answerDTO);
     void deleteAnswer(Long id);
+    void likeAnswer(Long answerId);
+    void unlikeAnswer(Long answerId);
 }
