@@ -42,6 +42,13 @@ public class User {
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private RefreshToken refreshToken;
 
+  /**
+   * User 엔티티와 Count 엔티티를 연결
+   */
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+  @JoinColumn(name = "count_id", nullable = false)
+  private Count count;
+
 
   @Column(nullable = true)
   private Date updated_At;

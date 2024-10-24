@@ -1,4 +1,4 @@
-package helloworld.studytogether.dictionary.entity;
+package helloworld.studytogether.rewards.entity;
 
 
 import jakarta.persistence.*;
