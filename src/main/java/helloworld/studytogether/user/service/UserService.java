@@ -126,17 +126,20 @@
 
 package helloworld.studytogether.user.service;
 
+import helloworld.studytogether.answer.repository.AnswerRepository;
 import helloworld.studytogether.jwt.util.JWTUtil;
+import helloworld.studytogether.questions.repository.QuestionRepository;
 import helloworld.studytogether.token.entity.RefreshToken;
 import helloworld.studytogether.token.repository.RefreshTokenRepository;
-import helloworld.studytogether.user.dto.CustomUserDetails;
-import helloworld.studytogether.user.dto.LoginDTO;
-import helloworld.studytogether.user.dto.UserResponseDTO;
-import helloworld.studytogether.user.dto.UserUpdateDTO;
+import helloworld.studytogether.user.dto.*;
+import helloworld.studytogether.user.entity.Count;
 import helloworld.studytogether.user.entity.Role;
 import helloworld.studytogether.user.entity.User;
+import helloworld.studytogether.user.repository.CountRepository;
 import helloworld.studytogether.user.repository.UserRepository;
 import java.util.Date;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -151,16 +154,24 @@ public class UserService {
   private final BCryptPasswordEncoder passwordEncoder; // 비밀번호 암호화를 위한 인코더 추가
   private final JWTUtil jwtUtil;
   private final RefreshTokenRepository refreshTokenRepository; // 리프레시 토큰 저장소 추가
+  private final QuestionRepository questionRepository;
+  private final AnswerRepository answerRepository;
+  private final CountRepository countRepository;
 
   @Value("${spring.jwt.expiration}")
   private Long jwtExpiration;
 
   public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder,
-      JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
+      JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, QuestionRepository questionRepository,
+                     AnswerRepository answerRepository, CountRepository countRepository) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.jwtUtil = jwtUtil;
     this.refreshTokenRepository = refreshTokenRepository;
+    this.questionRepository = questionRepository;
+    this.answerRepository = answerRepository;
+    this.countRepository = countRepository;
+
   }
 
   // 로그인 로직: DB에서 사용자 정보 조회 후 JWT 발급
@@ -194,17 +205,38 @@ public class UserService {
   }
 
   // 사용자 정보 반환
+
+  /**
+   *회원 정보 조회 시 Count 필드 업데이트 및 조회 로직 추가
+   * @return
+   */
+//  @Transactional
   public UserResponseDTO getLoggedInUser() {
     CustomUserDetails userDetails = getLoggedInUserDetails();
     User user = userRepository.findByUserId(userDetails.getUserId())
         .orElseThrow(() -> new RuntimeException("User not found"));
 
+    // Count 값은 동적으로 계산하여 반환
+    int questionCount = questionRepository.countByUser_UserId(user.getUserId());
+    int answerCount = answerRepository.countByUser_UserId(user.getUserId());
+    int selectedAnswerCount = answerRepository.countByUser_UserIdAndIsSelectedTrue(user.getUserId());
+
+
+    // UserResponseDTO로 반환
     UserResponseDTO userResponse = new UserResponseDTO();
     //userResponse.setUserId(user.getUserId());
     userResponse.setUsername(user.getUsername());
     userResponse.setEmail(user.getEmail());
     userResponse.setNickname(user.getNickname());
     userResponse.setRole(user.getRole().toString());
+
+    // CountDTO 설정
+    CountDTO countDTO = new CountDTO();
+    countDTO.setQuestionCount(questionCount);
+    countDTO.setAnswerCount(answerCount);
+    countDTO.setSelectedAnswerCount(selectedAnswerCount);
+    userResponse.setCount(countDTO);
+
     return userResponse;
   }
 
@@ -226,6 +258,15 @@ public class UserService {
 
     user = userRepository.save(user); // 업데이트된 사용자 정보 저장
 
+    // Count 값은 동적으로 계산하여 반환
+    int questionCount = questionRepository.countByUser_UserId(user.getUserId());
+    int answerCount = answerRepository.countByUser_UserId(user.getUserId());
+    int selectedAnswerCount = answerRepository.countByUser_UserIdAndIsSelectedTrue(user.getUserId());
+
+
+
+
+
     // 업데이트된 정보를 UserResponseDTO로 변환하여 반환
     UserResponseDTO userResponse = new UserResponseDTO();
     //userResponse.setUserId(user.getUserId());
@@ -233,6 +274,14 @@ public class UserService {
     userResponse.setEmail(user.getEmail());
     userResponse.setNickname(user.getNickname());
     userResponse.setRole(user.getRole().toString());
+
+    // CountDTO 설정
+    CountDTO countDTO = new CountDTO();
+    countDTO.setQuestionCount(questionCount);
+    countDTO.setAnswerCount(answerCount);
+    countDTO.setSelectedAnswerCount(selectedAnswerCount);
+    userResponse.setCount(countDTO);
+
     return userResponse;
   }
 
