@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/answers")
+@RequestMapping("/answers")
 public class CommentController {
 
     @Autowired
@@ -29,13 +29,6 @@ public class CommentController {
     public ResponseEntity<List<Comment>> getCommentsForAnswer(@PathVariable Long answerId) {
         List<Comment> comments = commentService.getCommentsForAnswer(answerId);
         return new ResponseEntity<>(comments, HttpStatus.OK);
-    }
-
-    // 특정 댓글에 달린 대댓글 조회
-    @GetMapping("/comments/{commentId}/replies")
-    public ResponseEntity<List<Comment>> getRepliesForComment(@PathVariable Long commentId) {
-        List<Comment> replies = commentService.getRepliesForComment(commentId);
-        return new ResponseEntity<>(replies, HttpStatus.OK);
     }
 
     // 댓글 수정
