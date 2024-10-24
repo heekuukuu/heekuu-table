@@ -1,5 +1,6 @@
 package helloworld.studytogether.jwt.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import helloworld.studytogether.jwt.util.JWTUtil;
 import helloworld.studytogether.token.repository.RefreshTokenRepository;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -11,6 +12,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.web.filter.GenericFilterBean;
 
 public class CustomLogoutFilter extends GenericFilterBean {
@@ -59,37 +62,38 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
     // refresh token null check
     if (refresh == null) {
-      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Refresh token is missing");
       return;
     }
 
     // 만료 체크
     try {
       if (jwtUtil.isExpired(refresh)) {
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Refresh token is expired");
         return;
       }
     } catch (ExpiredJwtException e) {
-      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Refresh token is expired");
       return;
     }
 
     // 토큰이 refresh인지 확인
     String tokenType = jwtUtil.getTokenType(refresh);
     if (!tokenType.equals("refresh")) {
-      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 만료 토큰 401
+      sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token type");
       return;
     }
 
     // DB에 저장되어 있는지 확인
     Boolean isExist = refreshTokenRepository.existsByRefresh(refresh);
     if (!isExist) {
-      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST,
+          "Refresh token does not exist");
       return;
     }
 
     // 로그아웃 진행: Refresh 토큰 DB에서 제거
-     Long userId =jwtUtil.getUserId(refresh);
+    Long userId = jwtUtil.getUserId(refresh);
     refreshTokenRepository.deleteByUserId(userId);
 
     // Refresh 토큰 쿠키 삭제
@@ -98,6 +102,36 @@ public class CustomLogoutFilter extends GenericFilterBean {
     cookie.setPath("/");
 
     response.addCookie(cookie);
+    sendSuccessResponse(response, "Successfully logged out");
+  }
+
+  private void sendErrorResponse(HttpServletResponse response, int statusCode, String message)
+      throws IOException {
+    response.setStatus(statusCode);
+    response.setContentType("application/json;charset=UTF-8");
+
+    Map<String, Object> errorData = new HashMap<>();
+    errorData.put("status", statusCode);
+    errorData.put("error", message);
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    String responseBody = objectMapper.writeValueAsString(errorData);
+
+    response.getWriter().write(responseBody);
+  }
+
+  private void sendSuccessResponse(HttpServletResponse response, String message)
+      throws IOException {
     response.setStatus(HttpServletResponse.SC_OK);
+    response.setContentType("application/json;charset=UTF-8");
+
+    Map<String, Object> successData = new HashMap<>();
+    successData.put("status", HttpServletResponse.SC_OK);
+    successData.put("message", message);
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    String responseBody = objectMapper.writeValueAsString(successData);
+
+    response.getWriter().write(responseBody);
   }
 }

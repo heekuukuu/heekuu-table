@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -25,6 +26,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(UsernameNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   @ResponseBody
+
   public String handleUsernameNotFoundException(UsernameNotFoundException ex) {
     return "아이디를 찾을 수 없습니다.";
   }
@@ -45,5 +47,6 @@ public class GlobalExceptionHandler {
   public ResponseEntity<String> handleGeneralException(Exception ex) {
     return new ResponseEntity<>("서버 에러가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
   }
+
 }
 

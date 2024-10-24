@@ -32,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
-
   private final JWTUtil jwtUtil;
   private final RefreshTokenRepository refreshTokenRepository;
   private final UserRepository userRepository;
@@ -43,9 +42,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     this.jwtUtil = jwtUtil;
     this.userRepository = userRepository;
     this.refreshTokenRepository = refreshTokenRepository;
-    //this.setFilterProcessesUrl("/users/login");
+    this.setFilterProcessesUrl("/users/login");
   }
-
 
   @Override
   public Authentication attemptAuthentication(HttpServletRequest request,
@@ -65,9 +63,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
       String username = loginDTO.getUsername();
       String password = loginDTO.getPassword();
 
-      // 비밀번호 확인 로그 추가
-      System.out.println("Username: " + username + ", Password: " + password);
-
       if (username == null || username.isEmpty()) {
         log.warn("로그인 실패: 아이디가 비어있습니다.");
         throw new UsernameNotFoundException("Username cannot be empty");
@@ -78,10 +73,22 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
       return this.getAuthenticationManager().authenticate(authRequest);
     } catch (IOException e) {
       log.error("로그인 요청 데이터 처리 중 오류 발생: {}", e.getMessage());
-      throw new CustomException("로그인 데이터 처리 중 오류가 발생했습니다.", HttpStatus.BAD_REQUEST);
+      try {
+        handleException(response,
+            new CustomException("로그인 데이터 처리 중 오류가 발생했습니다.", HttpStatus.BAD_REQUEST));
+      } catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+      return null;
     } catch (AuthenticationException ex) {
       log.warn("잘못된 로그인 시도: {}", ex.getMessage());
-      throw new CustomException("아이디 또는 비밀번호가 잘못되었습니다.", HttpStatus.UNAUTHORIZED);
+      try {
+        handleException(response,
+            new CustomException("아이디 또는 비밀번호가 잘못되었습니다.", HttpStatus.UNAUTHORIZED));
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      return null;
     }
   }
 
@@ -89,38 +96,39 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
   @Override
   protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
       FilterChain chain, Authentication authentication) throws IOException {
-    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal(); // User 객체를 가져옵니다.
-    User user = userDetails.getUser(); // CustomUserDetails에서 User 객체를 가져옴
-    Long userId = user.getUserId(); // user_id 가져오기
-    Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-    // String role = authorities.iterator().next().getAuthority();
-
-    // User 객체 유효성 검사
-    if (user == null || userId == null) {
-      log.error("User 객체가 null이거나 userId가 설정되지 않았습니다.");
-      throw new CustomException("User 정보가 올바르지 않습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-    // 권한 가져오기
-    String role = authorities.iterator().next().getAuthority();
-    if (role == null) {
-      log.error("User 권한 정보가 null입니다.");
-      throw new CustomException("권한 정보가 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
     try {
-      // 기존 RefreshToken 삭제
+      CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+      User user = userDetails.getUser();
+      Long userId = user.getUserId();
+      Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+
+      if (user == null || userId == null) {
+        log.error("User 객체가 null이거나 userId가 설정되지 않았습니다.");
+        throw new CustomException("User 정보가 올바르지 않습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+
+      boolean refreshTokenExists = refreshTokenRepository.existsByUser_UserId(userId);
+      if (refreshTokenExists) {
+        log.warn("중복된 로그인 시도가 감지되었습니다. 사용자 ID: {}", userId);
+        throw new CustomException("이미 로그인된 사용자입니다. 로그아웃 후 다시 시도해주세요.", HttpStatus.CONFLICT);
+      }
+
+      String role = authorities.iterator().next().getAuthority();
+      if (role == null) {
+        log.error("User 권한 정보가 null입니다.");
+        throw new CustomException("권한 정보가 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+
       refreshTokenRepository.deleteByUserId(userId);
-      // 토큰 생성
       String accessToken = jwtUtil.createJwt("access", user, role,
           Duration.ofMinutes(10).toMillis());
       String refreshToken = jwtUtil.createJwt("refresh", user, role, Duration.ofDays(7).toMillis());
 
       log.info("Access Token 생성 완료: {}", accessToken);
       log.info("Refresh Token 생성 완료: {}", refreshToken);
-      // Refresh 토큰 저장
-      addRefreshToken(user, refreshToken, Duration.ofDays(7).toMillis()); // User 객체를 전달
 
-      // 응답 설정
+      addRefreshToken(user, refreshToken, Duration.ofDays(7).toMillis());
+
       Map<String, String> tokens = new HashMap<>();
       tokens.put("accessToken", accessToken);
 
@@ -130,24 +138,33 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
       new ObjectMapper().writeValue(response.getWriter(), tokens);
       response.setStatus(HttpStatus.OK.value());
+    } catch (CustomException ex) {
+      handleException(response, ex);
     } catch (Exception e) {
-      // 토큰 생성 실패 시 예외 처리
-      log.error("토큰 생성 실패: {}", e.getMessage());
-      response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-      Map<String, String> error = new HashMap<>();
-      error.put("error", "Failed to generate tokens: " + e.getMessage());
-
-      response.setContentType("application/json");
-      response.setCharacterEncoding("UTF-8");
-      new ObjectMapper().writeValue(response.getWriter(), error);
+      log.error("예기치 않은 오류 발생: {}", e.getMessage());
+      handleException(response,
+          new CustomException("서버 에러가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR));
     }
+  }
+
+  private void handleException(HttpServletResponse response, CustomException ex)
+      throws IOException {
+    response.setStatus(ex.getStatus().value());
+    response.setContentType("application/json;charset=UTF-8");
+
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("status", ex.getStatus().value());
+    responseBody.put("error", ex.getMessage());
+
+    String jsonResponse = new ObjectMapper().writeValueAsString(responseBody);
+    response.getWriter().write(jsonResponse);
   }
 
   private void addRefreshToken(User user, String refreshToken, Long expiredMs) {
     Date expirationDate = new Date(System.currentTimeMillis() + expiredMs);
 
     RefreshToken refreshTokenEntity = new RefreshToken();
-    refreshTokenEntity.setUser(user); // User 객체를 설정
+    refreshTokenEntity.setUser(user);
     refreshTokenEntity.setRefresh(refreshToken);
     refreshTokenEntity.setExpiration(expirationDate.toString());
 
@@ -158,10 +175,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     Cookie cookie = new Cookie(key, value);
     cookie.setMaxAge(24 * 60 * 60);
     cookie.setHttpOnly(true);
+    cookie.setPath("/");
     return cookie;
   }
 
-  // 실패 처리
   @Override
   protected void unsuccessfulAuthentication(HttpServletRequest request,
       HttpServletResponse response, AuthenticationException failed) throws IOException {
@@ -176,5 +193,4 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     new ObjectMapper().writeValue(response.getWriter(), error);
   }
-
 }

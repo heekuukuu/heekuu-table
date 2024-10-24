@@ -13,4 +13,5 @@ public class CustomException extends RuntimeException {
     this.status = status;
   }
 
+
 }
