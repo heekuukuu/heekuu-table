@@ -15,19 +15,19 @@ public class Answer extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "answerId")
-    private Long id;
+    @Column(name = "answer_id")
+    private Long answerId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "questionId", nullable = false)
-    private Question question;
+    @JoinColumn(name = "question_id", nullable = false)
+    private Question questionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parentAnswerId")
-    private Answer parentAnswer;
+    @JoinColumn(name = "parent_answer_id")
+    private Answer parentAnswerId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_Id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(columnDefinition = "TEXT", nullable = false)
