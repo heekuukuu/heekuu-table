@@ -22,11 +22,11 @@ public class Comment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "answer_id", nullable = false)
-    private Answer answerId;
+    private Answer answer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User userId;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
@@ -40,6 +40,4 @@ public class Comment extends BaseEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    // 생성자, getter, setter 추가
 }

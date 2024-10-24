@@ -1,9 +1,11 @@
 package helloworld.studytogether.comment.service;
 
+import helloworld.studytogether.answer.entity.Answer;
 import helloworld.studytogether.answer.repository.AnswerRepository;
 import helloworld.studytogether.comment.entity.Comment;
 import helloworld.studytogether.comment.repository.CommentRepository;
 import helloworld.studytogether.user.entity.Count;
+import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.user.repository.CountRepository;
 import helloworld.studytogether.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +37,9 @@ public class CommentService {
         }
 
         Comment comment = new Comment();
-        comment.setAnswerId(answerRepository.findById(answerId)
+        comment.setAnswer(answerRepository.findById(answerId)
                 .orElseThrow(() -> new RuntimeException("답변을 찾을 수 없습니다.")));
-        comment.setUserId(userRepository.findById(userId)
+        comment.setUser(userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다.")));
         comment.setContent(content);
         comment.setParentComment(parentComment);
@@ -50,7 +52,9 @@ public class CommentService {
     }
 
     public List<Comment> getCommentsForAnswer(Long answerId) {
-        return commentRepository.findByAnswerIdAndParentCommentIsNull(answerId);
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new RuntimeException("Answer not found"));
+        return commentRepository.findByAnswerAndParentCommentIsNull(answer);
     }
 
     public List<Comment> getRepliesForComment(Long commentId) {
@@ -66,7 +70,7 @@ public class CommentService {
                 .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
 
         // 댓글 작성자 확인
-        if (!comment.getUserId().getUserId().equals(userId)) {
+        if (!comment.getUser().getUserId().equals(userId)) {
             throw new RuntimeException("본인의 댓글만 수정할 수 있습니다.");
         }
 
@@ -82,7 +86,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
 
-        if (!comment.getUserId().getUserId().equals(userId)) {
+        if (!comment.getUser().getUserId().equals(userId)) {
             throw new RuntimeException("본인의 댓글만 삭제할 수 있습니다.");
         }
 
@@ -90,7 +94,10 @@ public class CommentService {
     }
 
     private void updateCommentCount(Long userId) {
-        Count userCount = countRepository.findByUserId(userId);
+        // User 객체를 조회하여 Count 업데이트
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+        Count userCount = countRepository.findByUser(user);  // User 객체로 조회
         userCount.setCommentCount(userCount.getCommentCount() + 1);  // 댓글 수 증가
         countRepository.save(userCount);
     }
