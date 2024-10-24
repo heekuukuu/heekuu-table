@@ -1,64 +1,74 @@
 package helloworld.studytogether.jwt.util;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import helloworld.studytogether.user.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
+import java.util.function.Function;
 
-//jwt 발급 검증
 @Component
 public class JWTUtil {
 
-  private static SecretKey secretKey;
+  private final Key key;
 
-
+  // 생성자: Base64로 인코딩된 시크릿을 디코딩해서 사용
   public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
-    secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
-        Jwts.SIG.HS256.key().build().getAlgorithm());
+    byte[] keyBytes = Decoders.BASE64.decode(secret);  // Base64 디코딩
+    this.key = Keys.hmacShaKeyFor(keyBytes); // 키 생성
   }
 
+  private Claims getClaims(String token) {
+    return Jwts.parser()
+        .setSigningKey(key)
+        .build()
+        .parseClaimsJws(token)
+        .getBody();
+  }
+
+
+  // User ID 추출
   public Long getUserId(String token) {
-
-    return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-        .get("userid", Long.class);
+    Claims claims = getClaims(token);
+    return claims.get("userid", Long.class);
   }
+
+  // 토큰 타입 추출
   public String getTokenType(String token) {
-
-    return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-        .get("tokenType", String.class);
-
+    Claims claims = getClaims(token);
+    return claims.get("tokenType", String.class);
   }
 
 
+  // Role 추출
   public String getRole(String token) {
-
-    return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-        .get("role", String.class);
+    Claims claims = getClaims(token);
+    return claims.get("role", String.class);
   }
 
-  // 토큰 만료여부확인
-  public static void isExpired(String token) {
-
-    Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-        .getExpiration();
+  // 토큰 만료 여부 확인
+  public boolean isExpired(String token) {
+    Claims claims = getClaims(token);
+    return claims.getExpiration().before(new Date());
   }
 
-  // 토큰생성
+  // 토큰 생성
   public String createJwt(String tokenType, User user, String role, Long expiredMs) {
+    Date now = new Date();
+    Date expiration = new Date(now.getTime() + expiredMs);
 
     return Jwts.builder()
-        .claim("tokenType", tokenType) // 토큰확인 ( 리프레시 토큰 or 엑세스 토큰)
+        .claim("tokenType", tokenType)
         .claim("userid", user.getUserId())
         .claim("role", role)
-        .issuedAt(new Date(System.currentTimeMillis()))
-        .expiration(new Date(System.currentTimeMillis() + expiredMs))
-        .signWith(secretKey)
-
+        .setIssuedAt(now)  //
+        .setExpiration(expiration)  //
+        .signWith(key)
         .compact();
   }
 }
