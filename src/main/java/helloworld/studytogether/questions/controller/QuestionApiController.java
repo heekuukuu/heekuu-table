@@ -63,13 +63,12 @@ public class QuestionApiController {
    *
    * @param pageable       페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
    *                       DESC)
-   * @param authentication 현재 인증된 사용자 정보
    * @return 페이징된 문제목록 반환
    */
   @GetMapping()
   public ResponseEntity<Page<GetQuestionResponseDto>> getUserQuestions(
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-      Pageable pageable, Authentication authentication) {
+      Pageable pageable) {
 
     Long userId = securityUtil.getCurrentUserId();
     Page<GetQuestionResponseDto> questions = questionService.getQuestionList(userId, pageable);
@@ -82,15 +81,13 @@ public class QuestionApiController {
    * @param subjectName    과목명
    * @param pageable       페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
    *                       *                       DESC)
-   * @param authentication 현재 인증된 사용자 정보
    * @return 사용자가 선택한 과목별 조회 내용 반환
    */
   @GetMapping("/{subjectName}")
   public ResponseEntity<Page<GetQuestionResponseDto>> getQuestionBySubject(
       @PathVariable @NotNull String subjectName,
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-      Pageable pageable,
-      Authentication authentication) {
+      Pageable pageable) {
 
     try {
       Long userId = securityUtil.getCurrentUserId();
