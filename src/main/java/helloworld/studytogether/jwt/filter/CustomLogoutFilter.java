@@ -38,7 +38,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
     // 로그아웃 경로와 메서드 검증
     String requestUri = request.getRequestURI();
-    if (!requestUri.matches("^\\/user\\/logout$")) { //엔드포인트
+    if (!requestUri.matches("^\\/users\\/logout$")) { //엔드포인트
       filterChain.doFilter(request, response);
       return;
     }

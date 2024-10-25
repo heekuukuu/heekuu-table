@@ -70,7 +70,7 @@ public class SecurityConfig {
             .requestMatchers("/api/answers/**").hasAnyAuthority("USER", "ADMIN")
             .requestMatchers("/question").hasAnyAuthority("USER", "ADMIN")
             .requestMatchers("/user/**").hasAuthority("USER")  // USER (접두사 없이직접권한확인 )
-            .requestMatchers("/", "/logout", "/users/login", "/join", "/reissue").permitAll()
+            .requestMatchers("/", "/users/logout", "/users/login", "/join", "/reissue").permitAll()
 
             .anyRequest().authenticated());
 
