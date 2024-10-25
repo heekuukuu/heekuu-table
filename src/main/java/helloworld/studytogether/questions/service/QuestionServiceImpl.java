@@ -1,14 +1,20 @@
 package helloworld.studytogether.questions.service;
 
+import helloworld.studytogether.common.util.ImageUtil;
+import helloworld.studytogether.common.util.SecurityUtil;
 import helloworld.studytogether.questions.dto.GetQuestionResponseDto;
+import helloworld.studytogether.questions.dto.UpdateQuestionRequest;
+import helloworld.studytogether.questions.dto.UpdateQuestionResponse;
 import helloworld.studytogether.questions.type.SubjectNames;
 import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +29,8 @@ public class QuestionServiceImpl implements QuestionService {
 
   private final QuestionRepository questionRepository;
   private final UserRepository userRepository;
+  private final SecurityUtil securityUtil;
+  private final ImageUtil imageUtil;
 
   /**
    * 새로운 질문을 저장합니다.
@@ -92,5 +100,42 @@ public class QuestionServiceImpl implements QuestionService {
   ){
     Page<Question> questions = questionRepository.findAllByUser_UserIdAndSubjectName(userId, subjectNames, pageable);
     return questions.map(GetQuestionResponseDto::fromEntity);
+  }
+
+  /**
+   * 질문을 수정하는 서비스 로직
+   *
+   * @param questionId 등록된 질문의 고유 번호
+   * @param request 요청 dto로 전달된 질문 수정 내용
+   * @return 수정된 값을 포함한 해당 질문 전체 내용 반환
+   */
+  @Transactional
+  public UpdateQuestionResponse updateQuestion(Long questionId, UpdateQuestionRequest request){
+    Question question = questionRepository.findById(questionId)
+        .orElseThrow(() -> new EntityNotFoundException("질문을 찾을 수 없습니다"));
+
+    Long currentUserId = securityUtil.getCurrentUserId();
+    if (!question.getUser().getUserId().equals(currentUserId)) {
+      throw new AccessDeniedException("질문을 수정할 권한이 없습니다");
+    }
+
+    request.validate();
+    byte[] imageBytes = imageUtil.convertToBytes(request.getImage());
+
+    try {
+      question.update(
+          request.getTitle(),
+          request.getSubjectName(),
+          request.getContent(),
+          imageBytes
+      );
+    } catch (IllegalStateException e) {
+      throw new IllegalStateException("이미 해결된 질문은 수정할 수 없습니다.");
+    }
+    return UpdateQuestionResponse.fromEntity(question);
+  }
+
+  public Question deleteQuestion(){
+    return null;
   }
 }
