@@ -5,6 +5,7 @@ import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.common.entity.BaseEntity;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
@@ -43,11 +44,28 @@ public class Answer extends BaseEntity {
     @Column
     private Integer likes = 0;
 
-    // 좋아요 수가 음수로 감소하지 않도록 처리
+    @Column(name = "is_selected", nullable = false)
+    private boolean isSelected = false;
+
+    // JPA를 위한 기본 생성자 (protected 접근자)
+    protected Answer() {}
+
+    @Builder
+    public Answer(Question question, User user, String content, String image, Integer likes, boolean isSelected) {
+        this.questionId = question;
+        this.user = user;
+        this.content = content;
+        this.image = image;
+        this.likes = likes != null ? likes : 0;
+        this.isSelected = isSelected;
+    }
+
+    // 좋아요 증가 메서드
     public void incrementLikes() {
         this.likes += 1;
     }
 
+    // 좋아요 감소 메서드
     public void decrementLikes() {
         if (this.likes > 0) {
             this.likes -= 1;
@@ -55,12 +73,6 @@ public class Answer extends BaseEntity {
             throw new IllegalStateException("좋아요를 취소할 수 없습니다.");
         }
     }
-
-    @Column(name = "is_selected", nullable = false)
-    private boolean isSelected = false;
-
-    // JPA를 위한 기본 생성자 (protected 접근자)
-    protected Answer() {}
 
     // 답변 채택 메서드
     public void selectAnswer() {
@@ -74,15 +86,5 @@ public class Answer extends BaseEntity {
 
     public void updateContent(String content) {
         this.content = content;
-    }
-
-
-    public Answer(Question question, User user, String content, String image, Integer likes, boolean isSelected) {
-        this.questionId = question;
-        this.user = user;
-        this.content = content;
-        this.image = image;
-        this.likes = likes != null ? likes : 0;
-        this.isSelected = isSelected;
     }
 }
