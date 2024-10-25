@@ -6,12 +6,10 @@ import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "answers")
 public class Answer extends BaseEntity {
@@ -53,9 +51,38 @@ public class Answer extends BaseEntity {
     public void decrementLikes() {
         if (this.likes > 0) {
             this.likes -= 1;
+        } else {
+            throw new IllegalStateException("좋아요를 취소할 수 없습니다.");
         }
     }
 
     @Column(name = "is_selected", nullable = false)
     private boolean isSelected = false;
+
+    // JPA를 위한 기본 생성자 (protected 접근자)
+    protected Answer() {}
+
+    // 답변 채택 메서드
+    public void selectAnswer() {
+        this.isSelected = true;
+    }
+
+    // 답변 채택 취소 메서드
+    public void unselectAnswer() {
+        this.isSelected = false;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+
+    public Answer(Question question, User user, String content, String image, Integer likes, boolean isSelected) {
+        this.questionId = question;
+        this.user = user;
+        this.content = content;
+        this.image = image;
+        this.likes = likes != null ? likes : 0;
+        this.isSelected = isSelected;
+    }
 }

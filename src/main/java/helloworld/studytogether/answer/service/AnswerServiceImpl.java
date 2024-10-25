@@ -39,13 +39,14 @@ public class AnswerServiceImpl implements AnswerService {
             .orElseThrow(() -> new RuntimeException("User not found with id: " + answerDTO.getUserId()));
 
         // Answer 엔티티 생성 및 값 설정
-        Answer answer = new Answer();
-        answer.setContent(answerDTO.getContent());
-        answer.setQuestionId(question);  // Question 설정
-        answer.setUser(user);  // User 설정
-        answer.setImage(answerDTO.getImage());
-        answer.setLikes(answerDTO.getLikes());
-        answer.setSelected(answerDTO.isSelected());
+        Answer answer = new Answer(
+                question,
+                user,
+                answerDTO.getContent(),
+                answerDTO.getImage(),
+                answerDTO.getLikes(),
+                answerDTO.isSelected()
+        );
 
         // Answer 저장
         Answer savedAnswer = answerRepository.save(answer);
@@ -67,13 +68,16 @@ public class AnswerServiceImpl implements AnswerService {
     public AnswerDTO updateAnswer(Long id, AnswerDTO answerDTO) {
         Answer answer = answerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Answer not found with id: " + id));
-        answer.setContent(answerDTO.getContent());
+
+        // 'content' 필드 업데이트
+        answer.updateContent(answerDTO.getContent());
         // 필요한 경우 다른 필드 업데이트
-        // answer.setImage(answerDTO.getImage());
+        // answer.updateImage(answerDTO.getImage()); // 이미지 업데이트용 메서드 추가 시
 
         Answer updatedAnswer = answerRepository.save(answer);
         return convertToDTO(updatedAnswer);
-    }  //기존 답변을 수정
+    }
+    //기존 답변을 수정
 
     @Override
     @Transactional
@@ -103,7 +107,7 @@ public class AnswerServiceImpl implements AnswerService {
                 .orElseThrow(() -> new EntityNotFoundException("Answer not found with id: " + answerId));
 
         // '좋아요' 증가
-        answer.setLikes(answer.getLikes() + 1);
+        answer.incrementLikes();
         answerRepository.save(answer);
     }
 
@@ -113,13 +117,9 @@ public class AnswerServiceImpl implements AnswerService {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new EntityNotFoundException("Answer not found with id: " + answerId));
 
-        // '좋아요' 수가 0보다 크면 1 감소
-        if (answer.getLikes() > 0) {
-            answer.setLikes(answer.getLikes() - 1);
-        } else {
-            throw new IllegalStateException("좋아요를 취소할 수 없습니다.");
-        }
-
+        // '좋아요' 감소
+        answer.decrementLikes();
         answerRepository.save(answer);
     }
+
 }  //엔티티를 dto로 변환하여 클라이언트와 데이터 전송 시 필요한 형식으로 변경
