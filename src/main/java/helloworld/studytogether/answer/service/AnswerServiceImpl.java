@@ -3,13 +3,11 @@ package helloworld.studytogether.answer.service;
 import helloworld.studytogether.answer.entity.Answer;
 import helloworld.studytogether.answer.dto.AnswerDTO;
 import helloworld.studytogether.answer.repository.AnswerRepository;
-import jakarta.persistence.EntityNotFoundException;
 import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.questions.repository.QuestionRepository;
 import helloworld.studytogether.user.entity.User;
-import helloworld.studytogether.user.entity.Role;
-import jakarta.persistence.EntityNotFoundException;
 import helloworld.studytogether.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,33 +18,36 @@ public class AnswerServiceImpl implements AnswerService {
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
     private final UserRepository userRepository;
+
     @Autowired
     public AnswerServiceImpl(AnswerRepository answerRepository,
-        QuestionRepository questionRepository, UserRepository userRepository) {
+                             QuestionRepository questionRepository,
+                             UserRepository userRepository) {
         this.answerRepository = answerRepository;
-      this.questionRepository = questionRepository;
-      this.userRepository = userRepository;
+        this.questionRepository = questionRepository;
+        this.userRepository = userRepository;
     }
+
     @Override
     @Transactional
     public AnswerDTO createAnswer(AnswerDTO answerDTO) {
         // Question 객체 찾기 (questionId로)
         Question question = questionRepository.findById(answerDTO.getQuestionId())
-            .orElseThrow(() -> new RuntimeException("Question not found with id: " + answerDTO.getQuestionId()));
+                .orElseThrow(() -> new RuntimeException("Question not found with id: " + answerDTO.getQuestionId()));
 
         // User 객체 찾기 (userId로)
         User user = userRepository.findById(answerDTO.getUserId())
-            .orElseThrow(() -> new RuntimeException("User not found with id: " + answerDTO.getUserId()));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + answerDTO.getUserId()));
 
-        // Answer 엔티티 생성 및 값 설정
-        Answer answer = new Answer(
-                question,
-                user,
-                answerDTO.getContent(),
-                answerDTO.getImage(),
-                answerDTO.getLikes(),
-                answerDTO.isSelected()
-        );
+        // Answer 엔티티 생성 및 값 설정 (빌더 패턴 사용)
+        Answer answer = Answer.builder()
+                .question(question)
+                .user(user)
+                .content(answerDTO.getContent())
+                .image(answerDTO.getImage())
+                .likes(answerDTO.getLikes() != null ? answerDTO.getLikes() : 0)
+                .isSelected(answerDTO.isSelected())
+                .build();
 
         // Answer 저장
         Answer savedAnswer = answerRepository.save(answer);
@@ -94,8 +95,8 @@ public class AnswerServiceImpl implements AnswerService {
         answerDTO.setCreatedAt(answer.getCreatedAt());
         answerDTO.setUpdatedAt(answer.getUpdatedAt());
         // 필요한 경우, 다른 필드도 DTO에 설정
-         answerDTO.setQuestionId(answer.getQuestionId().getQuestionId());
-         answerDTO.setUserId(answer.getUser().getUserId());
+        answerDTO.setQuestionId(answer.getQuestionId().getQuestionId());
+        answerDTO.setUserId(answer.getUser().getUserId());
         return answerDTO;
     }
 
@@ -129,15 +130,16 @@ public class AnswerServiceImpl implements AnswerService {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new EntityNotFoundException("Answer not found with id: " + answerId));
 
-        // 답변 채택
-        answer.selectAnswer();
+        // 중복 채택 방지: 이미 채택된 답변이 있으면 예외 발생
+        if (answerRepository.findByQuestionIdAndIsSelectedTrue(questionId).isPresent()) {
+            throw new IllegalStateException("A selected answer already exists for this question.");
+        }
 
-        // 질문을 해결 상태로 변경
+        // 답변 채택 및 질문 상태 변경
+        answer.selectAnswer();
         question.markAsSolved();
 
         answerRepository.save(answer);
         questionRepository.save(question);
     }
-
-
-}  //엔티티를 dto로 변환하여 클라이언트와 데이터 전송 시 필요한 형식으로 변경
+}
