@@ -18,7 +18,7 @@ public class JoinController {
   }
 
 
-  @PostMapping("/join")
+  @PostMapping("/users/join")
   public String joinProcess(@RequestBody JoinDTO joinDTO) {
     System.out.println("data =" + joinDTO);
     joinService.joinProcess(joinDTO);

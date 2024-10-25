@@ -68,12 +68,11 @@ public class SecurityConfig {
    
             .requestMatchers( "/admin/**").hasAuthority("ADMIN")
             .requestMatchers("/user/**").hasAuthority("USER")
-
             .requestMatchers("/api/answers/**").hasAnyAuthority("USER", "ADMIN")
             .requestMatchers("/questions").hasAnyAuthority("USER", "ADMIN")
 
-            .requestMatchers("/", "/users/logout", "/users/login", "/join",
-                "/token/reissue","/questions/**").permitAll()
+            .requestMatchers("/", "/users/logout", "/users/login", "users/join",
+                "/token/reissue","/questions/**","/api/answers/{answerId}").permitAll()
 
             .anyRequest().authenticated());
 
