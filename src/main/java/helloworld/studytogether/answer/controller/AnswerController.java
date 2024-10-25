@@ -62,9 +62,8 @@ public class AnswerController {
 
     // 답변 채택
     @PatchMapping("/questions/{questionId}/select-answer/{answerId}")
-    public ResponseEntity<Void> selectAnswer(@PathVariable Long question_id, @PathVariable Long answer_id) {
-        answerService.selectAnswer(question_id, answer_id);
+    public ResponseEntity<Void> selectAnswer(@PathVariable("questionId") Long questionId, @PathVariable("answerId") Long answerId) {
+        answerService.selectAnswer(questionId, answerId);
         return ResponseEntity.ok().build();
     }
-
 }
