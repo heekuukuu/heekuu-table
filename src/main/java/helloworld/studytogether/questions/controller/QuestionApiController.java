@@ -1,36 +1,48 @@
 package helloworld.studytogether.questions.controller;
 
-import helloworld.studytogether.questions.dto.AddQuestionRequestDto;
+import helloworld.studytogether.common.exception.CustomException;
+import helloworld.studytogether.common.exception.ErrorCode;
+import helloworld.studytogether.jwt.util.SecurityUtil;
 import helloworld.studytogether.questions.dto.AddQuestionResponseDto;
+import helloworld.studytogether.questions.dto.GetQuestionResponseDto;
+import helloworld.studytogether.questions.dto.QuestionRequest;
 import helloworld.studytogether.questions.entity.Question;
+import helloworld.studytogether.questions.service.QuestionService;
+import helloworld.studytogether.questions.type.SubjectNames;
+import helloworld.studytogether.user.dto.CustomUserDetails;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import helloworld.studytogether.questions.service.QuestionService;
-import helloworld.studytogether.user.dto.CustomUserDetails;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/question")
+@RequestMapping("/questions")
 public class QuestionApiController {
 
+  private final SecurityUtil securityUtil;
   private final QuestionService questionService;
 
   @PostMapping
-  @PreAuthorize("hasAuthority('USER')")
   public ResponseEntity<AddQuestionResponseDto> addQuestion(
-      @RequestBody @Valid AddQuestionRequestDto addQuestionRequest,
-      Authentication authentication) throws IOException {
+      @ModelAttribute @Valid QuestionRequest addQuestionRequest, Authentication authentication)
+      throws IOException {
+
     // 인증된 유저의 정보를 가져와 userId 추출
     CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
     Long userId = userDetails.getUserId();  // 인증된 유저의 userId 추출
@@ -41,5 +53,52 @@ public class QuestionApiController {
 
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(responseDto);
+  }
+
+  /**
+   * 사용자 별 등록한 전체 문제를 조회합니다.
+   *
+   * @param pageable       페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
+   *                       DESC)
+   * @param authentication 현재 인증된 사용자 정보
+   * @return 페이징된 문제목록 반환
+   */
+  @GetMapping()
+  public ResponseEntity<Page<GetQuestionResponseDto>> getUserQuestions(
+      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+      Pageable pageable, Authentication authentication) {
+
+    Long userId = securityUtil.getCurrentUserId(authentication);
+    Page<GetQuestionResponseDto> questions = questionService.getQuestionList(userId, pageable);
+    return ResponseEntity.ok(questions);
+  }
+
+  /**
+   * 사용자가 등록한 문제를 과목별로 조회합니다.
+   *
+   * @param subjectName 과목명
+   * @param pageable 페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
+   *    *                       DESC)
+   * @param authentication 현재 인증된 사용자 정보
+   * @return 사용자가 선택한 과목별 조회 내용 반환
+   */
+  @GetMapping("/{subjectName}")
+  public ResponseEntity<Page<GetQuestionResponseDto>> getQuestionBySubject(
+      @PathVariable @NotNull String subjectName,
+      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+      Pageable pageable,
+      Authentication authentication) {
+
+    try {
+      Long userId = securityUtil.getCurrentUserId(authentication);
+      SubjectNames subject = SubjectNames.valueOf(subjectName.toUpperCase());
+
+      Page<GetQuestionResponseDto> questions =
+          questionService.getQuestionListBySubject(userId, subject, pageable);
+      return ResponseEntity.ok(questions);
+
+    } catch (IllegalArgumentException e) {
+      throw new CustomException(ErrorCode.INVALID_SUBJECT);
+    }
   }
 }

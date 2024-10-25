@@ -14,11 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import java.time.LocalDateTime;
-import java.util.Date;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,27 +49,20 @@ public class Question extends BaseEntity {
   @Lob
   private byte[] image;
 
-
-
-
   @Column(name = "is_solved", nullable = false)
   private boolean isSolved = false;
 
   @Builder
   public Question(
-      User user, String title, SubjectNames subjectName, String content, byte[] image,
-      boolean isSolved, Date createdAt) {
+      User user, String title, SubjectNames subjectName, String content, byte[] image
+  ) {
 
     this.user = user;
     this.title = title;
     this.subjectName = subjectName;
     this.content = content;
     this.image = image;
-    this.isSolved = isSolved;
-
   }
-
-
 
   /**
    * 해결여부를 동적으로 관리하기 위한 메서드

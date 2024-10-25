@@ -1,52 +1,60 @@
 package helloworld.studytogether.common.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+@Slf4j
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
+  // CustomException 처리
   @ExceptionHandler(CustomException.class)
-  @ResponseBody
-  public ResponseEntity<String> handleCustomException(CustomException ex) {
-    return new ResponseEntity<>(ex.getMessage(), ex.getStatus());
+  protected ResponseEntity<ErrorResponse> handleCustomException(
+      CustomException e, HttpServletRequest request) {
+    log.error("CustomException: {}", e.getMessage());
+    ErrorResponse response = ErrorResponse.of(
+        e.getErrorCode(),
+        request.getRequestURI()
+    );
+    return ResponseEntity
+        .status(e.getErrorCode().getStatus())
+        .body(response);
   }
 
-  // UsernameNotFoundException 예외 처리
-  @ExceptionHandler(UsernameNotFoundException.class)
-  @ResponseStatus(HttpStatus.NOT_FOUND)
-  @ResponseBody
-
-  public String handleUsernameNotFoundException(UsernameNotFoundException ex) {
-    return "아이디를 찾을 수 없습니다.";
-  }
-
+  // 유효성 검사 실패 처리
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
-    Map<String, String> errors = new HashMap<>();
-    ex.getBindingResult().getAllErrors().forEach((error) -> {
-      String fieldName = ((FieldError) error).getField();
-      String errorMessage = error.getDefaultMessage();
-      errors.put(fieldName, errorMessage);
-    });
-    return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-  }  // 기타 일반 예외 처리
-
-  @ExceptionHandler(Exception.class)
-  @ResponseBody
-  public ResponseEntity<String> handleGeneralException(Exception ex) {
-    return new ResponseEntity<>("서버 에러가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+  protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
+      MethodArgumentNotValidException e, HttpServletRequest request) {
+    log.error("Validation error: {}", e.getMessage());
+    ErrorResponse response = ErrorResponse.of(
+        ErrorCode.INVALID_INPUT_VALUE,
+        request.getRequestURI()
+    );
+    return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
+        .body(response);
   }
 
+  // IllegalArgumentException 처리
+  @ExceptionHandler(IllegalArgumentException.class)
+  protected ResponseEntity<ErrorResponse> handleIllegalArgument(
+      IllegalArgumentException e, HttpServletRequest request) {
+    log.error("IllegalArgumentException: {}", e.getMessage());
+    ErrorResponse response = ErrorResponse.of(
+        ErrorCode.INVALID_INPUT_VALUE,
+        request.getRequestURI()
+    );
+    return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
+        .body(response);
+  }
 }
-
