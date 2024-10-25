@@ -122,4 +122,22 @@ public class AnswerServiceImpl implements AnswerService {
         answerRepository.save(answer);
     }
 
+    @Transactional
+    public void selectAnswer(Long questionId, Long answerId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new EntityNotFoundException("Question not found with id: " + questionId));
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new EntityNotFoundException("Answer not found with id: " + answerId));
+
+        // 답변 채택
+        answer.selectAnswer();
+
+        // 질문을 해결 상태로 변경
+        question.markAsSolved();
+
+        answerRepository.save(answer);
+        questionRepository.save(question);
+    }
+
+
 }  //엔티티를 dto로 변환하여 클라이언트와 데이터 전송 시 필요한 형식으로 변경

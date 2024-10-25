@@ -54,9 +54,8 @@ public class Question extends BaseEntity {
 
   @Builder
   public Question(
-      User user, String title, SubjectNames subjectName, String content, byte[] image
+          User user, String title, SubjectNames subjectName, String content, byte[] image
   ) {
-
     this.user = user;
     this.title = title;
     this.subjectName = subjectName;
@@ -71,5 +70,12 @@ public class Question extends BaseEntity {
    */
   public void updateSolvedStatus(boolean isSolved) {
     this.isSolved = isSolved;
+  }
+
+  /**
+   * 답변이 채택되었을 때 질문을 해결 상태로 표시하는 메서드
+   */
+  public void markAsSolved() {
+    this.isSolved = true;
   }
 }

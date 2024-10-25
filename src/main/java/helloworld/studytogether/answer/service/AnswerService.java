@@ -9,4 +9,5 @@ public interface AnswerService {
     void deleteAnswer(Long id);
     void likeAnswer(Long answerId);
     void unlikeAnswer(Long answerId);
+    void selectAnswer(Long questionId, Long answerId);
 }

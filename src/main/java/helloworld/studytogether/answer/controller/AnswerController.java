@@ -60,11 +60,11 @@ public class AnswerController {
         return ResponseEntity.ok().build();
     }
 
-    /** 답변 채택
+    // 답변 채택
     @PatchMapping("/questions/{questionId}/select-answer/{answerId}")
     public ResponseEntity<Void> selectAnswer(@PathVariable Long question_id, @PathVariable Long answer_id) {
         answerService.selectAnswer(question_id, answer_id);
         return ResponseEntity.ok().build();
     }
-    */
+
 }
