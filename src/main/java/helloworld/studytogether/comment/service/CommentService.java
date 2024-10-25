@@ -10,7 +10,6 @@ import helloworld.studytogether.user.repository.CountRepository;
 import helloworld.studytogether.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -36,19 +35,18 @@ public class CommentService {
                     .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
         }
 
-        Comment comment = new Comment();
-        comment.setAnswer(answerRepository.findById(answerId)
-                .orElseThrow(() -> new RuntimeException("답변을 찾을 수 없습니다.")));
-        comment.setUser(userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다.")));
-        comment.setContent(content);
-        comment.setParentComment(parentComment);
-        comment.setCreatedAt(LocalDateTime.now());
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new RuntimeException("답변을 찾을 수 없습니다."));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        Comment comment = new Comment(answer, user, content, parentComment);  // 생성자 사용
 
         Comment savedComment = commentRepository.save(comment);
         updateCommentCount(userId);
 
-        return commentRepository.save(comment);
+        return savedComment;
     }
 
     public List<Comment> getCommentsForAnswer(Long answerId) {
@@ -74,9 +72,8 @@ public class CommentService {
             throw new RuntimeException("본인의 댓글만 수정할 수 있습니다.");
         }
 
-        // 댓글 내용 수정
-        comment.setContent(content);
-        comment.setUpdatedAt(LocalDateTime.now());
+        // 댓글 내용 수정 (setter 대신 비즈니스 메서드 사용)
+        comment.updateContent(content);
 
         return commentRepository.save(comment); // 수정된 댓글 저장
     }
@@ -94,11 +91,10 @@ public class CommentService {
     }
 
     private void updateCommentCount(Long userId) {
-        // User 객체를 조회하여 Count 업데이트
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
-        Count userCount = countRepository.findByUser(user);  // User 객체로 조회
+        // userId로 Count 조회
+        Count userCount = countRepository.findByUser_UserId(userId);
         userCount.setCommentCount(userCount.getCommentCount() + 1);  // 댓글 수 증가
         countRepository.save(userCount);
     }
 }
+
