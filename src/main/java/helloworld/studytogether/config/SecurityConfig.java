@@ -67,10 +67,13 @@ public class SecurityConfig {
         .authorizeHttpRequests((auth) -> auth
    
             .requestMatchers( "/admin/**").hasAuthority("ADMIN")
+            .requestMatchers("/user/**").hasAuthority("USER")
+
             .requestMatchers("/api/answers/**").hasAnyAuthority("USER", "ADMIN")
             .requestMatchers("/questions").hasAnyAuthority("USER", "ADMIN")
-            .requestMatchers("/user/**").hasAuthority("USER")  // USER (접두사 없이직접권한확인 )
-            .requestMatchers("/", "/users/logout", "/users/login", "/join", "/token/reissue").permitAll()
+
+            .requestMatchers("/", "/users/logout", "/users/login", "/join",
+                "/token/reissue","/questions/**").permitAll()
 
             .anyRequest().authenticated());
 

@@ -66,10 +66,11 @@ public class QuestionServiceImpl implements QuestionService {
     }
   }
 
+
   /**
-   * 사용자별 등록한 질문 목록을 조회합니다.
+   * 인증된 사용자가 등록한 질문 목록을 조회합니다.
    *
-   * @param userId 조회할 질문 목록의 사용자 ID
+   * @param userId   조회할 사용자 ID
    * @param pageable 페이지네이션 정보
    * @return 조회한 질문 목록을 반환합니다.
    */
@@ -79,18 +80,45 @@ public class QuestionServiceImpl implements QuestionService {
   }
 
   /**
+   * 인증된 사용자가 선택한 과목별 질문 목록을 조회합니다.
    *
-   * @param userId 조회할 질문 목록의 사용자 ID
-   * @param subjectNames 사용자가 선택한 과목 이름
-   * @param pageable 페이지네이션 정보
-   * @return 조회한 질문 목록을 반환합니다.
+   * @param userId        조회할 사용자 ID
+   * @param subjectNames  사용자가 선택한 과목 이름
+   * @param pageable      페이지네이션 정보
+   * @return 조회한 과목별 질문 목록을 반환합니다.
    */
   public Page<GetQuestionResponseDto> getQuestionListBySubject(
       Long userId,
       SubjectNames subjectNames,
       Pageable pageable
-  ){
+  ) {
     Page<Question> questions = questionRepository.findAllByUser_UserIdAndSubjectName(userId, subjectNames, pageable);
+    return questions.map(GetQuestionResponseDto::fromEntity);
+  }
+
+  /**
+   * 모든 사용자가 접근 가능한 전체 질문 목록을 조회합니다.
+   *
+   * @param pageable 페이지네이션 정보
+   * @return 조회한 전체 질문 목록을 반환합니다.
+   */
+  public Page<GetQuestionResponseDto> getAllQuestions(Pageable pageable) {
+    Page<Question> questions = questionRepository.findAll(pageable);
+    return questions.map(GetQuestionResponseDto::fromEntity);
+  }
+
+  /**
+   * 모든 사용자가 선택한 과목의 전체 질문 목록을 조회합니다.
+   *
+   * @param subjectNames 과목명
+   * @param pageable 페이지네이션 정보
+   * @return 조회한 과목별 질문 목록을 반환합니다.
+   */
+  public Page<GetQuestionResponseDto> getAllQuestionsBySubject(
+      SubjectNames subjectNames,
+      Pageable pageable
+  ) {
+    Page<Question> questions = questionRepository.findAllBySubjectName(subjectNames, pageable);
     return questions.map(GetQuestionResponseDto::fromEntity);
   }
 }

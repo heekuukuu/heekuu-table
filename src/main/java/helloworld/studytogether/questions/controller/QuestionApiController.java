@@ -38,7 +38,65 @@ public class QuestionApiController {
   private final SecurityUtil securityUtil;
   private final QuestionService questionService;
 
-  @PostMapping
+
+  /**
+   * 모든 사용자가 접근 가능한 전체 문제를 조회합니다.
+   *
+   * @param pageable 페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
+   *                 DESC)
+   * @return 페이징된 전체 문제 목록 반환
+   */
+  @GetMapping("/all")
+  public ResponseEntity<Page<GetQuestionResponseDto>> getAllQuestions(
+      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+    Page<GetQuestionResponseDto> questions = questionService.getAllQuestions(pageable);
+    return ResponseEntity.ok(questions);
+  }
+
+  /**
+   * 인증된 사용자가 등록한 전체 문제를 조회합니다.
+   *
+   * @param pageable       페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
+   *                       DESC)
+   * @param authentication 현재 인증된 사용자 정보
+   * @return 페이징된 문제목록 반환
+   */
+  @GetMapping("/user")
+  public ResponseEntity<Page<GetQuestionResponseDto>> getUserQuestions(
+      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+      Authentication authentication) {
+
+    Long userId = securityUtil.getCurrentUserId(authentication);
+    Page<GetQuestionResponseDto> questions = questionService.getQuestionList(userId, pageable);
+    return ResponseEntity.ok(questions);
+  }
+
+
+  /**
+   * 모든 사용자가 과목별로 조회 가능한 문제를 조회합니다.
+   *
+   * @param subjectName 과목명
+   * @param pageable    페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
+   *                    DESC)
+   * @return 과목별 조회한 문제 목록 반환
+   */
+  @GetMapping("/subject/{subjectName}")
+  public ResponseEntity<Page<GetQuestionResponseDto>> getQuestionBySubject(
+      @PathVariable("subjectName") @NotNull String subjectName,
+      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+    try {
+      SubjectNames subject = SubjectNames.valueOf(subjectName.toUpperCase());
+      Page<GetQuestionResponseDto> questions = questionService.getAllQuestionsBySubject(subject,
+          pageable);
+      return ResponseEntity.ok(questions);
+    } catch (IllegalArgumentException e) {
+      throw new CustomException(ErrorCode.INVALID_SUBJECT);
+    }
+  }
+
+  @PostMapping // 질문등록(로그인 Ok )
   public ResponseEntity<AddQuestionResponseDto> addQuestion(
       @ModelAttribute @Valid QuestionRequest addQuestionRequest, Authentication authentication)
       throws IOException {
@@ -55,50 +113,5 @@ public class QuestionApiController {
         .body(responseDto);
   }
 
-  /**
-   * 사용자 별 등록한 전체 문제를 조회합니다.
-   *
-   * @param pageable       페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
-   *                       DESC)
-   * @param authentication 현재 인증된 사용자 정보
-   * @return 페이징된 문제목록 반환
-   */
-  @GetMapping()
-  public ResponseEntity<Page<GetQuestionResponseDto>> getUserQuestions(
-      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-      Pageable pageable, Authentication authentication) {
 
-    Long userId = securityUtil.getCurrentUserId(authentication);
-    Page<GetQuestionResponseDto> questions = questionService.getQuestionList(userId, pageable);
-    return ResponseEntity.ok(questions);
-  }
-
-  /**
-   * 사용자가 등록한 문제를 과목별로 조회합니다.
-   *
-   * @param subjectName 과목명
-   * @param pageable 페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
-   *    *                       DESC)
-   * @param authentication 현재 인증된 사용자 정보
-   * @return 사용자가 선택한 과목별 조회 내용 반환
-   */
-  @GetMapping("/{subjectName}")
-  public ResponseEntity<Page<GetQuestionResponseDto>> getQuestionBySubject(
-      @PathVariable @NotNull String subjectName,
-      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-      Pageable pageable,
-      Authentication authentication) {
-
-    try {
-      Long userId = securityUtil.getCurrentUserId(authentication);
-      SubjectNames subject = SubjectNames.valueOf(subjectName.toUpperCase());
-
-      Page<GetQuestionResponseDto> questions =
-          questionService.getQuestionListBySubject(userId, subject, pageable);
-      return ResponseEntity.ok(questions);
-
-    } catch (IllegalArgumentException e) {
-      throw new CustomException(ErrorCode.INVALID_SUBJECT);
-    }
-  }
 }
