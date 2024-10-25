@@ -86,11 +86,25 @@ public class QuestionServiceImpl implements QuestionService {
    * @return 조회한 질문 목록을 반환합니다.
    */
   public Page<GetQuestionResponseDto> getQuestionListBySubject(
-      Long userId,
-      SubjectNames subjectNames,
-      Pageable pageable
+          Long userId,
+          SubjectNames subjectNames,
+          Pageable pageable
   ){
     Page<Question> questions = questionRepository.findAllByUser_UserIdAndSubjectName(userId, subjectNames, pageable);
+    return questions.map(GetQuestionResponseDto::fromEntity);
+  }
+
+  /**
+   * 해결 상태에 따라 질문 목록을 필터링하여 조회합니다.
+   *
+   * @param userId 조회할 질문 목록의 사용자 ID
+   * @param isSolved 질문 해결 여부 (true: 해결된 질문, false: 해결되지 않은 질문)
+   * @param pageable 페이지네이션 정보
+   * @return 해결 상태에 따라 필터링된 질문 목록 반환
+   */
+  @Override
+  public Page<GetQuestionResponseDto> getQuestionsBySolvedStatus(Long userId, Boolean isSolved, Pageable pageable) {
+    Page<Question> questions = questionRepository.findByUser_UserIdAndIsSolved(userId, isSolved, pageable);
     return questions.map(GetQuestionResponseDto::fromEntity);
   }
 }

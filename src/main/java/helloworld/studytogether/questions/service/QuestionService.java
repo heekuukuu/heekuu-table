@@ -12,4 +12,6 @@ public interface QuestionService {
   Question saveQuestion(QuestionRequest requestDto, Long userId) throws IOException;
   Page<GetQuestionResponseDto> getQuestionList(Long userId, Pageable pageable);
   Page<GetQuestionResponseDto> getQuestionListBySubject(Long userId, SubjectNames subjectNames, Pageable pageable);
+  Page<GetQuestionResponseDto> getQuestionsBySolvedStatus(Long userId, Boolean isSolved, Pageable pageable);
+
 }

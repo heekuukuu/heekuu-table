@@ -22,12 +22,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -101,4 +96,26 @@ public class QuestionApiController {
       throw new CustomException(ErrorCode.INVALID_SUBJECT);
     }
   }
+
+  /**
+   * 질문의 해결 상태에 따라 필터링하여 조회합니다.
+   *
+   * @param isSolved 해결 상태 (true: 해결된 질문, false: 해결되지 않은 질문)
+   * @param pageable 페이징 정보
+   * @param authentication 현재 인증된 사용자 정보
+   * @return 해결 상태에 따라 필터링된 질문 목록 반환
+   */
+  @GetMapping("/filter")
+  public ResponseEntity<Page<GetQuestionResponseDto>> getQuestionsBySolvedStatus(
+          @RequestParam Boolean isSolved,
+          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+          Pageable pageable,
+          Authentication authentication) {
+
+    Long userId = securityUtil.getCurrentUserId(authentication);
+    Page<GetQuestionResponseDto> questions = questionService.getQuestionsBySolvedStatus(userId, isSolved, pageable);
+    return ResponseEntity.ok(questions);
+  }
+
+
 }
