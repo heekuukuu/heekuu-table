@@ -2,10 +2,12 @@ package helloworld.studytogether.questions.controller;
 
 import helloworld.studytogether.common.exception.CustomException;
 import helloworld.studytogether.common.exception.ErrorCode;
-import helloworld.studytogether.jwt.util.SecurityUtil;
+import helloworld.studytogether.common.util.SecurityUtil;
 import helloworld.studytogether.questions.dto.AddQuestionResponseDto;
 import helloworld.studytogether.questions.dto.GetQuestionResponseDto;
 import helloworld.studytogether.questions.dto.QuestionRequest;
+import helloworld.studytogether.questions.dto.UpdateQuestionRequest;
+import helloworld.studytogether.questions.dto.UpdateQuestionResponse;
 import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.questions.service.QuestionService;
 import helloworld.studytogether.questions.type.SubjectNames;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -68,7 +71,7 @@ public class QuestionApiController {
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
       Pageable pageable, Authentication authentication) {
 
-    Long userId = securityUtil.getCurrentUserId(authentication);
+    Long userId = securityUtil.getCurrentUserId();
     Page<GetQuestionResponseDto> questions = questionService.getQuestionList(userId, pageable);
     return ResponseEntity.ok(questions);
   }
@@ -76,9 +79,9 @@ public class QuestionApiController {
   /**
    * 사용자가 등록한 문제를 과목별로 조회합니다.
    *
-   * @param subjectName 과목명
-   * @param pageable 페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
-   *    *                       DESC)
+   * @param subjectName    과목명
+   * @param pageable       페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
+   *                       *                       DESC)
    * @param authentication 현재 인증된 사용자 정보
    * @return 사용자가 선택한 과목별 조회 내용 반환
    */
@@ -90,7 +93,7 @@ public class QuestionApiController {
       Authentication authentication) {
 
     try {
-      Long userId = securityUtil.getCurrentUserId(authentication);
+      Long userId = securityUtil.getCurrentUserId();
       SubjectNames subject = SubjectNames.valueOf(subjectName.toUpperCase());
 
       Page<GetQuestionResponseDto> questions =
@@ -100,5 +103,14 @@ public class QuestionApiController {
     } catch (IllegalArgumentException e) {
       throw new CustomException(ErrorCode.INVALID_SUBJECT);
     }
+  }
+
+  @PutMapping("/{questionId}")
+  public ResponseEntity<UpdateQuestionResponse> updateQuestion(
+      @PathVariable Long questionId,
+      @ModelAttribute @Valid UpdateQuestionRequest request
+  ) {
+    UpdateQuestionResponse response = questionService.updateQuestion(questionId, request);
+    return ResponseEntity.ok(response);
   }
 }
