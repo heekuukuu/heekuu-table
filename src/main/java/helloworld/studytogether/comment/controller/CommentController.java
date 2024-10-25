@@ -31,6 +31,13 @@ public class CommentController {
         return new ResponseEntity<>(comments, HttpStatus.OK);
     }
 
+    // 대댓글 작성 엔드포인트
+    @PostMapping("/{parentCommentId}/replies")
+    public ResponseEntity<Comment> createReply(@PathVariable Long parentCommentId, @RequestParam Long userId, @RequestBody String content) {
+        Comment replyComment = commentService.createReply(parentCommentId, userId, content);
+        return ResponseEntity.status(HttpStatus.CREATED).body(replyComment);
+    }
+
     // 댓글 수정
     @PutMapping("/comments/{commentId}")
     public ResponseEntity<Comment> updateComment(@PathVariable Long commentId, @RequestBody CommentDTO commentDTO) {

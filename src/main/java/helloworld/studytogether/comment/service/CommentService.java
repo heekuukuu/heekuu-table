@@ -96,5 +96,17 @@ public class CommentService {
         userCount.setCommentCount(userCount.getCommentCount() + 1);  // 댓글 수 증가
         countRepository.save(userCount);
     }
+
+    public Comment createReply(Long parentCommentId, Long userId, String content) {
+        // 부모 댓글 조회
+        Comment parentComment = commentRepository.findById(parentCommentId)
+                .orElseThrow(() -> new RuntimeException("부모 댓글을 찾을 수 없습니다."));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        Comment replyComment = new Comment(parentComment.getAnswer(), user, content, parentComment);
+        return commentRepository.save(replyComment);
+    }
 }
 
