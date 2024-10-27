@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -97,6 +98,34 @@ public class QuestionApiController {
       throw new CustomException(ErrorCode.INVALID_SUBJECT);
     }
   }
+
+  /**
+   * @param subjectName    과목명
+   * @param pageable       페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
+   *                       DESC)
+   * @param authentication 현재 인증된 사용자 정보
+   * @return 과목별 조회한 문제 목록 반환
+   */
+  @GetMapping("/user/subject/{subjectName}")
+  public ResponseEntity<Page<GetQuestionResponseDto>> getUserQuestionBySubject(
+      @PathVariable("subjectName") @NotNull String subjectName,
+      @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable,
+      Authentication authentication) {
+
+    //인증된 유저의 정보를 가져와 userId 추출
+    Long userId = securityUtil.getCurrentUserId(authentication);
+    try {
+      // 과목명확인
+      SubjectNames subject = SubjectNames.valueOf(subjectName.toUpperCase());
+      Page<GetQuestionResponseDto> questions = questionService.getUserQuestionsBySubject(userId,
+          subject, pageable);
+      return ResponseEntity.ok(questions);
+
+    } catch (IllegalArgumentException e) {
+      throw new CustomException(ErrorCode.INVALID_SUBJECT);
+    }
+  }
+
 
   @PostMapping // 질문등록(로그인 Ok )
   public ResponseEntity<AddQuestionResponseDto> addQuestion(

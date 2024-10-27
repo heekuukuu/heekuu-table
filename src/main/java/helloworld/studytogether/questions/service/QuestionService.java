@@ -17,7 +17,8 @@ public interface QuestionService {
   Page<GetQuestionResponseDto> getQuestionList(Long userId, Pageable pageable);
 
   // 개인 과목별 조회
-  //Page<GetQuestionResponseDto> getQuestionListBySubject(Long userId, SubjectNames subjectNames,Pageable pageable);
+  Page<GetQuestionResponseDto> getUserQuestionsBySubject(Long userId, SubjectNames subjectName,
+      Pageable pageable);
 
 
   // 모든 사용자용
