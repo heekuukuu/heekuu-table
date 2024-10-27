@@ -14,7 +14,7 @@ public class QuestionRewardService {
   }
 
   public void rewardForQuestion(Long userId) {
-    int rewardPoints = 50; // 보상 포인트를 동적으로 가져오도록 설정 가능
+    int rewardPoints = 5; // 보상 포인트를 동적으로 가져오도록 설정 가능
     String actionDescription = "질문 등록";
 
     rewardService.addReward(userId, actionDescription, rewardPoints);
