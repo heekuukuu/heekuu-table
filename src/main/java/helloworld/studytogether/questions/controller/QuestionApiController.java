@@ -9,6 +9,7 @@ import helloworld.studytogether.questions.dto.QuestionRequest;
 import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.questions.service.QuestionService;
 import helloworld.studytogether.questions.type.SubjectNames;
+import helloworld.studytogether.rewards.service.QuestionRewardService;
 import helloworld.studytogether.user.dto.CustomUserDetails;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -37,6 +38,7 @@ public class QuestionApiController {
 
   private final SecurityUtil securityUtil;
   private final QuestionService questionService;
+  private final QuestionRewardService questionRewardService;
 
 
   /**
@@ -109,6 +111,8 @@ public class QuestionApiController {
     Question savedQuestion = questionService.saveQuestion(addQuestionRequest, userId);
     AddQuestionResponseDto responseDto = AddQuestionResponseDto.fromEntity(savedQuestion);
 
+    // 포인트 적립 로직 추가
+    questionRewardService.rewardForQuestion(userId);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(responseDto);
   }

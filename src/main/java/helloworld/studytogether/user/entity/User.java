@@ -1,7 +1,9 @@
 package helloworld.studytogether.user.entity;
 
+import helloworld.studytogether.rewards.entity.Rewards;
 import helloworld.studytogether.token.entity.RefreshToken;
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.*;
 
 import java.sql.Date;
@@ -45,7 +47,7 @@ public class User {
   /**
    * User 엔티티와 Count 엔티티를 연결
    */
-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @JoinColumn(name = "count_id", nullable = false)
   private Count count;
 
@@ -63,6 +65,11 @@ public class User {
   protected void onUpdate() {
     this.updated_At = Date.valueOf(LocalDate.now());
   }
+ // 포인트
+  @Column(nullable = false)
+  private int totalPoints = 0;
 
-
+  // 리워드 리스트 추가
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Rewards> rewards;
 }
