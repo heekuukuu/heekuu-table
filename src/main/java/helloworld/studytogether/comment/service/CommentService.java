@@ -28,6 +28,7 @@ public class CommentService {
         this.countRepository = countRepository;
     }
 
+    // 댓글 생성
     public Comment createComment(Long answerId, Long userId, String content, Long parentCommentId) {
         Comment parentComment = null;
         if (parentCommentId != null) {
@@ -44,39 +45,57 @@ public class CommentService {
         Comment comment = new Comment(answer, user, content, parentComment);  // 생성자 사용
 
         Comment savedComment = commentRepository.save(comment);
-        updateCommentCount(userId);
+        updateCommentCount(userId, 1);
 
         return savedComment;
     }
 
+    // 특정 답변에 달린 댓글 조회
     public List<Comment> getCommentsForAnswer(Long answerId) {
         Answer answer = answerRepository.findById(answerId)
-                .orElseThrow(() -> new RuntimeException("Answer not found"));
+                .orElseThrow(() -> new RuntimeException("답변을 찾을 수 없습니다."));
         return commentRepository.findByAnswerAndParentCommentIsNull(answer);
     }
 
+    // 대댓글 조회
     public List<Comment> getRepliesForComment(Long commentId) {
         Comment parentComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
         return commentRepository.findByParentComment(parentComment);
     }
 
-    // 댓글 수정 메서드
+    // 댓글 수정
     public Comment updateComment(Long commentId, Long userId, String content) {
-        // commentId로 해당 댓글을 찾음
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
 
-        // 댓글 작성자 확인
         if (!comment.getUser().getUserId().equals(userId)) {
             throw new RuntimeException("본인의 댓글만 수정할 수 있습니다.");
         }
 
-        // 댓글 내용 수정 (setter 대신 비즈니스 메서드 사용)
         comment.updateContent(content);
 
-        return commentRepository.save(comment); // 수정된 댓글 저장
+        return commentRepository.save(comment);
     }
+
+    private void updateCommentCount(Long userId, int countAdjustment) {
+        Count userCount = countRepository.findByUser_UserId(userId);
+
+        if (userCount == null) {
+            // Count가 없으면 새로 생성
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+            userCount = new Count();
+            userCount.setUser(user);
+            userCount.setCommentCount(0);
+            countRepository.save(userCount);
+        }
+
+        userCount.setCommentCount(Math.max(userCount.getCommentCount() + countAdjustment, 0)); // 0 이하로 감소하지 않음
+        countRepository.save(userCount);
+    }
+
+
 
     // 댓글 삭제
     public void deleteComment(Long commentId, Long userId) {
@@ -88,17 +107,12 @@ public class CommentService {
         }
 
         commentRepository.delete(comment);
+        updateCommentCount(userId, -1); // 댓글 수 감소
     }
 
-    private void updateCommentCount(Long userId) {
-        // userId로 Count 조회
-        Count userCount = countRepository.findByUser_UserId(userId);
-        userCount.setCommentCount(userCount.getCommentCount() + 1);  // 댓글 수 증가
-        countRepository.save(userCount);
-    }
 
+    // 대댓글 생성
     public Comment createReply(Long parentCommentId, Long userId, String content) {
-        // 부모 댓글 조회
         Comment parentComment = commentRepository.findById(parentCommentId)
                 .orElseThrow(() -> new RuntimeException("부모 댓글을 찾을 수 없습니다."));
 
@@ -106,7 +120,9 @@ public class CommentService {
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
 
         Comment replyComment = new Comment(parentComment.getAnswer(), user, content, parentComment);
-        return commentRepository.save(replyComment);
+        Comment savedReply = commentRepository.save(replyComment);
+        updateCommentCount(userId, 1);
+
+        return savedReply;
     }
 }
-
