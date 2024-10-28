@@ -73,7 +73,7 @@ public class SecurityConfig {
             .requestMatchers("/questions").hasAnyAuthority("USER", "ADMIN")
             .requestMatchers("/rewards/**").hasAnyAuthority("USER", "ADMIN")
             .requestMatchers("/", "/users/logout", "/users/login", "users/join",
-                "/token/reissue","/questions/**","/api/answers/{answerId}").permitAll()
+                "/token/reissue","/questions/**","/api/answers/{answerId}","/comments/**").permitAll()
 
             .anyRequest().authenticated());
 
