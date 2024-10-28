@@ -1,6 +1,5 @@
 package helloworld.studytogether.user.controller;
 
-
 import helloworld.studytogether.jwt.util.JWTUtil;
 import helloworld.studytogether.token.repository.RefreshTokenRepository;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -11,9 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/users") // 기본 경로 설정
 public class LogoutController {
 
   private final RefreshTokenRepository refreshTokenRepository;
@@ -25,7 +26,7 @@ public class LogoutController {
   }
 
   @DeleteMapping("/logout")
-  @Transactional //트랜잭션 처리
+  @Transactional // 트랜잭션 처리
   public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
     String refresh = getRefreshTokenFromCookies(request);
 
@@ -47,7 +48,7 @@ public class LogoutController {
     }
 
     // Refresh 토큰 DB에서 제거
-    Long userId =jwtUtil.getUserId(refresh);
+    Long userId = jwtUtil.getUserId(refresh);
     refreshTokenRepository.deleteByUserId(userId);
 
     // 쿠키 삭제
