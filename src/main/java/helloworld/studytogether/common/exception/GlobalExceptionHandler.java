@@ -1,5 +1,6 @@
 package helloworld.studytogether.common.exception;
 
+import helloworld.studytogether.forbidden.service.ForbiddenService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,4 +58,19 @@ public class GlobalExceptionHandler {
         .status(HttpStatus.BAD_REQUEST)
         .body(response);
   }
+
+  // ForbiddenWordException 처리
+  @ExceptionHandler(ForbiddenService.ForbiddenWordException.class)
+  protected ResponseEntity<ErrorResponse> handleForbiddenWordException(
+          ForbiddenService.ForbiddenWordException e, HttpServletRequest request) {
+    log.error("ForbiddenWordException: {}", e.getMessage());
+    ErrorResponse response = ErrorResponse.builder()
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+            .message(e.getMessage())
+            .path(request.getRequestURI())
+            .build();
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
+
 }
