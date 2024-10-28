@@ -3,7 +3,6 @@ package helloworld.studytogether.answer.service;
 import helloworld.studytogether.answer.entity.Answer;
 import helloworld.studytogether.answer.dto.AnswerDTO;
 import helloworld.studytogether.answer.repository.AnswerRepository;
-import helloworld.studytogether.forbidden.service.ForbiddenService;
 import jakarta.persistence.EntityNotFoundException;
 import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.questions.repository.QuestionRepository;
@@ -21,27 +20,16 @@ public class AnswerServiceImpl implements AnswerService {
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
     private final UserRepository userRepository;
-    private final ForbiddenService forbiddenService;
-
     @Autowired
     public AnswerServiceImpl(AnswerRepository answerRepository,
-        QuestionRepository questionRepository, UserRepository userRepository, ForbiddenService forbiddenService) {
+        QuestionRepository questionRepository, UserRepository userRepository) {
         this.answerRepository = answerRepository;
       this.questionRepository = questionRepository;
       this.userRepository = userRepository;
-      this.forbiddenService = forbiddenService;
     }
-
     @Override
     @Transactional
     public AnswerDTO createAnswer(AnswerDTO answerDTO) {
-
-        /**
-         * 답변 등록시 금지어를 검열하는 기능 로직 추가
-         */
-        forbiddenService.validateContent(answerDTO.getContent());
-
-
         // Question 객체 찾기 (questionId로)
         Question question = questionRepository.findById(answerDTO.getQuestionId())
             .orElseThrow(() -> new RuntimeException("Question not found with id: " + answerDTO.getQuestionId()));
@@ -77,13 +65,6 @@ public class AnswerServiceImpl implements AnswerService {
     @Override
     @Transactional
     public AnswerDTO updateAnswer(Long id, AnswerDTO answerDTO) {
-
-        /**
-         * 답변 수정 등록시에도 검열하도록하는 기능 로직 추가
-         */
-        forbiddenService.validateContent(answerDTO.getContent());
-
-
         Answer answer = answerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Answer not found with id: " + id));
         answer.setContent(answerDTO.getContent());

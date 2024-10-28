@@ -19,5 +19,4 @@ public class AnswerDTO {
     private boolean isSelected;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
 }
