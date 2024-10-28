@@ -4,6 +4,8 @@ import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.questions.type.SubjectNames;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +13,7 @@ import lombok.Getter;
 @Builder
 @Getter
 @AllArgsConstructor
+@Transactional
 public class AddQuestionResponseDto {
 
   private final Long questionId;

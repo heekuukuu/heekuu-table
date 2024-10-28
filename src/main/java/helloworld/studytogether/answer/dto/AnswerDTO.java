@@ -1,6 +1,7 @@
 package helloworld.studytogether.answer.dto;
 
 import helloworld.studytogether.comment.dto.CommentDTO;
+import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Transactional
 public class AnswerDTO {
 
     private Long answerId;
