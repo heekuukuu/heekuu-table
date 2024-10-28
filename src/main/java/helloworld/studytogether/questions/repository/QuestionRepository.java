@@ -7,12 +7,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import helloworld.studytogether.questions.entity.Question;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-
     int countByUser_UserId(Long userId);
 
     Page<Question> findAllByUser_UserId(Long userId, Pageable pageable);
     Page<Question> findAllByUser_UserIdAndSubjectName(Long userId, SubjectNames subjectName, Pageable pageable);
-
+    
+    // 모든 사용자 과목별조회
+    Page<Question> findAllBySubjectName(SubjectNames subjectNames, Pageable pageable);
+  
     // 해결 상태에 따른 질문 조회
     Page<Question> findByUser_UserIdAndIsSolved(Long userId, Boolean isSolved, Pageable pageable);
 

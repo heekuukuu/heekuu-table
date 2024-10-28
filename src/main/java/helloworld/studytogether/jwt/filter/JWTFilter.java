@@ -157,7 +157,7 @@ public class  JWTFilter extends OncePerRequestFilter {
     log.debug("JWTFilter 실행 중");
 
     String requestURI = request.getRequestURI();
-    if (requestURI.equals("/login") || requestURI.equals("/join") || requestURI.equals(
+    if (requestURI.equals("/users/login") || requestURI.equals("/join") || requestURI.equals(
         "/reissue")) {
       filterChain.doFilter(request, response);
       return;

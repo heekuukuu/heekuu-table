@@ -63,6 +63,17 @@ public class Question extends BaseEntity {
     this.image = image;
   }
 
+  public void update(String title, SubjectNames subjectName, String content, byte[] image) {
+    if (this.isSolved) { // 문제 해결여부 확인
+      throw new IllegalStateException("이미 해결된 질문은 수정할 수 없습니다.");
+    }
+
+    if (title != null) this.title = title;
+    if (subjectName != null) this.subjectName = subjectName;
+    if (content != null) this.content = content;
+    if (image != null) this.image = image;
+  }
+
   /**
    * 해결여부를 동적으로 관리하기 위한 메서드
    *
