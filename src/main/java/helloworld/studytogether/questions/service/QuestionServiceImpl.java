@@ -2,6 +2,7 @@ package helloworld.studytogether.questions.service;
 
 import helloworld.studytogether.common.util.ImageUtil;
 import helloworld.studytogether.common.util.SecurityUtil;
+import helloworld.studytogether.forbidden.service.ForbiddenService;
 import helloworld.studytogether.questions.dto.GetQuestionResponseDto;
 import helloworld.studytogether.questions.dto.UpdateQuestionRequest;
 import helloworld.studytogether.questions.dto.UpdateQuestionResponse;
@@ -30,6 +31,7 @@ public class QuestionServiceImpl implements QuestionService {
   private final UserRepository userRepository;
   private final SecurityUtil securityUtil;
   private final ImageUtil imageUtil;
+  private final ForbiddenService forbiddenService;
 
   /**
    * 새로운 질문을 저장합니다.
@@ -42,6 +44,10 @@ public class QuestionServiceImpl implements QuestionService {
   @Transactional
   @Override
   public Question saveQuestion(QuestionRequest request, Long userId) throws IOException {
+
+    // 검열 로직 추가
+    forbiddenService.validateContent(request.getContent());
+
     // 사용자 ID로 사용자 정보 조회
     User user = userRepository.findById(userId)
             .orElseThrow(() -> {
@@ -145,6 +151,10 @@ public class QuestionServiceImpl implements QuestionService {
    */
   @Transactional
   public UpdateQuestionResponse updateQuestion(Long questionId, UpdateQuestionRequest request){
+
+    // 검열 로직 추가
+    forbiddenService.validateContent(request.getContent());
+
     Question question = questionRepository.findById(questionId)
             .orElseThrow(() -> new EntityNotFoundException("질문을 찾을 수 없습니다"));
 
