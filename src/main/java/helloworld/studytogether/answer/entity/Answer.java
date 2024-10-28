@@ -25,7 +25,7 @@ public class Answer extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
-    private Question questionId;
+    private Question question;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_answer_id")
@@ -52,7 +52,7 @@ public class Answer extends BaseEntity {
 
     @Builder
     public Answer(Question question, User user, String content, String image, Integer likes, boolean isSelected) {
-        this.questionId = question;
+        this.question = question;
         this.user = user;
         this.content = content;
         this.image = image;

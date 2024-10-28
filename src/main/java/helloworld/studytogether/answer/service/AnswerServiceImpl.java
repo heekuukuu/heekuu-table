@@ -95,7 +95,7 @@ public class AnswerServiceImpl implements AnswerService {
         answerDTO.setCreatedAt(answer.getCreatedAt());
         answerDTO.setUpdatedAt(answer.getUpdatedAt());
         // 필요한 경우, 다른 필드도 DTO에 설정
-        answerDTO.setQuestionId(answer.getQuestionId().getQuestionId());
+        answerDTO.setQuestionId(answer.getQuestion().getQuestionId());
         answerDTO.setUserId(answer.getUser().getUserId());
         return answerDTO;
     }
@@ -131,7 +131,7 @@ public class AnswerServiceImpl implements AnswerService {
                 .orElseThrow(() -> new EntityNotFoundException("Answer not found with id: " + answerId));
 
         // 중복 채택 방지: 이미 채택된 답변이 있으면 예외 발생
-        if (answerRepository.findByQuestionIdAndIsSelectedTrue(questionId).isPresent()) {
+        if (answerRepository.findByQuestion_QuestionIdAndIsSelectedTrue(questionId).isPresent()) {
             throw new IllegalStateException("A selected answer already exists for this question.");
         }
 
