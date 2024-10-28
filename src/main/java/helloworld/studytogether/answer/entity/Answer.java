@@ -1,6 +1,7 @@
 package helloworld.studytogether.answer.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import helloworld.studytogether.comment.entity.Comment;
 import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.questions.entity.Question;
@@ -22,20 +23,24 @@ public class Answer extends BaseEntity {
     @Column(name = "answer_id")
     private Long answerId;
 
-    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
+    @JsonIgnoreProperties
     private List<Comment> comments = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Question question;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_answer_id")
+    @JsonIgnoreProperties
     private Answer parentAnswerId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties
     private User user;
 
 

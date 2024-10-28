@@ -13,7 +13,6 @@ import lombok.Getter;
 @Builder
 @Getter
 @AllArgsConstructor
-@Transactional
 public class AddQuestionResponseDto {
 
   private final Long questionId;

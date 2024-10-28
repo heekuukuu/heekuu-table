@@ -10,7 +10,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@Transactional
 public class AnswerDTO {
 
     private Long answerId;
