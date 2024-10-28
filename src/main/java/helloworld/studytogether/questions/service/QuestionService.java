@@ -19,4 +19,5 @@ public interface QuestionService {
   Page<GetQuestionResponseDto> getQuestionsBySolvedStatus(Long userId, Boolean isSolved, Pageable pageable);
   Page<GetQuestionResponseDto> getAllQuestions(Pageable pageable);
   Page<GetQuestionResponseDto> getAllQuestionsBySubject(SubjectNames subject, Pageable pageable);
+  Page<GetQuestionResponseDto> getUserQuestionsBySubject(Long userId, SubjectNames subject, Pageable pageable);
 }

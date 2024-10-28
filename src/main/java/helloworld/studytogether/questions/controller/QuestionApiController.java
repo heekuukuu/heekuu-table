@@ -55,7 +55,7 @@ public class QuestionApiController {
    */
   @GetMapping("/all")
   public ResponseEntity<Page<GetQuestionResponseDto>> getAllQuestions(
-      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
     Page<GetQuestionResponseDto> questions = questionService.getAllQuestions(pageable);
     return ResponseEntity.ok(questions);
@@ -64,14 +64,14 @@ public class QuestionApiController {
   /**
    * 인증된 사용자가 등록한 전체 문제를 조회합니다.
    *
-   * @param pageable       페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
-   *                       DESC)
+   * @param pageable 페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
+   *                 DESC)
    * @return 페이징된 문제목록 반환
    */
   @GetMapping("/user")
   public ResponseEntity<Page<GetQuestionResponseDto>> getUserQuestions(
-      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-      Pageable pageable) {
+          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+          Pageable pageable) {
 
     Long userId = securityUtil.getCurrentUserId();
     Page<GetQuestionResponseDto> questions = questionService.getQuestionList(userId, pageable);
@@ -82,21 +82,21 @@ public class QuestionApiController {
   /**
    * 모든 사용자가 과목별로 조회 가능한 문제를 조회합니다.
    *
-   * @param subjectName    과목명
-   * @param pageable       페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
-   *                       *                       DESC)
+   * @param subjectName 과목명
+   * @param pageable    페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
+   *                    *                       DESC)
    * @return 사용자가 선택한 과목별 조회 내용 반환
    */
   @GetMapping("/subject/{subjectName}")
   public ResponseEntity<Page<GetQuestionResponseDto>> getQuestionBySubject(
-      @PathVariable("subjectName") @NotNull String subjectName,
-      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+          @PathVariable("subjectName") @NotNull String subjectName,
+          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
     try {
       Long userId = securityUtil.getCurrentUserId();
       SubjectNames subject = SubjectNames.valueOf(subjectName.toUpperCase());
       Page<GetQuestionResponseDto> questions = questionService.getAllQuestionsBySubject(subject,
-          pageable);
+              pageable);
       return ResponseEntity.ok(questions);
     } catch (IllegalArgumentException e) {
       throw new CustomException(ErrorCode.INVALID_SUBJECT);
@@ -112,15 +112,15 @@ public class QuestionApiController {
    */
   @GetMapping("/user/subject/{subjectName}")
   public ResponseEntity<Page<GetQuestionResponseDto>> getUserQuestionBySubject(
-      @PathVariable("subjectName") @NotNull String subjectName,
-      @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable,
-      Authentication authentication) {
+          @PathVariable("subjectName") @NotNull String subjectName,
+          @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable,
+          Authentication authentication) {
 
     try {
       Long userId = securityUtil.getCurrentUserId();
       SubjectNames subject = SubjectNames.valueOf(subjectName.toUpperCase());
       Page<GetQuestionResponseDto> questions = questionService.getUserQuestionsBySubject(userId,
-          subject, pageable);
+              subject, pageable);
       return ResponseEntity.ok(questions);
 
     } catch (IllegalArgumentException e) {
@@ -128,31 +128,55 @@ public class QuestionApiController {
     }
   }
 
-/**
+  @PutMapping("/{questionId}")
+  public ResponseEntity<UpdateQuestionResponse> updateQuestion(
+          @PathVariable Long questionId,
+          @ModelAttribute @Valid UpdateQuestionRequest request
+  ) {
+    UpdateQuestionResponse response = questionService.updateQuestion(questionId, request);
+    return ResponseEntity.ok(response);
+  }
+  @PostMapping
+  public ResponseEntity<AddQuestionResponseDto> addQuestion(
+          @ModelAttribute @Valid QuestionRequest addQuestionRequest, Authentication authentication)
+          throws IOException {
+    // 인증된 유저의 정보를 가져와 userId 추출
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    Long userId = userDetails.getUserId();  // 인증된 유저의 userId 추출
+    // QuestionService에 userId를 전달하여 저장
+    Question savedQuestion = questionService.saveQuestion(addQuestionRequest, userId);
+    AddQuestionResponseDto responseDto = AddQuestionResponseDto.fromEntity(savedQuestion);
+    // 포인트 적립 로직 추가
+    questionRewardService.rewardForQuestion(userId);
+    return ResponseEntity.status(HttpStatus.CREATED)
+            .body(responseDto);
+  }
+
+  /**
    * 질문의 해결 상태에 따라 필터링하여 조회합니다.
    *
-   * @param isSolved 해결 상태 (true: 해결된 질문, false: 해결되지 않은 질문)
-   * @param pageable 페이징 정보
+   * @param isSolved       해결 상태 (true: 해결된 질문, false: 해결되지 않은 질문)
+   * @param pageable       페이징 정보
    * @param authentication 현재 인증된 사용자 정보
    * @return 해결 상태에 따라 필터링된 질문 목록 반환
    */
   @GetMapping("/filter")
   public ResponseEntity<Page<GetQuestionResponseDto>> getQuestionsBySolvedStatus(
-          @RequestParam(required = false) Boolean isSolved,  // null 값 허용
-          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-          Pageable pageable,
+          @RequestParam(required = false) Boolean isSolved,
+          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
           Authentication authentication) {
 
-    Long userId = securityUtil.getCurrentUserId(authentication);
+    Long userId = securityUtil.getCurrentUserId();
 
     Page<GetQuestionResponseDto> questions;
     if (isSolved == null) {
-      // 해결 여부와 상관없이 전체 질문 조회
       questions = questionService.getQuestionList(userId, pageable);
     } else {
-      // 해결 상태에 따른 필터링된 질문 조회
       questions = questionService.getQuestionsBySolvedStatus(userId, isSolved, pageable);
     }
 
     return ResponseEntity.ok(questions);
   }
+
+
+}
