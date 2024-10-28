@@ -1,5 +1,6 @@
 package helloworld.studytogether.answer.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import helloworld.studytogether.comment.entity.Comment;
 import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.questions.entity.Question;
@@ -8,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -20,8 +22,9 @@ public class Answer extends BaseEntity {
     @Column(name = "answer_id")
     private Long answerId;
 
-    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Comment> comments;
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<Comment> comments = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
@@ -34,6 +37,8 @@ public class Answer extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;

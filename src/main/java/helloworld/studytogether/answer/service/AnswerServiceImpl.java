@@ -98,13 +98,13 @@ public class AnswerServiceImpl implements AnswerService {
         // Answer의 댓글 리스트를 CommentDTO 리스트로 변환하여 추가
         List<CommentDTO> commentDTOs = answer.getComments().stream()
                 .map(comment -> {
-                    CommentDTO dto = new CommentDTO();
-                    dto.setCommentId(comment.getCommentId());
-                    dto.setUserId(comment.getUser().getUserId());
-                    dto.setContent(comment.getContent());
-                    dto.setCreatedAt(comment.getCreatedAt());
-                    dto.setUpdatedAt(comment.getUpdatedAt());
-                    return dto;
+                    CommentDTO commentDTO = new CommentDTO();
+                    commentDTO.setCommentId(comment.getCommentId());
+                    commentDTO.setUserId(comment.getUser().getUserId());
+                    commentDTO.setContent(comment.getContent());
+                    commentDTO.setCreatedAt(comment.getCreatedAt());
+                    commentDTO.setUpdatedAt(comment.getUpdatedAt());
+                    return commentDTO;
                 })
                 .collect(Collectors.toList());
         answerDTO.setComments(commentDTOs);
