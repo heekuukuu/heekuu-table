@@ -57,14 +57,14 @@ class UserControllerTest {
     updateDTO.setEmail("newemail@example.com");
     updateDTO.setNickname("newNickname");
 
-    User updatedUser = new User();
-    updatedUser.setUserId(1L);
-    updatedUser.setUsername("testUser");
-    updatedUser.setEmail("newemail@example.com");
-    updatedUser.setNickname("newNickname");
-    updatedUser.setRole(Role.valueOf("USER"));
+    UserResponseDTO updatedUserResponse = new UserResponseDTO();
+    updatedUserResponse.setUserId(1L);
+    updatedUserResponse.setUsername("testUser");
+    updatedUserResponse.setEmail("newemail@example.com");
+    updatedUserResponse.setNickname("newNickname");
+    updatedUserResponse.setRole("USER");
 
-    when(userService.updateUser(updateDTO)).thenReturn(updatedUser);
+    when(userService.updateUser(updateDTO)).thenReturn(updatedUserResponse);
 
     // Act
     ResponseEntity<UserResponseDTO> response = userController.updateUser(updateDTO);

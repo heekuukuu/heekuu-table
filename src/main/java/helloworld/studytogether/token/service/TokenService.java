@@ -93,6 +93,7 @@ public class TokenService {   // 리프레시 토큰 발급 및 관리
       jwtUtil.isExpired(token);
       return false;
     } catch (ExpiredJwtException e) {
+      System.out.println("토큰이 만료되었습니다:" + token);
       return true;
     }
   }
