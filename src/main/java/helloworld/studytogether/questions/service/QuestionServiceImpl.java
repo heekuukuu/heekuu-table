@@ -1,6 +1,5 @@
 package helloworld.studytogether.questions.service;
 
-import helloworld.studytogether.forbidden.service.ForbiddenService;
 import helloworld.studytogether.questions.dto.GetQuestionResponseDto;
 import helloworld.studytogether.questions.type.SubjectNames;
 import helloworld.studytogether.user.entity.User;
@@ -24,7 +23,6 @@ public class QuestionServiceImpl implements QuestionService {
 
   private final QuestionRepository questionRepository;
   private final UserRepository userRepository;
-  private final ForbiddenService forbiddenService;
 
   /**
    * 새로운 질문을 저장합니다.
@@ -37,12 +35,6 @@ public class QuestionServiceImpl implements QuestionService {
   @Transactional
   @Override
   public Question saveQuestion(QuestionRequest request, Long userId) throws IOException {
-
-    /**
-     * 문제등록시 금지어를 검열하는 기능 로직 추가
-     */
-    forbiddenService.validateContent(request.getContent());
-
     // 사용자 ID로 사용자 정보 조회
     User user = userRepository.findById(userId)
         .orElseThrow(() -> {
