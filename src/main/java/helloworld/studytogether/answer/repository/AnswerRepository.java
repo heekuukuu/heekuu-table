@@ -12,5 +12,6 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     int countByUser_UserIdAndIsSelectedTrue(Long userId);  // 특정 사용자의 채택된 답변 개수 계산
 
     // 특정 질문에 채택된 답변이 있는지 확인
-    Optional<Answer> findByQuestionIdAndIsSelectedTrue(Long questionId);
+    Optional<Answer> findByQuestion_QuestionIdAndIsSelectedTrue(Long questionId);
+
 }
