@@ -24,12 +24,10 @@ public class SecurityUtil {
       log.error("No authenticated user found");
       throw new IllegalStateException("인증된 사용자가 없습니다.");
     }
-
     try {
       CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
       log.debug("Current user ID: {}", userDetails.getUserId());
       return userDetails.getUserId();
-
     } catch (ClassCastException e) {
       log.error("Invalid authentication principal type", e);
       throw new IllegalStateException("잘못된 인증 정보입니다.", e);
