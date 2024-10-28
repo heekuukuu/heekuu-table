@@ -27,4 +27,7 @@ public class Count {
 
     @Column(nullable = false)
     private int selectedAnswerCount;  // 채택된 답변 수
+
+    @Column(nullable = false)
+    private int commentCount;   // 작성한 댓글 수
 }

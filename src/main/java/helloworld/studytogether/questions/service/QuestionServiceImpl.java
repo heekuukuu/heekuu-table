@@ -98,6 +98,7 @@ public class QuestionServiceImpl implements QuestionService {
    * @param pageable     페이지네이션 정보
    * @return 조회한 과목별 질문 목록을 반환합니다.
    */
+  
   @Override
   public Page<GetQuestionResponseDto> getUserQuestionsBySubject(
       Long userId,
@@ -136,6 +137,20 @@ public class QuestionServiceImpl implements QuestionService {
     return questions.map(GetQuestionResponseDto::fromEntity);
   }
 
+  /**
+
+   * 해결 상태에 따라 질문 목록을 필터링하여 조회합니다.
+   *
+   * @param userId 조회할 질문 목록의 사용자 ID
+   * @param isSolved 질문 해결 여부 (true: 해결된 질문, false: 해결되지 않은 질문)
+   * @param pageable 페이지네이션 정보
+   * @return 해결 상태에 따라 필터링된 질문 목록 반환
+   */
+  @Override
+  public Page<GetQuestionResponseDto> getQuestionsBySolvedStatus(Long userId, Boolean isSolved, Pageable pageable) {
+    Page<Question> questions = questionRepository.findByUser_UserIdAndIsSolved(userId, isSolved, pageable);
+    return questions.map(GetQuestionResponseDto::fromEntity);
+    
   /**
    * 질문을 수정하는 서비스 로직
    *
