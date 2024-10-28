@@ -107,13 +107,22 @@ public class QuestionApiController {
    */
   @GetMapping("/filter")
   public ResponseEntity<Page<GetQuestionResponseDto>> getQuestionsBySolvedStatus(
-          @RequestParam Boolean isSolved,
+          @RequestParam(required = false) Boolean isSolved,  // null 값 허용
           @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
           Pageable pageable,
           Authentication authentication) {
 
     Long userId = securityUtil.getCurrentUserId(authentication);
-    Page<GetQuestionResponseDto> questions = questionService.getQuestionsBySolvedStatus(userId, isSolved, pageable);
+
+    Page<GetQuestionResponseDto> questions;
+    if (isSolved == null) {
+      // 해결 여부와 상관없이 전체 질문 조회
+      questions = questionService.getQuestionList(userId, pageable);
+    } else {
+      // 해결 상태에 따른 필터링된 질문 조회
+      questions = questionService.getQuestionsBySolvedStatus(userId, isSolved, pageable);
+    }
+
     return ResponseEntity.ok(questions);
   }
 
