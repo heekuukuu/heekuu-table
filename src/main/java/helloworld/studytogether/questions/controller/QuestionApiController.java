@@ -115,10 +115,8 @@ public class QuestionApiController {
       @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable,
       Authentication authentication) {
 
-    //인증된 유저의 정보를 가져와 userId 추출
-    Long userId = securityUtil.getCurrentUserId(authentication);
     try {
-      // 과목명확인
+      Long userId = securityUtil.getCurrentUserId();
       SubjectNames subject = SubjectNames.valueOf(subjectName.toUpperCase());
       Page<GetQuestionResponseDto> questions = questionService.getUserQuestionsBySubject(userId,
           subject, pageable);
