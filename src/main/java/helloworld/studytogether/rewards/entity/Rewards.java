@@ -1,6 +1,7 @@
 package helloworld.studytogether.rewards.entity;
 
 
+import helloworld.studytogether.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,18 +19,21 @@ public class Rewards {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "rewards", nullable = false)
-    private Long rewards;  // bigint
+    @Column(name = "reward_id", nullable = false)
+    private Long rewardId;  // bigint
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;  // bigint
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(name = "action", length = 225, nullable = false)
-    private String action;  // varchar(225)
+    private String action;  // 적립 및 소모 이유
 
     @Column(name = "points", nullable = false)
     private Integer points;  // integer
 
     @Column(name = "earned_at", nullable = false)
     private Timestamp earnedAt;  // timestamp
+
+
 }
