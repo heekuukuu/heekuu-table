@@ -1,6 +1,7 @@
 package helloworld.studytogether.questions.entity;
 
 import helloworld.studytogether.common.entity.BaseEntity;
+import helloworld.studytogether.common.permission.OwnedResource;
 import helloworld.studytogether.questions.type.SubjectNames;
 import helloworld.studytogether.user.entity.User;
 import jakarta.persistence.Column;
@@ -25,7 +26,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Question extends BaseEntity {
+public class Question extends BaseEntity implements OwnedResource {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -88,5 +89,10 @@ public class Question extends BaseEntity {
    */
   public void markAsSolved() {
     this.isSolved = true;
+  }
+
+  @Override
+  public Long getOwnerId() {
+    return this.user.getUserId();
   }
 }
