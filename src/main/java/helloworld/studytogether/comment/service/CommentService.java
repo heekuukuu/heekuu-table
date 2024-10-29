@@ -5,7 +5,6 @@ import helloworld.studytogether.answer.repository.AnswerRepository;
 import helloworld.studytogether.comment.dto.CommentDTO;
 import helloworld.studytogether.comment.entity.Comment;
 import helloworld.studytogether.comment.repository.CommentRepository;
-import helloworld.studytogether.forbidden.service.ForbiddenService;
 import helloworld.studytogether.user.entity.Count;
 import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.user.repository.CountRepository;
@@ -23,29 +22,19 @@ public class CommentService {
     private final AnswerRepository answerRepository;
     private final UserRepository userRepository;
     private final CountRepository countRepository;
-    private final ForbiddenService forbiddenService;
 
     @Autowired
-    public CommentService(CommentRepository commentRepository, AnswerRepository answerRepository, UserRepository userRepository, CountRepository countRepository, ForbiddenService forbiddenService) {
+    public CommentService(CommentRepository commentRepository, AnswerRepository answerRepository, UserRepository userRepository, CountRepository countRepository) {
         this.commentRepository = commentRepository;
         this.answerRepository = answerRepository;
         this.userRepository = userRepository;
         this.countRepository = countRepository;
-        this.forbiddenService = forbiddenService;
     }
 
     // 댓글 생성
     public CommentDTO createComment(Long answerId, Long userId, String content, Long parentCommentId) {
-
-        // 검열 로직 추가
-        forbiddenService.validateContent(content);
-
-        Comment parentComment = null;
-        if (parentCommentId != null) {
-            parentComment = commentRepository.findById(parentCommentId)
-                    .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
-        }
-
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new RuntimeException("답변을 찾을 수 없습니다."));
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
@@ -81,14 +70,8 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-
     // 댓글 수정
     public CommentDTO updateComment(Long commentId, Long userId, String content) {
-
-        // 검열 로직 추가
-        forbiddenService.validateContent(content);
-
-        // commentId로 해당 댓글을 찾음
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
 
@@ -138,12 +121,6 @@ public class CommentService {
         String content = commentDTO.getContent();
 
         // 부모 댓글 및 유저를 조회하여 대댓글 생성 로직 수행
-    public Comment createReply(Long parentCommentId, Long userId, String content) {
-
-        // 검열 로직 추가
-        forbiddenService.validateContent(content);
-
-        // 부모 댓글 조회
         Comment parentComment = commentRepository.findById(parentCommentId)
                 .orElseThrow(() -> new RuntimeException("부모 댓글을 찾을 수 없습니다."));
 
