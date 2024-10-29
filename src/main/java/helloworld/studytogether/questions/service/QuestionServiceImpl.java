@@ -1,5 +1,6 @@
 package helloworld.studytogether.questions.service;
 
+import helloworld.studytogether.common.permission.PermissionValidator;
 import helloworld.studytogether.common.util.ImageUtil;
 import helloworld.studytogether.common.util.SecurityUtil;
 import helloworld.studytogether.questions.dto.GetQuestionResponseDto;
@@ -30,6 +31,7 @@ public class QuestionServiceImpl implements QuestionService {
   private final UserRepository userRepository;
   private final SecurityUtil securityUtil;
   private final ImageUtil imageUtil;
+  private final PermissionValidator permissionValidator;
 
   /**
    * 새로운 질문을 저장합니다.
@@ -169,7 +171,12 @@ public class QuestionServiceImpl implements QuestionService {
     return UpdateQuestionResponse.fromEntity(question);
   }
 
-  public Question deleteQuestion(){
-    return null;
+  @Transactional
+  public void deleteQuestion(Long questionId) {
+    Question question = questionRepository.findById(questionId)
+        .orElseThrow(() -> new EntityNotFoundException("질문을 찾을 수 없습니다."));
+
+    permissionValidator.validateDeletePermission(question);
+    questionRepository.delete(question);
   }
 }
