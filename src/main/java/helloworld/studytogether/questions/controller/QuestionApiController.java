@@ -10,6 +10,7 @@ import helloworld.studytogether.questions.dto.UpdateQuestionRequest;
 import helloworld.studytogether.questions.dto.UpdateQuestionResponse;
 import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.questions.service.QuestionService;
+import helloworld.studytogether.questions.service.QuestionServiceImpl;
 import helloworld.studytogether.questions.type.SubjectNames;
 import helloworld.studytogether.rewards.service.QuestionRewardService;
 import helloworld.studytogether.user.dto.CustomUserDetails;
@@ -44,7 +45,7 @@ public class QuestionApiController {
   private final SecurityUtil securityUtil;
   private final QuestionService questionService;
   private final QuestionRewardService questionRewardService;
-
+  private final QuestionServiceImpl questionServiceImpl;
 
   /**
    * 모든 사용자가 접근 가능한 전체 문제를 조회합니다.
@@ -53,7 +54,7 @@ public class QuestionApiController {
    *                 DESC)
    * @return 페이징된 전체 문제 목록 반환
    */
-  @GetMapping("/all")
+  @GetMapping("/all") // 카테고리 필요
   public ResponseEntity<Page<GetQuestionResponseDto>> getAllQuestions(
           @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
@@ -77,7 +78,6 @@ public class QuestionApiController {
     Page<GetQuestionResponseDto> questions = questionService.getQuestionList(userId, pageable);
     return ResponseEntity.ok(questions);
   }
-
 
   /**
    * 모든 사용자가 과목별로 조회 가능한 문제를 조회합니다.
@@ -107,14 +107,12 @@ public class QuestionApiController {
    * @param subjectName    과목명
    * @param pageable       페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
    *                       DESC)
-   * @param authentication 현재 인증된 사용자 정보
    * @return 과목별 조회한 문제 목록 반환
    */
   @GetMapping("/user/subject/{subjectName}")
   public ResponseEntity<Page<GetQuestionResponseDto>> getUserQuestionBySubject(
           @PathVariable("subjectName") @NotNull String subjectName,
-          @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable,
-          Authentication authentication) {
+          @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
 
     try {
       Long userId = securityUtil.getCurrentUserId();
@@ -136,6 +134,7 @@ public class QuestionApiController {
     UpdateQuestionResponse response = questionService.updateQuestion(questionId, request);
     return ResponseEntity.ok(response);
   }
+
   @PostMapping
   public ResponseEntity<AddQuestionResponseDto> addQuestion(
           @ModelAttribute @Valid QuestionRequest addQuestionRequest, Authentication authentication)
@@ -157,14 +156,12 @@ public class QuestionApiController {
    *
    * @param isSolved       해결 상태 (true: 해결된 질문, false: 해결되지 않은 질문)
    * @param pageable       페이징 정보
-   * @param authentication 현재 인증된 사용자 정보
    * @return 해결 상태에 따라 필터링된 질문 목록 반환
    */
   @GetMapping("/filter")
   public ResponseEntity<Page<GetQuestionResponseDto>> getQuestionsBySolvedStatus(
           @RequestParam(required = false) Boolean isSolved,
-          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-          Authentication authentication) {
+          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
     Long userId = securityUtil.getCurrentUserId();
 
@@ -178,5 +175,10 @@ public class QuestionApiController {
     return ResponseEntity.ok(questions);
   }
 
+  @DeleteMapping("/{questionId}")
+  public ResponseEntity<Void> deleteQuestion(@PathVariable Long questionId){
+    questionService.deleteQuestion(questionId);
 
+    return ResponseEntity.noContent().build();
+  }
 }
