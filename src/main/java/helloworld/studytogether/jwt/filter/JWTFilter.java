@@ -153,12 +153,12 @@ public class  JWTFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-      FilterChain filterChain) throws IOException, ServletException {
+                                  FilterChain filterChain) throws IOException, ServletException {
     log.debug("JWTFilter 실행 중");
 
     String requestURI = request.getRequestURI();
-    if (requestURI.equals("/users/login") || requestURI.equals("/join") || requestURI.equals(
-        "/reissue")) {
+    if (requestURI.equals("/users/login") || requestURI.equals("/users/join") || requestURI.equals(
+            "/token/reissue")) {
       filterChain.doFilter(request, response);
       return;
     }
