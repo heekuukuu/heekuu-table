@@ -4,6 +4,7 @@ import helloworld.studytogether.answer.entity.Answer;
 import helloworld.studytogether.answer.repository.AnswerRepository;
 import helloworld.studytogether.comment.entity.Comment;
 import helloworld.studytogether.comment.repository.CommentRepository;
+import helloworld.studytogether.forbidden.service.ForbiddenService;
 import helloworld.studytogether.user.entity.Count;
 import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.user.repository.CountRepository;
@@ -19,16 +20,22 @@ public class CommentService {
     private final AnswerRepository answerRepository;
     private final UserRepository userRepository;
     private final CountRepository countRepository;
+    private final ForbiddenService forbiddenService;
 
     @Autowired
-    public CommentService(CommentRepository commentRepository, AnswerRepository answerRepository, UserRepository userRepository, CountRepository countRepository) {
+    public CommentService(CommentRepository commentRepository, AnswerRepository answerRepository, UserRepository userRepository, CountRepository countRepository, ForbiddenService forbiddenService) {
         this.commentRepository = commentRepository;
         this.answerRepository = answerRepository;
         this.userRepository = userRepository;
         this.countRepository = countRepository;
+        this.forbiddenService = forbiddenService;
     }
 
     public Comment createComment(Long answerId, Long userId, String content, Long parentCommentId) {
+
+        // 검열 로직 추가
+        forbiddenService.validateContent(content);
+
         Comment parentComment = null;
         if (parentCommentId != null) {
             parentComment = commentRepository.findById(parentCommentId)
@@ -63,6 +70,10 @@ public class CommentService {
 
     // 댓글 수정 메서드
     public Comment updateComment(Long commentId, Long userId, String content) {
+
+        // 검열 로직 추가
+        forbiddenService.validateContent(content);
+
         // commentId로 해당 댓글을 찾음
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
@@ -98,6 +109,10 @@ public class CommentService {
     }
 
     public Comment createReply(Long parentCommentId, Long userId, String content) {
+
+        // 검열 로직 추가
+        forbiddenService.validateContent(content);
+
         // 부모 댓글 조회
         Comment parentComment = commentRepository.findById(parentCommentId)
                 .orElseThrow(() -> new RuntimeException("부모 댓글을 찾을 수 없습니다."));

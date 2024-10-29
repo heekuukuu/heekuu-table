@@ -1,5 +1,6 @@
 package helloworld.studytogether.common.exception;
 
+import helloworld.studytogether.forbidden.service.ForbiddenService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,4 +58,6 @@ public class GlobalExceptionHandler {
         .status(HttpStatus.BAD_REQUEST)
         .body(response);
   }
+
+
 }
