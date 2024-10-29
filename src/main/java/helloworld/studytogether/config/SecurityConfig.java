@@ -55,43 +55,53 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
     http
-        .csrf((auth) -> auth.disable());
+            .csrf((auth) -> auth.disable());
 
     http
-        .formLogin((auth) -> auth.disable()); //
+            .formLogin((auth) -> auth.disable()); //
 
     http
-        .httpBasic((auth) -> auth.disable());
+            .httpBasic((auth) -> auth.disable());
 
     http
-        .authorizeHttpRequests((auth) -> auth
-   
-            .requestMatchers( "/admin/**").hasAuthority("ADMIN")
-            .requestMatchers("/user/**").hasAuthority("USER")
+            .authorizeHttpRequests((auth) -> auth
 
-            .requestMatchers("/api/answers/**").hasAnyAuthority("USER", "ADMIN")
-            .requestMatchers("/questions").hasAnyAuthority("USER", "ADMIN")
-            .requestMatchers("/rewards/**").hasAnyAuthority("USER", "ADMIN")
-            .requestMatchers("/", "/users/logout", "/users/login", "users/join",
-                "/token/reissue","/questions/**","/api/answers/{answerId}").permitAll()
+                    .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                    .requestMatchers("/user/**").hasAuthority("USER")
+                    .requestMatchers("/answers/**").hasAnyAuthority("USER", "ADMIN")
+                    .requestMatchers("/questions").hasAnyAuthority("USER", "ADMIN")
+                    .requestMatchers("/rewards/**").hasAnyAuthority("USER", "ADMIN")
 
-            .anyRequest().authenticated());
+                    .requestMatchers(
+                            "/",
+                            "/users/logout",
+                            "/users/login",
+                            "/users/join",
+                            "/token/reissue",
+                            "/questions/**",
+                            "/answers/{answerId}",
+                            "/comments/**",
+                            "/answers/**/comments/**"
+                    ).permitAll()
+
+                    .anyRequest().authenticated());
+
 
     http
-        .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
-                refreshTokenRepository, userRepository),
-            UsernamePasswordAuthenticationFilter.class);
+            .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
+                            refreshTokenRepository, userRepository),
+                    UsernamePasswordAuthenticationFilter.class);
 
     http
-        .addFilterBefore(new JWTFilter(userRepository, jwtUtil),
-            UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(new JWTFilter(userRepository, jwtUtil),
+                    UsernamePasswordAuthenticationFilter.class);
 
     http
-        .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository),
-            LogoutFilter.class);
+            .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository),
+                    LogoutFilter.class);
     http
-        .sessionManagement((session) -> session
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            .sessionManagement((session) -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
     return http.build();
   }

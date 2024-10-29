@@ -1,9 +1,12 @@
 package helloworld.studytogether.comment.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import helloworld.studytogether.answer.entity.Answer;
-import helloworld.studytogether.user.entity.User;
 import helloworld.studytogether.common.entity.BaseEntity;
+import helloworld.studytogether.user.entity.User;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "comments")
@@ -25,6 +28,10 @@ public class Comment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
+
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("parentComment")
+    private List<Comment> replies = new ArrayList<>();
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
@@ -56,6 +63,10 @@ public class Comment extends BaseEntity {
         return parentComment;
     }
 
+    public List<Comment> getReplies() {
+        return replies;
+    }
+
     public String getContent() {
         return content;
     }
@@ -63,5 +74,13 @@ public class Comment extends BaseEntity {
     // 비즈니스 로직을 통한 content 업데이트
     public void updateContent(String content) {
         this.content = content;
+    }
+
+    // 부모 댓글을 설정하는 메서드
+    public void setParentComment(Comment parentComment) {
+        this.parentComment = parentComment;
+        if (parentComment != null) {
+            parentComment.getReplies().add(this);
+        }
     }
 }

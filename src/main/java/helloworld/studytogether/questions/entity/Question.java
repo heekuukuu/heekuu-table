@@ -1,24 +1,19 @@
 package helloworld.studytogether.questions.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import helloworld.studytogether.answer.entity.Answer;
 import helloworld.studytogether.common.entity.BaseEntity;
 import helloworld.studytogether.common.permission.OwnedResource;
 import helloworld.studytogether.questions.type.SubjectNames;
 import helloworld.studytogether.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 질문 항목을 나타내는 entity 클래스
@@ -35,7 +30,13 @@ public class Question extends BaseEntity implements OwnedResource {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
+  @JsonIgnoreProperties
   private User user;
+
+  @OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+  private List<Answer> answers = new ArrayList<>();
+
 
   @Column(nullable = false)
   private String title;
