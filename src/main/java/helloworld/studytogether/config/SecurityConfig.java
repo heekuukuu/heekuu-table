@@ -72,6 +72,8 @@ public class SecurityConfig {
                     .requestMatchers("/answers/**").hasAnyAuthority("USER", "ADMIN")
                     .requestMatchers("/questions").hasAnyAuthority("USER", "ADMIN")
                     .requestMatchers("/rewards/**").hasAnyAuthority("USER", "ADMIN")
+                    .requestMatchers("/comments/**").hasAnyAuthority("USER", "ADMIN")
+                    .requestMatchers("/answers/**/comments/**").hasAnyAuthority("USER", "ADMIN")
 
                     .requestMatchers(
                             "/",
