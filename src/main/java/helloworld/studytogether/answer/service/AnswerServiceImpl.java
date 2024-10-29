@@ -3,6 +3,7 @@ package helloworld.studytogether.answer.service;
 import helloworld.studytogether.answer.entity.Answer;
 import helloworld.studytogether.answer.dto.AnswerDTO;
 import helloworld.studytogether.answer.repository.AnswerRepository;
+import helloworld.studytogether.comment.dto.CommentDTO;
 import helloworld.studytogether.forbidden.service.ForbiddenService;
 import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.questions.repository.QuestionRepository;
@@ -12,6 +13,9 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AnswerServiceImpl implements AnswerService {
@@ -64,13 +68,6 @@ public class AnswerServiceImpl implements AnswerService {
         return convertToDTO(savedAnswer);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public AnswerDTO getAnswerById(Long id) {
-        Answer answer = answerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Answer not found with id: " + id));
-        return convertToDTO(answer);
-    } //ID로 답변을 조회
 
     @Override
     @Transactional
@@ -93,24 +90,40 @@ public class AnswerServiceImpl implements AnswerService {
     //기존 답변을 수정
 
     @Override
-    @Transactional
-    public void deleteAnswer(Long id) {
+    @Transactional(readOnly = true)
+    public AnswerDTO getAnswerById(Long id) {
         Answer answer = answerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Answer not found with id: " + id));
-        answerRepository.delete(answer);
-    }  //답변을 삭제
+        return convertToDTO(answer); // convertToDTO 메서드에서 댓글 변환 포함
+    }
 
     private AnswerDTO convertToDTO(Answer answer) {
         AnswerDTO answerDTO = new AnswerDTO();
         answerDTO.setAnswerId(answer.getAnswerId());
+        answerDTO.setQuestionId(answer.getQuestion().getQuestionId());
         answerDTO.setContent(answer.getContent());
         answerDTO.setCreatedAt(answer.getCreatedAt());
         answerDTO.setUpdatedAt(answer.getUpdatedAt());
-        // 필요한 경우, 다른 필드도 DTO에 설정
-        answerDTO.setQuestionId(answer.getQuestion().getQuestionId());
-        answerDTO.setUserId(answer.getUser().getUserId());
+        answerDTO.setLikes(answer.getLikes());
+        answerDTO.setIsSelected(answer.isSelected());
+
+        // Answer의 댓글 리스트를 CommentDTO 리스트로 변환하여 추가
+        List<CommentDTO> commentDTOs = answer.getComments().stream()
+                .map(comment -> {
+                    CommentDTO commentDTO = new CommentDTO();
+                    commentDTO.setCommentId(comment.getCommentId());
+                    commentDTO.setUserId(comment.getUser().getUserId());
+                    commentDTO.setContent(comment.getContent());
+                    commentDTO.setCreatedAt(comment.getCreatedAt());
+                    commentDTO.setUpdatedAt(comment.getUpdatedAt());
+                    return commentDTO;
+                })
+                .collect(Collectors.toList());
+        answerDTO.setComments(commentDTOs);
+
         return answerDTO;
     }
+
 
     @Transactional
     @Override
@@ -154,4 +167,13 @@ public class AnswerServiceImpl implements AnswerService {
         answerRepository.save(answer);
         questionRepository.save(question);
     }
+
+    @Override
+    @Transactional
+    public void deleteAnswer(Long id) {
+        Answer answer = answerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Answer not found with id: " + id));
+        answerRepository.delete(answer);
+    }
+
 }

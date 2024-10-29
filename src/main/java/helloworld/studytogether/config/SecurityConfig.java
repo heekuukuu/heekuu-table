@@ -64,18 +64,31 @@ public class SecurityConfig {
         .httpBasic((auth) -> auth.disable());
 
     http
-        .authorizeHttpRequests((auth) -> auth
-   
-            .requestMatchers( "/admin/**").hasAuthority("ADMIN")
-            .requestMatchers("/user/**").hasAuthority("USER")
+            .authorizeHttpRequests((auth) -> auth
 
-            .requestMatchers("/api/answers/**").hasAnyAuthority("USER", "ADMIN")
-            .requestMatchers("/questions").hasAnyAuthority("USER", "ADMIN")
-            .requestMatchers("/rewards/**").hasAnyAuthority("USER", "ADMIN")
-            .requestMatchers("/", "/users/logout", "/users/login", "users/join",
-                "/token/reissue","/questions/**","/api/answers/{answerId}").permitAll()
+                    .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                    .requestMatchers("/user/**").hasAuthority("USER")
 
-            .anyRequest().authenticated());
+                    .requestMatchers("/answers/**").hasAnyAuthority("USER", "ADMIN")
+                    .requestMatchers("/questions").hasAnyAuthority("USER", "ADMIN")
+                    .requestMatchers("/rewards/**").hasAnyAuthority("USER", "ADMIN")
+                    .requestMatchers("/comments/**").hasAnyAuthority("USER", "ADMIN")
+                    .requestMatchers("/answers/**/comments/**").hasAnyAuthority("USER", "ADMIN")
+
+                    .requestMatchers(
+                            "/",
+                            "/users/logout",
+                            "/users/login",
+                            "/users/join",
+                            "/token/reissue",
+                            "/questions/**",
+                            "/answers/{answerId}",
+                            "/comments/**",
+                            "/answers/**/comments/**"
+                    ).permitAll()
+
+                    .anyRequest().authenticated());
+
 
     http
         .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
