@@ -3,12 +3,14 @@ package helloworld.studytogether.questions.dto;
 import helloworld.studytogether.questions.entity.Question;
 import helloworld.studytogether.questions.type.SubjectNames;
 import helloworld.studytogether.user.entity.User;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import java.beans.ConstructorProperties;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
+@Transactional
 public class QuestionRequest {
 
   @NotNull
