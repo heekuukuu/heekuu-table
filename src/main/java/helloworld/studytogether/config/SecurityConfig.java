@@ -78,14 +78,11 @@ public class SecurityConfig {
                             "/users/login",
                             "/users/join",
                             "/token/reissue",
-                            "/questions/**",
-                            "/answers/{answerId}",
-                            "/comments/**",
-                            "/answers/**/comments/**"
+                            "/questions/all",
+                            "/answers/{answerId}"
                     ).permitAll()
 
                     .anyRequest().authenticated());
-
 
     http
             .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
