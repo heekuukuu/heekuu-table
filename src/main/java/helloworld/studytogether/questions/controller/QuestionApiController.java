@@ -147,6 +147,7 @@ public class QuestionApiController {
     AddQuestionResponseDto responseDto = AddQuestionResponseDto.fromEntity(savedQuestion);
     // 포인트 적립 로직 추가
     questionRewardService.rewardForQuestion(userId);
+
     return ResponseEntity.status(HttpStatus.CREATED)
             .body(responseDto);
   }

@@ -73,4 +73,9 @@ public class UserController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // 삭제 실패 시 400 Bad Request 응답
     }
   }
+
+  @GetMapping("/{userId}/points")
+  public int getUserTotalPoints(@PathVariable("userId") Long userId) {
+    return userService.getUserTotalPoints(userId);
+  }
 }
