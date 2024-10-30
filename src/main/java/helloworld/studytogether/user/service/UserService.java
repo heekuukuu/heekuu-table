@@ -157,14 +157,14 @@ public class UserService {
   private final QuestionRepository questionRepository;
   private final AnswerRepository answerRepository;
   private final CountRepository countRepository;
+  private final CountService countService;
 
   @Value("${spring.jwt.expiration}")
   private Long jwtExpiration;
 
   public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder,
-      JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository,
-      QuestionRepository questionRepository,
-      AnswerRepository answerRepository, CountRepository countRepository) {
+      JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, QuestionRepository questionRepository,
+                     AnswerRepository answerRepository, CountRepository countRepository, CountService countService) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.jwtUtil = jwtUtil;
@@ -172,7 +172,7 @@ public class UserService {
     this.questionRepository = questionRepository;
     this.answerRepository = answerRepository;
     this.countRepository = countRepository;
-
+    this.countService = countService;
   }
 
   // 로그인 로직: DB에서 사용자 정보 조회 후 JWT 발급
@@ -208,8 +208,7 @@ public class UserService {
   // 사용자 정보 반환
 
   /**
-   * 회원 정보 조회 시 Count 필드 업데이트 및 조회 로직 추가
-   *
+   *회원 정보 조회 시 Count 필드 업데이트 및 조회 로직 추가
    * @return
    */
 //  @Transactional
@@ -218,11 +217,9 @@ public class UserService {
     User user = userRepository.findByUserId(userDetails.getUserId())
         .orElseThrow(() -> new RuntimeException("User not found"));
 
-    // Count 값은 동적으로 계산하여 반환
-    int questionCount = questionRepository.countByUser_UserId(user.getUserId());
-    int answerCount = answerRepository.countByUser_UserId(user.getUserId());
-    int selectedAnswerCount = answerRepository.countByUser_UserIdAndIsSelectedTrue(
-        user.getUserId());
+    // CountService를 통해 CountDTO 가져오기
+    CountDTO countDTO = countService.getCountForUser(user.getUserId());
+
 
     // UserResponseDTO로 반환
     UserResponseDTO userResponse = new UserResponseDTO();
@@ -232,11 +229,6 @@ public class UserService {
     userResponse.setNickname(user.getNickname());
     userResponse.setRole(user.getRole().toString());
 
-    // CountDTO 설정
-    CountDTO countDTO = new CountDTO();
-    countDTO.setQuestionCount(questionCount);
-    countDTO.setAnswerCount(answerCount);
-    countDTO.setSelectedAnswerCount(selectedAnswerCount);
     userResponse.setCount(countDTO);
 
     return userResponse;
@@ -260,11 +252,9 @@ public class UserService {
 
     user = userRepository.save(user); // 업데이트된 사용자 정보 저장
 
-    // Count 값은 동적으로 계산하여 반환
-    int questionCount = questionRepository.countByUser_UserId(user.getUserId());
-    int answerCount = answerRepository.countByUser_UserId(user.getUserId());
-    int selectedAnswerCount = answerRepository.countByUser_UserIdAndIsSelectedTrue(
-        user.getUserId());
+    // CountService를 통해 CountDTO 가져오기
+    CountDTO countDTO = countService.getCountForUser(user.getUserId());
+
 
     // 업데이트된 정보를 UserResponseDTO로 변환하여 반환
     UserResponseDTO userResponse = new UserResponseDTO();
@@ -274,11 +264,6 @@ public class UserService {
     userResponse.setNickname(user.getNickname());
     userResponse.setRole(user.getRole().toString());
 
-    // CountDTO 설정
-    CountDTO countDTO = new CountDTO();
-    countDTO.setQuestionCount(questionCount);
-    countDTO.setAnswerCount(answerCount);
-    countDTO.setSelectedAnswerCount(selectedAnswerCount);
     userResponse.setCount(countDTO);
 
     return userResponse;
@@ -298,9 +283,9 @@ public class UserService {
     // 새로운 액세스 및 리프레시 토큰 발급
     String newAccessToken = jwtUtil.createJwt("access", user, newRole, 600000L); // 10분
     String newRefreshToken = jwtUtil.createJwt("refresh", user, newRole, 604800000L); // 7일
-
     refreshTokenRepository.deleteByUserId(userId);
-
+    // 기존 리프레시 토큰 삭제 후 새로 저장
+   // refreshTokenRepository.deleteByUserId(userId);
     addRefreshToken(user, newRefreshToken, 604800000L); // 새로운 리프레시 토큰 저장
 
     // 업데이트된 정보를 UserResponseDTO로 반환
@@ -310,6 +295,7 @@ public class UserService {
     userResponse.setEmail(user.getEmail());
     userResponse.setNickname(user.getNickname());
     userResponse.setRole(user.getRole().toString());
+
 
     return userResponse;
   }
@@ -333,6 +319,4 @@ public class UserService {
 
     userRepository.delete(user); // 사용자 삭제 204코드
   }
-
-
 }
