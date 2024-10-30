@@ -25,7 +25,7 @@ public class RewardService {
 
   @Transactional
   public void addReward(Long userId, String action, int points) {
-    
+
     // 사용자 조회
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));

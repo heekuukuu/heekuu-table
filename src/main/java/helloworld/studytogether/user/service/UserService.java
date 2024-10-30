@@ -334,10 +334,5 @@ public class UserService {
     userRepository.delete(user); // 사용자 삭제 204코드
   }
 
-  // 유저의 포인트를 조회
-  public int getUserTotalPoints(Long userId) {
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
-    return user.getTotalPoints();
-  }
+
 }

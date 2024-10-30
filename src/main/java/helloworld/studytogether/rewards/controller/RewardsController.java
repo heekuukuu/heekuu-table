@@ -1,4 +1,5 @@
 package helloworld.studytogether.rewards.controller;
+
 import helloworld.studytogether.rewards.service.RewardService;
 import helloworld.studytogether.rewards.dto.UserRewardsDTO;
 import helloworld.studytogether.rewards.service.RewardService;
