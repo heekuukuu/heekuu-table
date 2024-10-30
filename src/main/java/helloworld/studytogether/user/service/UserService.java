@@ -217,9 +217,8 @@ public class UserService {
     User user = userRepository.findByUserId(userDetails.getUserId())
         .orElseThrow(() -> new RuntimeException("User not found"));
 
-// CountService를 통해 CountDTO 가져오기
+    // CountService를 통해 CountDTO 가져오기
     CountDTO countDTO = countService.getCountForUser(user.getUserId());
-
 
 
     // UserResponseDTO로 반환
@@ -255,10 +254,6 @@ public class UserService {
 
     // CountService를 통해 CountDTO 가져오기
     CountDTO countDTO = countService.getCountForUser(user.getUserId());
-
-
-
-
 
 
     // 업데이트된 정보를 UserResponseDTO로 변환하여 반환
