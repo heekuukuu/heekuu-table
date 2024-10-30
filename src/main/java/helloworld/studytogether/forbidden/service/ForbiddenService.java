@@ -12,7 +12,7 @@ import java.util.List;
 public class ForbiddenService {
 
     // 금지 대상 단어 리스트 (하드코딩으로 관리)
-    private final List<String> prohibitedWords = Arrays.asList("노잼","내공냠냠");
+    private final List<String> prohibitedWords = Arrays.asList("노잼","존나","ㅅㅂ","tlqkf","ㅈㄴ","ㅗ");
 
 
     // 텍스트에 금지어 포함 여부 확인 후 예외 던짐
