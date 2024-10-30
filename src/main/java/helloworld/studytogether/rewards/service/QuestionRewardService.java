@@ -23,7 +23,7 @@ public class QuestionRewardService {
   public void rewardForAcceptedAnswer(Long userId) {
     int rewardPoints = 20; // 답변 채택 보상 포인트
     String actionDescription = "답변 채택";
-    
+
     rewardService.addReward(userId, actionDescription, rewardPoints);
   }
 
