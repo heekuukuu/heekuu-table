@@ -2,6 +2,8 @@
 
 package helloworld.studytogether.user.controller;
 
+import helloworld.studytogether.rewards.dto.UserRewardsDTO;
+import helloworld.studytogether.rewards.service.RewardService;
 import helloworld.studytogether.user.dto.UserResponseDTO;
 import helloworld.studytogether.user.dto.UserUpdateDTO;
 import helloworld.studytogether.user.service.UserService;
@@ -17,10 +19,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
   private final UserService userService;
+  private final RewardService rewardService;
 
 
-  public UserController(UserService userService) {
+  public UserController(UserService userService, RewardService rewardService) {
     this.userService = userService;
+    this.rewardService = rewardService;
   }
 
   /**
@@ -73,4 +77,7 @@ public class UserController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // 삭제 실패 시 400 Bad Request 응답
     }
   }
+
+
+
 }

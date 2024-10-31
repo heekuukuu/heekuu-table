@@ -284,8 +284,7 @@ public class UserService {
     String newAccessToken = jwtUtil.createJwt("access", user, newRole, 600000L); // 10분
     String newRefreshToken = jwtUtil.createJwt("refresh", user, newRole, 604800000L); // 7일
     refreshTokenRepository.deleteByUserId(userId);
-    // 기존 리프레시 토큰 삭제 후 새로 저장
-   // refreshTokenRepository.deleteByUserId(userId);
+
     addRefreshToken(user, newRefreshToken, 604800000L); // 새로운 리프레시 토큰 저장
 
     // 업데이트된 정보를 UserResponseDTO로 반환
