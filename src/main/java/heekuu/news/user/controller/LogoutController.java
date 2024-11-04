@@ -52,7 +52,7 @@ public class LogoutController {
     refreshTokenRepository.deleteByUserId(userId);
 
     // 쿠키 삭제
-    deleteRefreshCookie(response);
+     deleteRefreshCookie(response);
 
     return ResponseEntity.ok("Successfully logged out");
   }
@@ -74,7 +74,7 @@ public class LogoutController {
   private void deleteRefreshCookie(HttpServletResponse response) {
     Cookie cookie = new Cookie("refresh", null);
     cookie.setMaxAge(0);
-    cookie.setPath("/");
+    cookie.setPath("/token");
     response.addCookie(cookie);
   }
 }

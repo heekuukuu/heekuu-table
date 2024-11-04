@@ -37,6 +37,8 @@ test
 .vscode/
 
 ### application.yml###
+qodana.yaml
+OAuth.env
 src/main/resources/application.yml
 application.properties
 docker-compose.yml
@@ -47,4 +49,4 @@ docker-entrypoint-initdb.d
 src/main/application.yml
 src/main/dev-application.yml
 application.yaml
-qodana.yaml
+
