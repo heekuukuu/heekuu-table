@@ -43,10 +43,10 @@ public class User {
   @Column(nullable = false, unique = true)
   private String email;
 
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String password;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String nickname;
 
   @Enumerated(EnumType.STRING)
@@ -81,11 +81,18 @@ public class User {
   protected void onUpdate() {
     this.updated_At = Date.valueOf(LocalDate.now());
   }
- // 포인트
+
+  // 포인트
   @Column(nullable = false)
   private int totalPoints = 0;
 
   // 리워드 리스트 추가
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<Rewards> rewards;
+
+  @Enumerated(EnumType.STRING)
+  private LoginType loginType;
+
+  private String providerId; // 소셜 로그인 ID
+
 }
