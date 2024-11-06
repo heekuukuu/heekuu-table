@@ -6,11 +6,16 @@ import heekuu.news.OAuth.dto.NaverResponse;
 import heekuu.news.OAuth.dto.OAuth2Response;
 import heekuu.news.OAuth.dto.OauthDTO;
 import heekuu.news.jwt.util.JWTUtil;
+import heekuu.news.token.entity.RefreshToken;
+import heekuu.news.token.repository.RefreshTokenRepository;
 import heekuu.news.user.entity.LoginType;
 import heekuu.news.user.entity.Role;
 import heekuu.news.user.entity.User;
 import heekuu.news.user.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -28,23 +33,20 @@ public class CustomOauth2UserServiceImpl extends DefaultOAuth2UserService {
   private final UserRepository userRepository;
   private final HttpSession session;
   private final JWTUtil jwtUtil;
+  private final RefreshTokenRepository refreshTokenRepository;
 
   public CustomOauth2UserServiceImpl(@Qualifier("userRepository") UserRepository userRepository,
-      HttpSession session, JWTUtil jwtUtil) {
+      HttpSession session, JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
     this.userRepository = userRepository;
     this.session = session;
     this.jwtUtil = jwtUtil;
+    this.refreshTokenRepository = refreshTokenRepository;
   }
 
   @Override
   public OAuth2User loadUser(OAuth2UserRequest userRequest) {
     OAuth2User oAuth2User = super.loadUser(userRequest);
     System.out.println("Attributes: " + oAuth2User.getAttributes());
-
-//    // OAuth2Response를 통해 이메일 등 필요한 필드를 가져옵니다.
-//    OAuth2Response response = new NaverResponse(oAuth2User.getAttributes());
-//    String email = response.getEmail();
-//    String actualUsername = response.getName();
 
 // OAuth2 제공자에 따라 응답 파싱 클래스 선택
     String provider = userRequest.getClientRegistration().getRegistrationId();
@@ -113,6 +115,9 @@ public class CustomOauth2UserServiceImpl extends DefaultOAuth2UserService {
     String refreshToken = jwtUtil.createJwt("refresh", user, user.getRole().name(),
         604800000L); // 7일 만료 토큰
 
+    // 리프레시 토큰을 DB에 저장
+    saveRefreshToken(user, refreshToken);
+
     // 생성된 토큰을 세션에 저장 또는 다른 방식으로 클라이언트에게 전달
     session.setAttribute("accessToken", accessToken);
     session.setAttribute("refreshToken", refreshToken);
@@ -122,6 +127,26 @@ public class CustomOauth2UserServiceImpl extends DefaultOAuth2UserService {
         oAuth2User.getAttributes(),
         "name"
     );
+  }
+
+  // 쿠키 추가 메서드
+  private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
+    Cookie cookie = new Cookie(name, value);
+    cookie.setHttpOnly(true); // JavaScript 접근 방지
+    cookie.setSecure(true);   // HTTPS 환경에서만 사용
+    cookie.setPath("/");      // 모든 경로에서 쿠키 사용 가능
+    cookie.setMaxAge(maxAge); // 쿠키 유효 시간 설정
+    response.addCookie(cookie);
+  }
+
+  // 리프레시 토큰 저장 메서드
+  private void saveRefreshToken(User user, String refreshToken) {
+    refreshTokenRepository.deleteByUserId(user.getUserId()); // 기존 토큰 삭제
+    RefreshToken tokenEntity = new RefreshToken();
+    tokenEntity.setUser(user);
+    tokenEntity.setRefresh(refreshToken);
+    tokenEntity.setExpiration(new Date(System.currentTimeMillis() + 604800000L).toString()); // 7일
+    refreshTokenRepository.save(tokenEntity);
   }
 
   // 아이디에서 @ 전까지의 값 실제 고유값 만약 중복이있다면 + 1
