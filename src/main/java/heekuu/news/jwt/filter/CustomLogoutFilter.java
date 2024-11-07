@@ -3,7 +3,6 @@ package heekuu.news.jwt.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import heekuu.news.jwt.util.JWTUtil;
 import heekuu.news.token.repository.RefreshTokenRepository;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -14,8 +13,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
+@Slf4j
 public class CustomLogoutFilter extends GenericFilterBean {
 
   private final RefreshTokenRepository refreshTokenRepository;
@@ -30,79 +33,94 @@ public class CustomLogoutFilter extends GenericFilterBean {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
 
-    doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+    HttpServletRequest httpRequest = (HttpServletRequest) request;
+    HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+    String requestUri = httpRequest.getRequestURI();
+    String requestMethod = httpRequest.getMethod();
+
+    // JWT 로그아웃 처리
+    if (requestUri.equals("/users/logout") && requestMethod.equals("DELETE")) {
+      processJwtLogout(httpRequest, httpResponse);
+      return;
+    }
+
+    // 소셜 로그아웃 처리
+    if (requestUri.equals("/users/social-logout") && requestMethod.equals("GET")){
+    //|| requestMethod.equals("DELETE")) {
+      log.debug("Processing social logout");
+      processSocialLogout(httpRequest, httpResponse);
+      return;
+    }
+
+    chain.doFilter(request, response);
   }
 
-  private void doFilter(HttpServletRequest request, HttpServletResponse response,
-      FilterChain filterChain) throws IOException, ServletException {
+  // 기존 JWT 로그아웃 로직
+  private void processJwtLogout(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    String refresh = extractRefreshToken(request);
 
-    // 로그아웃 경로와 메서드 검증
-    String requestUri = request.getRequestURI();
-    if (!requestUri.matches("^\\/users\\/logout$")) {
-      filterChain.doFilter(request, response);
+    if (refresh == null || jwtUtil.isExpired(refresh)) {
+      sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "유효하지 않은 리프레시 토큰");
       return;
     }
 
-    String requestMethod = request.getMethod();
-    if (!requestMethod.equals("DELETE")) {
-      filterChain.doFilter(request, response);
+    if (!jwtUtil.getTokenType(refresh).equals("refresh") || !refreshTokenRepository.existsByRefresh(
+        refresh)) {
+      sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "리프레시 토큰이 유효하지 않습니다.");
       return;
     }
 
-    // Get refresh token from cookies
-    String refresh = null;
-    Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-      for (Cookie cookie : cookies) {
-        if (cookie.getName().equals("refresh")) {
-          refresh = cookie.getValue();
+    refreshTokenRepository.deleteByUserId(jwtUtil.getUserId(refresh));
+    removeCookie(response, "refresh");
+    sendSuccessResponse(response, "JWT 로그아웃 성공");
+  }
+
+  // 추가된 소셜 로그아웃 로직
+  private void processSocialLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    log.debug("Starting 소셜로그아웃필터타나요");
+    // SecurityContext의 인증 정보 초기화
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth != null) {
+      log.debug("Clearing SecurityContext for user: " + auth.getName());
+      SecurityContextHolder.clearContext();
+      request.getSession().invalidate(); // 세션 무효화
+    }
+
+    // 로그 추가
+    String refreshToken = extractRefreshToken(request);
+    if (refreshToken != null) {
+      Long userId = jwtUtil.getUserId(refreshToken);
+      log.debug("Deleting refresh token for user ID: " + userId);
+      refreshTokenRepository.deleteByUserId(userId);
+    } else {
+      log.debug("No refresh token found in cookies for social logout.");
+    }
+
+    // AccessToken 및 RefreshToken 쿠키 제거
+    removeCookie(response, "accessToken");
+    removeCookie(response, "refreshToken");
+
+    sendSuccessResponse(response, "소셜 로그아웃 성공");
+  }
+
+  private String extractRefreshToken(HttpServletRequest request) {
+    if (request.getCookies() != null) {
+      for (Cookie cookie : request.getCookies()) {
+        if (cookie.getName().equals("refreshToken")) {
+          return cookie.getValue();
         }
       }
     }
+    return null;
+  }
 
-    // refresh token null check
-    if (refresh == null) {
-      sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Refresh token is missing");
-      return;
-    }
-
-    // 만료 체크
-    try {
-      if (jwtUtil.isExpired(refresh)) {
-        sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Refresh token is expired");
-        return;
-      }
-    } catch (ExpiredJwtException e) {
-      sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Refresh token is expired");
-      return;
-    }
-
-    // 토큰이 refresh인지 확인
-    String tokenType = jwtUtil.getTokenType(refresh);
-    if (!tokenType.equals("refresh")) {
-      sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token type");
-      return;
-    }
-
-    // DB에 저장되어 있는지 확인
-    Boolean isExist = refreshTokenRepository.existsByRefresh(refresh);
-    if (!isExist) {
-      sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST,
-          "Refresh token does not exist");
-      return;
-    }
-
-    // 로그아웃 진행: Refresh 토큰 DB에서 제거
-    Long userId = jwtUtil.getUserId(refresh);
-    refreshTokenRepository.deleteByUserId(userId);
-
-    // Refresh 토큰 쿠키 삭제
-    Cookie cookie = new Cookie("refresh", null);
-    cookie.setMaxAge(0);
+  private void removeCookie(HttpServletResponse response, String cookieName) {
+    Cookie cookie = new Cookie(cookieName, null);
     cookie.setPath("/");
-
+    cookie.setMaxAge(0);
     response.addCookie(cookie);
-    sendSuccessResponse(response, "Successfully logged out");
   }
 
   private void sendErrorResponse(HttpServletResponse response, int statusCode, String message)

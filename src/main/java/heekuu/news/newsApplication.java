@@ -9,7 +9,7 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 @EnableJpaAuditing
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "heekuu.news")
 public class newsApplication {
 
   public static void main(String[] args) {

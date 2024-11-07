@@ -20,6 +20,7 @@ public class JWTUtil {
   public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
     byte[] keyBytes = Decoders.BASE64.decode(secret);  // Base64 디코딩
     this.key = Keys.hmacShaKeyFor(keyBytes); // 키 생성
+    System.out.println("Loaded JWT secret: " + secret);
   }
 
   private Claims getClaims(String token) {
