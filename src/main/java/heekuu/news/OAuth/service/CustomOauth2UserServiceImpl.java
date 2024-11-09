@@ -92,7 +92,7 @@ public class CustomOauth2UserServiceImpl extends DefaultOAuth2UserService {
     newUser.setUsername(generateUniqueUsername(oAuth2Response.getEmail()));
     return userRepository.save(newUser);
   }
-
+   // 중복된 아이디 X
   private String generateUniqueUsername(String email) {
     String baseUsername = email.split("@")[0];
     String username = baseUsername;

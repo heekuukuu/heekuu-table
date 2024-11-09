@@ -14,11 +14,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Date;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-
+import org.springframework.transaction.annotation.Transactional;
+@Slf4j
 @Component
 public class CustomOauth2SuccessHandler implements AuthenticationSuccessHandler {
 
@@ -32,6 +34,7 @@ public class CustomOauth2SuccessHandler implements AuthenticationSuccessHandler 
     this.userRepository = userRepository;
     this.refreshTokenRepository = refreshTokenRepository;
   }
+
 
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -51,7 +54,8 @@ public class CustomOauth2SuccessHandler implements AuthenticationSuccessHandler 
 
     // 4. JWT 토큰 생성
     String accessToken = jwtUtil.createJwt("access", user, user.getRole().name(), 3600000L); // 1시간
-    String refreshToken = jwtUtil.createJwt("refresh", user, user.getRole().name(), 604800000L); // 7일
+    String refreshToken = jwtUtil.createJwt("refresh", user, user.getRole().name(),
+        604800000L); // 7일
 
     // 5. 리프레시 토큰 저장
     saveRefreshToken(user, refreshToken);
@@ -86,8 +90,11 @@ public class CustomOauth2SuccessHandler implements AuthenticationSuccessHandler 
     response.addCookie(cookie);
   }
 
-  // 리프레시 토큰 저장 메서드
+
+    // 리프레시 토큰 저장 메서드
+  @Transactional
   private void saveRefreshToken(User user, String refreshToken) {
+    System.out.println("Saving refresh token for user: " + user.getEmail());
     // 기존 리프레시 토큰 삭제
     refreshTokenRepository.deleteByUserId(user.getUserId());
 
@@ -97,7 +104,22 @@ public class CustomOauth2SuccessHandler implements AuthenticationSuccessHandler 
     tokenEntity.setRefresh(refreshToken);
     tokenEntity.setExpiration(new Date(System.currentTimeMillis() + 604800000L).toString());
     refreshTokenRepository.save(tokenEntity);
+    System.out.println("Refresh token saved successfully.");
   }
+//  @Transactional
+//  private void saveRefreshToken(User user, String refreshToken) {
+//    System.out.println("Deleting existing refresh token for user: " + user.getEmail());
+//    refreshTokenRepository.deleteByUserId(user.getUserId());
+//
+//    System.out.println("Saving new refresh token for user: " + user.getEmail());
+//    RefreshToken tokenEntity = new RefreshToken();
+//    tokenEntity.setUser(user);
+//    tokenEntity.setRefresh(refreshToken);
+//    tokenEntity.setExpiration(new Date(System.currentTimeMillis() + 604800000L).toString());
+//
+//    RefreshToken savedToken = refreshTokenRepository.save(tokenEntity);
+//    System.out.println("Refresh token saved successfully with ID: " + savedToken.getTokenId());
+//  }
 
   // 유니크한 사용자명 생성 메서드
   private String generateUniqueUsername(String email) {

@@ -84,11 +84,14 @@ public class SecurityConfig {
             "/js/**",
             "/images/**",
             "/users/social-logout",
-            "/WEB-INF/views/error.jsp"
+            "login/**",
+            "/api/auth/naver-login"
         ).permitAll()
+
         .requestMatchers("/admin/**").hasAuthority("ADMIN")
         .requestMatchers("/user/**").hasAuthority("USER")
         .requestMatchers("/dashboard").hasAnyAuthority("USER", "ADMIN")
+        .requestMatchers( "/profile").hasAnyAuthority("USER", "ADMIN")
         .requestMatchers("/answers/**").hasAnyAuthority("USER", "ADMIN")
         .requestMatchers("/questions").hasAnyAuthority("USER", "ADMIN")
         .requestMatchers("/rewards/**").hasAnyAuthority("USER", "ADMIN")
@@ -105,7 +108,6 @@ public class SecurityConfig {
 
     // OAuth2 로그인 설정
     http.oauth2Login(oauth2 -> oauth2
-        //.loginPage("/login")
         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
         .successHandler(customOauth2SuccessHandler)
     );

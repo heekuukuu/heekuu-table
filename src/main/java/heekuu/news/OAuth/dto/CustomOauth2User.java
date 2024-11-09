@@ -1,6 +1,5 @@
-package heekuu.news.OAuth.entity;
+package heekuu.news.OAuth.dto;
 
-import heekuu.news.OAuth.dto.OauthDTO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;

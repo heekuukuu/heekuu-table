@@ -12,7 +12,7 @@
         <p class="text-center">이곳에서 다양한 정보를 확인할 수 있습니다.</p>
 
         <div class="text-center mt-4">
-            <a href="/" class="btn btn-primary">홈으로</a>
+            <a href="/home" class="btn btn-primary">홈으로</a>
             <a href="/users/social-logout" class="btn btn-danger">로그아웃</a>
         </div>
     </div>

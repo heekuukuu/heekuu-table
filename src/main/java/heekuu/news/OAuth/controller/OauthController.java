@@ -26,4 +26,9 @@ public class OauthController {
   public String handleError() {
     return "error"; // error.jsp로 이동
   }
-}
+    @GetMapping("/home")
+    public String home() {
+      return "home";
+    }
+
+  }

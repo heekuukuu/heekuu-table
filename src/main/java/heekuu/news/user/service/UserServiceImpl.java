@@ -1,6 +1,7 @@
 
 package heekuu.news.user.service;
 
+import heekuu.news.OAuth.dto.CustomOauth2User;
 import heekuu.news.answer.repository.AnswerRepository;
 import heekuu.news.jwt.util.JWTUtil;
 import heekuu.news.questions.repository.QuestionRepository;
@@ -11,6 +12,7 @@ import heekuu.news.user.dto.CustomUserDetails;
 import heekuu.news.user.dto.LoginDTO;
 import heekuu.news.user.dto.UserResponseDTO;
 import heekuu.news.user.dto.UserUpdateDTO;
+import heekuu.news.user.entity.LoginType;
 import heekuu.news.user.entity.Role;
 import heekuu.news.user.entity.User;
 import heekuu.news.user.repository.CountRepository;
@@ -39,8 +41,10 @@ public class UserServiceImpl implements UserService {
   private Long jwtExpiration;
 
   public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder,
-      JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, QuestionRepository questionRepository,
-                     AnswerRepository answerRepository, CountRepository countRepository, CountService countService) {
+      JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository,
+      QuestionRepository questionRepository,
+      AnswerRepository answerRepository, CountRepository countRepository,
+      CountService countService) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.jwtUtil = jwtUtil;
@@ -74,20 +78,39 @@ public class UserServiceImpl implements UserService {
         .orElseThrow(() -> new RuntimeException("User not found"));
   }
 
-  // 로그인된 사용자 정보 조회
+  // 유저 ID를 기반으로 LoginType 조회
+  public  LoginType findLoginTypeByUsername(String username) {
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> new IllegalArgumentException("해당 유저를 찾을 수 없습니다."));
+    return user.getLoginType();
+  }
+
   @Override
   public CustomUserDetails getLoggedInUserDetails() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    // 인증 객체가 존재하고, 사용자가 인증된 상태인지 확인
     if (authentication != null && authentication.isAuthenticated()) {
-      return (CustomUserDetails) authentication.getPrincipal();
+      if (authentication.getPrincipal() instanceof CustomUserDetails) {
+        // 일반 로그인 사용자일 경우, CustomUserDetails로 캐스팅하여 반환
+        return (CustomUserDetails) authentication.getPrincipal();
+      } else if (authentication.getPrincipal() instanceof CustomOauth2User) {
+        // 소셜 로그인 사용자일 경우, CustomOauth2User로 캐스팅하여 소셜 로그인 사용자 정보 조회
+        CustomOauth2User oauthUser = (CustomOauth2User) authentication.getPrincipal();
+        User user = userRepository.findByUsername(oauthUser.getName())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // DB에서 조회된 User 객체로 CustomUserDetails 생성하여 반환
+        return new CustomUserDetails(user); // User 객체를 직접 전달하여 생성자와 일치
+      }
     }
     throw new RuntimeException("User not authenticated");
   }
-
   // 사용자 정보 반환
 
   /**
-   *회원 정보 조회 시 Count 필드 업데이트 및 조회 로직 추가
+   * 회원 정보 조회 시 Count 필드 업데이트 및 조회 로직 추가
+   *
    * @return
    */
 //  @Transactional
@@ -99,7 +122,6 @@ public class UserServiceImpl implements UserService {
 
     // CountService를 통해 CountDTO 가져오기
     CountDTO countDTO = countService.getCountForUser(user.getUserId());
-
 
     // UserResponseDTO로 반환
     UserResponseDTO userResponse = new UserResponseDTO();
@@ -135,7 +157,6 @@ public class UserServiceImpl implements UserService {
 
     // CountService를 통해 CountDTO 가져오기
     CountDTO countDTO = countService.getCountForUser(user.getUserId());
-
 
     // 업데이트된 정보를 UserResponseDTO로 변환하여 반환
     UserResponseDTO userResponse = new UserResponseDTO();
@@ -177,7 +198,6 @@ public class UserServiceImpl implements UserService {
     userResponse.setNickname(user.getNickname());
     userResponse.setRole(user.getRole().toString());
 
-
     return userResponse;
   }
 
@@ -196,6 +216,7 @@ public class UserServiceImpl implements UserService {
 
     refreshTokenRepository.save(refreshTokenEntity);
   }
+
   @Override
   @Transactional
   public void deleteUser() {

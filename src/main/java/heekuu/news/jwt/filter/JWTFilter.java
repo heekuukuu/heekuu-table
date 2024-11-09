@@ -1,4 +1,3 @@
-
 package heekuu.news.jwt.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,8 +37,7 @@ public class JWTFilter extends OncePerRequestFilter {
     log.debug("JWTFilter 실행 중");
 
     String requestURI = request.getRequestURI();
-    if (requestURI.equals("/users/login") || requestURI.equals("/users/join") || requestURI.equals(
-        "/token/reissue")) {
+    if (requestURI.equals("/users/login") || requestURI.equals("/users/join") || requestURI.equals("/token/reissue")) {
       filterChain.doFilter(request, response);
       return;
     }
@@ -75,9 +73,9 @@ public class JWTFilter extends OncePerRequestFilter {
       SecurityContextHolder.getContext().setAuthentication(authToken);
 
       logAuthenticatedUser(customUserDetails);
-      // 여기서 권한 확인
+
       String role = jwtUtil.getRole(accessToken);
-      log.debug("Token Role: {}", role); // ADMIN 권한 확인
+      log.debug("Token Role: {}", role);
       if (!role.equals("USER") && !role.equals("ADMIN")) {
         log.debug("권한 부족: USER 또는 ADMIN 권한이 아님");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -101,7 +99,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
   private void logAuthenticatedUser(CustomUserDetails userDetails) throws IOException {
     UserResponseDTO userResponse = new UserResponseDTO();
-    //userResponse.setUserId(userDetails.getUserId());
     userResponse.setUsername(userDetails.getUsername());
     userResponse.setEmail(userDetails.getEmail());
     userResponse.setNickname(userDetails.getNickname());
@@ -113,4 +110,3 @@ public class JWTFilter extends OncePerRequestFilter {
     log.debug("Authenticated User Details: {}", jsonResponse);
   }
 }
-
