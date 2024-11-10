@@ -9,7 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import java.time.LocalDateTime;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 // User 엔티티 import
@@ -18,7 +20,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-
+@NoArgsConstructor
 public class RefreshToken {
 
   @Id
@@ -35,5 +37,10 @@ public class RefreshToken {
   @JoinColumn(name = "user_id", nullable = false, unique = true)
   private User user;
 
+  public RefreshToken(User user, String refresh, LocalDateTime expiration) {
+    this.user = user;
+    this.refresh = refresh;
+    this.expiration = String.valueOf(expiration);
+  }
 
 }

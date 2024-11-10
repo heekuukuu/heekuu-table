@@ -16,6 +16,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.GenericFilterBean;
 
 @Slf4j
@@ -46,8 +47,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
     }
 
     // 소셜 로그아웃 처리
-    if (requestUri.equals("/users/social-logout") && requestMethod.equals("GET")){
-    //|| requestMethod.equals("DELETE")) {
+    if (requestUri.equals("/users/social-logout") && requestMethod.equals("GET") || requestMethod.equals("DELETE")) {
       log.debug("Processing social logout");
       processSocialLogout(httpRequest, httpResponse);
       return;
@@ -57,6 +57,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
   }
 
   // 기존 JWT 로그아웃 로직
+  @Transactional
   private void processJwtLogout(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     String refresh = extractRefreshToken(request);
@@ -108,7 +109,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
   private String extractRefreshToken(HttpServletRequest request) {
     if (request.getCookies() != null) {
       for (Cookie cookie : request.getCookies()) {
-        if (cookie.getName().equals("refreshToken")) {
+        if (cookie.getName().equals("refresh")) {
           return cookie.getValue();
         }
       }
