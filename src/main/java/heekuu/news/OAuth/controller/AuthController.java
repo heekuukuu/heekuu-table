@@ -1,16 +1,19 @@
 package heekuu.news.OAuth.controller;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+
 import heekuu.news.jwt.util.JWTUtil;
 import heekuu.news.user.entity.Role;
 import heekuu.news.user.entity.User;
 import heekuu.news.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -24,54 +27,97 @@ public class AuthController {
   public AuthController(JWTUtil jwtUtil, UserRepository userRepository) {
     this.jwtUtil = jwtUtil;
     this.userRepository = userRepository;
-    this.restTemplate = new RestTemplate(); // 네이버 API 호출을 위해 RestTemplate 사용
+    this.restTemplate = new RestTemplate();
   }
-  @PostMapping("/naver-login")
-  public ResponseEntity<?> naverLogin(@RequestBody Map<String, String> request) {
+
+  @PostMapping("/social-login")
+  public ResponseEntity<?> socialLogin(@RequestParam("provider") String provider, @RequestBody Map<String, String> request) {
     String accessToken = request.get("access_token");
+    Map<String, Object> userInfo;
 
-    // 네이버 사용자 정보 API 호출을 위한 URL
+    switch (provider.toLowerCase()) {
+      case "naver":
+        userInfo = getNaverUserInfo(accessToken);
+        break;
+      case "kakao":
+        userInfo = getKakaoUserInfo(accessToken);
+        break;
+      case "google":
+        userInfo = getGoogleUserInfo(accessToken);
+        break;
+      default:
+        return ResponseEntity.badRequest().body("Invalid provider");
+    }
+
+    String email = (String) userInfo.get("email");
+    String nickname = (String) userInfo.get("nickname");
+    String providerId = (String) userInfo.get("id");
+
+    User user = userRepository.findByEmail(email)
+        .orElseGet(() -> createUser(email, nickname, providerId));
+
+    String jwt = jwtUtil.createJwt("access", user, user.getRole().name(), 3600000L);
+
+    return ResponseEntity.ok(Map.of("jwt", jwt));
+  }
+
+  private Map<String, Object> getNaverUserInfo(String accessToken) {
     String naverUserInfoUrl = "https://openapi.naver.com/v1/nid/me";
-
-    // 1. Authorization 헤더 설정
     HttpHeaders headers = new HttpHeaders();
     headers.set("Authorization", "Bearer " + accessToken);
-
-    // 2. HttpEntity 생성
     HttpEntity<String> entity = new HttpEntity<>("", headers);
-
-    // 3. 네이버 API 호출
     ResponseEntity<Map> response = restTemplate.exchange(
         naverUserInfoUrl,
         HttpMethod.GET,
         entity,
         Map.class
     );
-
-    Map<String, Object> responseBody = response.getBody();
-    Map<String, Object> userInfo = (Map<String, Object>) responseBody.get("response");
-
-    String email = (String) userInfo.get("email");
-    String nickname = (String) userInfo.get("nickname");
-    String naverId = (String) userInfo.get("id");
-
-    // 사용자 정보 저장 또는 조회
-    User user = userRepository.findByEmail(email)
-        .orElseGet(() -> createUser(email, nickname, naverId));
-
-    // JWT 생성
-    String jwt = jwtUtil.createJwt("access", user, user.getRole().name(), 3600000L); // 1시간 유효
-
-    // JWT 반환
-    return ResponseEntity.ok(Map.of("jwt", jwt));
+    return (Map<String, Object>) response.getBody().get("response");
   }
 
-  private User createUser(String email, String nickname, String naverId) {
+  private Map<String, Object> getKakaoUserInfo(String accessToken) {
+    String kakaoUserInfoUrl = "https://kapi.kakao.com/v2/user/me";
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Authorization", "Bearer " + accessToken);
+    HttpEntity<String> entity = new HttpEntity<>("", headers);
+    ResponseEntity<Map> response = restTemplate.exchange(
+        kakaoUserInfoUrl,
+        HttpMethod.GET,
+        entity,
+        Map.class
+    );
+    Map<String, Object> kakaoAccount = (Map<String, Object>) ((Map<String, Object>) response.getBody()).get("kakao_account");
+    return Map.of(
+        "email", kakaoAccount.get("email"),
+        "nickname", ((Map<String, Object>) response.getBody().get("properties")).get("nickname"),
+        "id", response.getBody().get("id").toString()
+    );
+  }
+
+  private Map<String, Object> getGoogleUserInfo(String accessToken) {
+    String googleUserInfoUrl = "https://openidconnect.googleapis.com/v1/userinfo";
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Authorization", "Bearer " + accessToken);
+    HttpEntity<String> entity = new HttpEntity<>("", headers);
+    ResponseEntity<Map> response = restTemplate.exchange(
+        googleUserInfoUrl,
+        HttpMethod.GET,
+        entity,
+        Map.class
+    );
+    return Map.of(
+        "email", response.getBody().get("email"),
+        "nickname", response.getBody().get("name"),
+        "id", response.getBody().get("sub")
+    );
+  }
+
+  private User createUser(String email, String nickname, String providerId) {
     User user = new User();
     user.setEmail(email);
     user.setNickname(nickname);
-    user.setProviderId(naverId);
-    user.setRole(Role.USER); // 기본 사용자 역할 설정
+    user.setProviderId(providerId);
+    user.setRole(Role.USER);
     return userRepository.save(user);
   }
 }
