@@ -85,7 +85,9 @@ public class SecurityConfig {
             "/images/**",
             "/users/social-logout",
             "login/**",
-            "api/auth/social-login"
+            "api/auth/social-login",
+            "/news",
+            "/news/**"
         ).permitAll()
 
         .requestMatchers("/admin/**").hasAuthority("ADMIN")
