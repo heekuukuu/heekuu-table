@@ -92,8 +92,9 @@ public class SecurityConfig {
 
         .requestMatchers("/admin/**").hasAuthority("ADMIN")
         .requestMatchers("/user/**").hasAuthority("USER")
+
         .requestMatchers("/dashboard").hasAnyAuthority("USER", "ADMIN")
-        .requestMatchers( "/profile").hasAnyAuthority("USER", "ADMIN")
+        .requestMatchers("/api/user/preferences/**").hasAnyAuthority("USER", "ADMIN")
         .requestMatchers("/answers/**").hasAnyAuthority("USER", "ADMIN")
         .requestMatchers("/questions").hasAnyAuthority("USER", "ADMIN")
         .requestMatchers("/rewards/**").hasAnyAuthority("USER", "ADMIN")
