@@ -20,7 +20,7 @@
 ## ✨ 핵심 기능
 
 - **사용자 인증 및 권한 관리**
-    - JWT 인증과 OAuth(Google 로그인)를 통한 사용자 인증
+    - JWT 인증과 OAuth(Google,Naver,Kakao 로그인)를 통한 사용자 인증
     - 사용자별 관심사 저장 및 관리
 
 - **뉴스 데이터 관리**
@@ -83,8 +83,6 @@
 
 ### 2. 환경 변수 설정
 ### Database Configuration
-DB_HOST=your_database_host
-DB_PORT=your_database_port
 DB_USER=your_database_user
 DB_PASSWORD=your_database_password
 
@@ -98,12 +96,12 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret
 ### Kakao OAuth Configuration
 KAKAO_CLIENT_ID=your_kakao_client_id
 KAKAO_CLIENT_SECRET=your_kakao_client_secret
-KAKAO_REDIRECT_URI=your_kakao_redirect_uri
+
 
 ### Naver OAuth Configuration
 NAVER_CLIENT_ID=your_naver_client_id
 NAVER_CLIENT_SECRET=your_naver_client_secret
-NAVER_REDIRECT_URI=your_naver_redirect_uri
+
 
 ---
 ## 🔑 API 명세
