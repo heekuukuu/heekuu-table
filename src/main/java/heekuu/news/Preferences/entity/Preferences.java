@@ -31,7 +31,7 @@ public class Preferences {
   @Column(nullable = false)
   private String category;
 
-  // 사용자가 지정한 키워드를 저장 (예: "경제", "기술" 등)
+  @Column(length = 50)
   private String keyword;
 
 

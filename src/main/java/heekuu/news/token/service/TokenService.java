@@ -10,14 +10,15 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Date;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class TokenService {   // 리프레시 토큰 발급 및 관리
@@ -26,12 +27,7 @@ public class TokenService {   // 리프레시 토큰 발급 및 관리
   private final UserRepository userRepository;
   private final RefreshTokenRepository refreshTokenRepository;
 
-  public TokenService(JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository,
-      UserRepository userRepository) {
-    this.jwtUtil = jwtUtil;
-    this.refreshTokenRepository = refreshTokenRepository;
-    this.userRepository = userRepository;
-  }
+
 
   @Transactional
   public ResponseEntity<?> reissueToken(HttpServletRequest request, HttpServletResponse response) {

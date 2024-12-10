@@ -8,6 +8,7 @@ import heekuu.news.jwt.filter.LoginFilter;
 import heekuu.news.jwt.util.JWTUtil;
 import heekuu.news.token.repository.RefreshTokenRepository;
 import heekuu.news.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +23,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
   private final AuthenticationConfiguration authenticationConfiguration;
@@ -31,18 +33,6 @@ public class SecurityConfig {
   private final CustomOauth2UserServiceImpl customOAuth2UserService;
   private final CustomOauth2SuccessHandler customOauth2SuccessHandler;
 
-  public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil,
-      RefreshTokenRepository refreshTokenRepository, UserRepository userRepository,
-      CustomOauth2UserServiceImpl customOAuth2UserService,
-      CustomOauth2SuccessHandler customOauth2SuccessHandler) {
-
-    this.authenticationConfiguration = authenticationConfiguration;
-    this.jwtUtil = jwtUtil;
-    this.refreshTokenRepository = refreshTokenRepository;
-    this.userRepository = userRepository;
-    this.customOAuth2UserService = customOAuth2UserService;
-    this.customOauth2SuccessHandler = customOauth2SuccessHandler;
-  }
 
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
@@ -92,7 +82,6 @@ public class SecurityConfig {
 
         .requestMatchers("/admin/**").hasAuthority("ADMIN")
         .requestMatchers("/user/**").hasAuthority("USER")
-
         .requestMatchers("/dashboard").hasAnyAuthority("USER", "ADMIN")
         .requestMatchers("/api/user/preferences/**").hasAnyAuthority("USER", "ADMIN")
         .requestMatchers("/answers/**").hasAnyAuthority("USER", "ADMIN")

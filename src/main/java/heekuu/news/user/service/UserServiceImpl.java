@@ -18,6 +18,10 @@ import heekuu.news.user.entity.User;
 import heekuu.news.user.repository.CountRepository;
 import heekuu.news.user.repository.UserRepository;
 import java.util.Date;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +29,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+@Slf4j
+@Setter
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
@@ -40,24 +48,10 @@ public class UserServiceImpl implements UserService {
   @Value("${spring.jwt.expiration}")
   private Long jwtExpiration;
 
-  public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder,
-      JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository,
-      QuestionRepository questionRepository,
-      AnswerRepository answerRepository, CountRepository countRepository,
-      CountService countService) {
-    this.userRepository = userRepository;
-    this.passwordEncoder = passwordEncoder;
-    this.jwtUtil = jwtUtil;
-    this.refreshTokenRepository = refreshTokenRepository;
-    this.questionRepository = questionRepository;
-    this.answerRepository = answerRepository;
-    this.countRepository = countRepository;
-    this.countService = countService;
-  }
-
-  // 로그인 로직: DB에서 사용자 정보 조회 후 JWT 발급
   @Override
+  @Transactional
   public String loginUser(LoginDTO loginDTO) {
+    // 사용자 조회
     User user = userRepository.findByUsername(loginDTO.getUsername())
         .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -66,11 +60,21 @@ public class UserServiceImpl implements UserService {
       throw new RuntimeException("Invalid credentials");
     }
 
-    // 최신 권한을 DB에서 조회하여 토큰 생성
-    String role = user.getRole().toString();
-    return jwtUtil.createJwt("access", user, role, jwtExpiration);
-  }
+    // 기존 리프레시 토큰 삭제
+    refreshTokenRepository.deleteByUserId(user.getUserId());
+    log.warn("기존 리프레시 토큰 삭제: 사용자 ID {}", user.getUserId());
 
+    // 새 액세스 토큰 생성
+    String role = user.getRole().toString();
+    String accessToken = jwtUtil.createJwt("access", user, role, jwtExpiration);
+
+    // 새 리프레시 토큰 생성 및 저장
+    String refreshToken = jwtUtil.createJwt("refresh", user, role, 604800000L); // 7일 유효
+    addRefreshToken(user, refreshToken, 604800000L);
+
+    log.info("로그인 성공: 사용자 {} (새로운 토큰 발급 완료)", user.getUsername());
+    return accessToken;
+  }
   // 사용자 정보 가져오기
   @Override
   public User getUserById(Long userId) {

@@ -4,6 +4,7 @@ package heekuu.news.user.service;
 import heekuu.news.user.dto.CustomUserDetails;
 import heekuu.news.user.entity.User;
 import heekuu.news.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,30 +12,24 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
- @Service
- public class CustomUserDetailsService implements UserDetailsService {
+@RequiredArgsConstructor
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
 
-     @Autowired
-     private PasswordEncoder passwordEncoder;
-
-     @Autowired
-     private final UserRepository userRepository;
-
-    public CustomUserDetailsService(UserRepository userRepository) {
-
-    this.userRepository = userRepository;
- }
-
-   @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+  @Autowired
+  private PasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
 
 
-        User user = userRepository.findByUsername(username)
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을수없습니다." + username));
+    User user = userRepository.findByUsername(username)
 
-       return new CustomUserDetails(user);
+        .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을수없습니다." + username));
 
-       }
+    return new CustomUserDetails(user);
+
+  }
 }
 

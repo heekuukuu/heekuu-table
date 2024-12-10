@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -20,13 +21,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class CustomOauth2UserServiceImpl extends DefaultOAuth2UserService {
 
   private final UserRepository userRepository;
 
-  public CustomOauth2UserServiceImpl(UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
+
 
   @Override
   public OAuth2User loadUser(OAuth2UserRequest userRequest) {

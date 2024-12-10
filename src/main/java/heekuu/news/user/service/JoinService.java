@@ -7,25 +7,19 @@ import heekuu.news.user.dto.JoinDTO;
 import heekuu.news.user.entity.Role;
 import heekuu.news.user.entity.User;
 import heekuu.news.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-
+@RequiredArgsConstructor
 public class JoinService {
 
   @Autowired
   private final UserRepository userRepository;
-
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-  public JoinService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
-
-    this.userRepository = userRepository;
-    this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-
-  }
 
   public void joinProcess(JoinDTO joinDTO) {
     String username = joinDTO.getUsername();

@@ -7,17 +7,15 @@ import heekuu.news.user.entity.User;
 import heekuu.news.user.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
+@RequiredArgsConstructor
 @Service
 public class AdminService {
 
   private final UserRepository userRepository;
 
-  public AdminService(UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
 
   // 모든 사용자 조회 (Admin 전용)
   @PreAuthorize("hasAuthority('ADMIN')")

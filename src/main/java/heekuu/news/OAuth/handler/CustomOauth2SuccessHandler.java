@@ -106,20 +106,7 @@ public class CustomOauth2SuccessHandler implements AuthenticationSuccessHandler 
     refreshTokenRepository.save(tokenEntity);
     System.out.println("Refresh token saved successfully.");
   }
-//  @Transactional
-//  private void saveRefreshToken(User user, String refreshToken) {
-//    System.out.println("Deleting existing refresh token for user: " + user.getEmail());
-//    refreshTokenRepository.deleteByUserId(user.getUserId());
-//
-//    System.out.println("Saving new refresh token for user: " + user.getEmail());
-//    RefreshToken tokenEntity = new RefreshToken();
-//    tokenEntity.setUser(user);
-//    tokenEntity.setRefresh(refreshToken);
-//    tokenEntity.setExpiration(new Date(System.currentTimeMillis() + 604800000L).toString());
-//
-//    RefreshToken savedToken = refreshTokenRepository.save(tokenEntity);
-//    System.out.println("Refresh token saved successfully with ID: " + savedToken.getTokenId());
-//  }
+
 
   // 유니크한 사용자명 생성 메서드
   private String generateUniqueUsername(String email) {

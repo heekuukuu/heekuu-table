@@ -7,21 +7,18 @@ import heekuu.news.user.entity.User;
 import heekuu.news.user.repository.UserRepository;
 import java.sql.Timestamp;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@RequiredArgsConstructor
 @Service
 public class RewardService {
 
   private final RewardRepository rewardRepository;
   private final UserRepository userRepository;
 
-  @Autowired
-  public RewardService(RewardRepository rewardRepository, UserRepository userRepository) {
-    this.rewardRepository = rewardRepository;
-    this.userRepository = userRepository;
-  }
 
   @Transactional
   public void addReward(Long userId, String action, int points) {

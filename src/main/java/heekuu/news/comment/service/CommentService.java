@@ -12,9 +12,10 @@ import heekuu.news.user.repository.CountRepository;
 import heekuu.news.user.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+@RequiredArgsConstructor
 @Service
 public class CommentService {
 
@@ -24,14 +25,7 @@ public class CommentService {
     private final CountRepository countRepository;
     private final ForbiddenService forbiddenService;
 
-    @Autowired
-    public CommentService(CommentRepository commentRepository, AnswerRepository answerRepository, UserRepository userRepository, CountRepository countRepository, ForbiddenService forbiddenService) {
-        this.commentRepository = commentRepository;
-        this.answerRepository = answerRepository;
-        this.userRepository = userRepository;
-        this.countRepository = countRepository;
-        this.forbiddenService = forbiddenService;
-    }
+
 
     // 댓글 생성
     public CommentDTO createComment(Long answerId, Long userId, String content, Long parentCommentId) {

@@ -1,6 +1,7 @@
 package heekuu.news.token.repository;
 
 import heekuu.news.token.entity.RefreshToken;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -17,4 +18,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
   void deleteByUserId(@Param("userId") Long userId);
 
   boolean existsByUser_UserId(Long userId);
+
+  Optional<RefreshToken> findByUser_UserId(Long userId);
 }
