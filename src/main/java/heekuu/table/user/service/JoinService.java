@@ -52,4 +52,10 @@ public class JoinService {
 
     userRepository.save(data);
   }
+
+
+  // 이메일 중복 여부 확인 메서드
+  public boolean isEmailDuplicate(String email) {
+    return userRepository.existsByEmail(email);
+  }
 }

@@ -39,9 +39,9 @@ public class UserServiceImpl implements UserService {
   private final BCryptPasswordEncoder passwordEncoder; // 비밀번호 암호화를 위한 인코더 추가
   private final JWTUtil jwtUtil;
   private final RefreshTokenRepository refreshTokenRepository; // 리프레시 토큰 저장소 추가
-  private final QuestionRepository questionRepository;
-  private final AnswerRepository answerRepository;
-  private final CountRepository countRepository;
+  //private final QuestionRepository questionRepository;
+  //private final AnswerRepository answerRepository;
+  //private final CountRepository countRepository;
   private final CountService countService;
 
 
