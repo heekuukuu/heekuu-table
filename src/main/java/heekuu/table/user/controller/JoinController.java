@@ -2,6 +2,7 @@ package heekuu.table.user.controller;
 
 import heekuu.table.user.dto.JoinDTO;
 import heekuu.table.user.service.JoinService;
+import jakarta.validation.constraints.Email;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class JoinController {
 
   // 이메일 중복 체크 API
   @GetMapping("/users/check-email")
-  public ResponseEntity<String> checkEmailDuplicate(@RequestParam("email") String email) {
+  public ResponseEntity<String> checkEmailDuplicate(@RequestParam("email")@Email String email) {
     boolean isDuplicate = joinService.isEmailDuplicate(email);
 
     if (isDuplicate) {
