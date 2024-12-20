@@ -77,8 +77,8 @@ public class SecurityConfig {
             "/users/social-logout",
             "login/**",
             "api/auth/social-login",
-            "/api/restaurants/**",
-            //"/api/reservation/**",
+            "/api/owners/**",
+            "/api/reservation/**",
             "/api/calendar/**"
         ).permitAll()
         // .requestMatchers("/api/calendar").hasAnyAuthority("USER", "ADMIN")
