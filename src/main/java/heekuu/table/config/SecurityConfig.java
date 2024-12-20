@@ -77,9 +77,11 @@ public class SecurityConfig {
             "login/**",
             "api/auth/social-login",
             "/api/restaurants/**",
-            "/api/reservation/**"
+            //"/api/reservation/**",
+            "/api/calendar/**"
         ).permitAll()
-
+        // .requestMatchers("/api/calendar").hasAnyAuthority("USER", "ADMIN")
+        .requestMatchers("/api/reservation/**").authenticated()
         .requestMatchers("/admin/**").hasAuthority("ADMIN")
         .requestMatchers("/user/**").hasAuthority("USER")
         .requestMatchers("/dashboard").hasAnyAuthority("USER", "ADMIN")
@@ -114,6 +116,7 @@ public class SecurityConfig {
     // JWT 필터 및 커스텀 로그아웃 필터 추가
     http.addFilterBefore(new JWTFilter(userRepository, jwtUtil),
         UsernamePasswordAuthenticationFilter.class);
+
 
     http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository),
         LogoutFilter.class);

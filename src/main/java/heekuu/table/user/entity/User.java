@@ -1,5 +1,7 @@
 package heekuu.table.user.entity;
 
+import heekuu.table.calendar.entity.Calendar;
+import heekuu.table.common.entity.BaseEntity;
 import heekuu.table.rewards.entity.Rewards;
 import heekuu.table.token.entity.RefreshToken;
 import jakarta.persistence.CascadeType;
@@ -31,11 +33,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
-public class User {
+public class User extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "user_id")
   private Long userId;
+
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+  private Calendar calendar;
 
   @Column(nullable = false, unique = true)
   private String username;
@@ -53,9 +59,6 @@ public class User {
   private Role role;
 
 
-  @Column(nullable = false)
-  private Date created_At;
-
   // RefreshToken과의 일대일 관계 설정
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private RefreshToken refreshToken;
@@ -68,19 +71,6 @@ public class User {
   private Count count;
 
 
-  @Column(nullable = true)
-  private Date updated_At;
-
-
-  @PrePersist
-  protected void onCreate() {
-    this.created_At = Date.valueOf(LocalDate.now());
-  }
-
-  @PreUpdate
-  protected void onUpdate() {
-    this.updated_At = Date.valueOf(LocalDate.now());
-  }
 
   // 포인트
   @Column(nullable = false)

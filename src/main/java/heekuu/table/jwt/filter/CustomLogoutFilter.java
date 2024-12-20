@@ -40,6 +40,12 @@ public class CustomLogoutFilter extends GenericFilterBean {
     String requestUri = httpRequest.getRequestURI();
     String requestMethod = httpRequest.getMethod();
 
+    // 요청 URI가 "/users/logout"이 아닌 경우 다음 필터로 이동
+    if (!requestUri.equals("/users/logout")) {
+      chain.doFilter(request, response);
+      return;
+    }
+
     // JWT 로그아웃 처리
     if (requestUri.equals("/users/logout") && requestMethod.equals("DELETE")) {
       processJwtLogout(httpRequest, httpResponse);

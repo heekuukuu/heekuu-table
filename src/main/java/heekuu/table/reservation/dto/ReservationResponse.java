@@ -26,6 +26,13 @@ public class ReservationResponse {
   private ReservationStatus status; // 예약상태
 
 
+  /**
+   * Reservation 엔티티를 ReservationResponse DTO로 변환하는 정적 메서드.
+   *
+   * @param reservation 데이터베이스에서 조회한 예약 엔티티
+   * @return ReservationResponse 클라이언트에게 반환할 예약 데이터
+   */
+
   public static ReservationResponse fromEntity(Reservation reservation) {
     return ReservationResponse.builder()
         .reservationId(reservation.getReservationId())
@@ -35,7 +42,7 @@ public class ReservationResponse {
         .userContact(reservation.getUserContact())
         .reservationTime(reservation.getReservationTime())
         .partySize(reservation.getPartySize())
-        .status(reservation.getStatus()) // Enum 값을 문자열로 변환
+        .status(reservation.getStatus())
         .build();
   }
 }

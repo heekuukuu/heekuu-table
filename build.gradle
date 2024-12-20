@@ -19,8 +19,11 @@ configurations {
     }
 }
 
+
 repositories {
     mavenCentral()
+    google()
+    maven { url 'https://maven.google.com' }
 }
 
 dependencies {
@@ -28,44 +31,46 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.12.3'
+
+    // JWT 토큰 처리
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3' // JSON 처리에 필요한 부분
-    implementation 'io.github.cdimascio:dotenv-java:2.2.0'
-    implementation 'commons-codec:commons-codec:1.15'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+    // 환경 변수 처리
+    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
+    // Spring Security OAuth2
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-tomcat'
+
+    // JSP 및 Tomcat 설정
     implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
     implementation 'javax.servlet:jstl:1.2'
+
+    // Lombok 설정
     compileOnly 'org.projectlombok:lombok:1.18.28'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // 테스트 의존성
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation 'org.projectlombok:lombok'
+
+    // MySQL 설정
     runtimeOnly 'com.mysql:mysql-connector-j'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // Apache Commons 및 기타 라이브러리
     implementation 'org.apache.commons:commons-lang3:3.12.0'
+    //implementation 'org.apache.commons:commons-codec:1.15'
     implementation 'org.apache.commons:commons-text:1.10.0'
     implementation 'org.jsoup:jsoup:1.15.4'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'org.apache.commons:commons-codec:1.15'
-}
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
 tasks.named('test') {
     useJUnitPlatform()
 }
-tasks.withType(JavaCompile) {
+
+tasks.withType(JavaCompile).configureEach {
     options.compilerArgs << "-parameters"
-}
-repositories {
-    mavenCentral()
-    maven { url 'https://jitpack.io' }
-}
+}}

@@ -1,6 +1,7 @@
 package heekuu.table.reservation.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import heekuu.table.calendar.entity.Calendar;
 import heekuu.table.common.entity.BaseEntity;
 import heekuu.table.reservation.type.ReservationStatus;
 import heekuu.table.restaurant.entity.Restaurant;
@@ -8,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,15 +37,20 @@ public class Reservation extends BaseEntity {
   private Long reservationId;
 
 
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "calendar_id", nullable = false)
+  private Calendar calendar; // 사용자 달력 연결
+
   @ManyToOne
   @JoinColumn(name = "restaurant_id", nullable = false)
   private Restaurant restaurant;
 
   private String userName; // 예약자이름
+
   private String userContact;// 예약자 연락처
 
-  @Column(nullable = false)
-  @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+  @Column(name = "reservation_time", nullable = false)
   private LocalDateTime reservationTime;// 예약 시간
 
 

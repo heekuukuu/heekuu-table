@@ -44,8 +44,12 @@ public class UserServiceImpl implements UserService {
   private final CountRepository countRepository;
   private final CountService countService;
 
-  @Value("${spring.jwt.expiration}")
-  private Long jwtExpiration;
+
+  @Value("${spring.jwt.access-token-expiration}")
+  private Long accessTokenExpiration;
+
+  @Value("${spring.jwt.refresh-token-expiration}")
+  private Long refreshTokenExpiration;
 
   @Override
   @Transactional
@@ -65,10 +69,10 @@ public class UserServiceImpl implements UserService {
 
     // 새 액세스 토큰 생성
     String role = user.getRole().toString();
-    String accessToken = jwtUtil.createJwt("access", user, role, jwtExpiration);
+    String accessToken = jwtUtil.createJwt("access", user, role, accessTokenExpiration);
 
     // 새 리프레시 토큰 생성 및 저장
-    String refreshToken = jwtUtil.createJwt("refresh", user, role, 604800000L); // 7일 유효
+    String refreshToken = jwtUtil.createJwt("refresh", user, role, refreshTokenExpiration); // 7일 유효
     addRefreshToken(user, refreshToken, 604800000L);
 
     log.info("로그인 성공: 사용자 {} (새로운 토큰 발급 완료)", user.getUsername());
@@ -187,8 +191,8 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);  // 변경된 사용자 정보 저장
 
     // 새로운 액세스 및 리프레시 토큰 발급
-    String newAccessToken = jwtUtil.createJwt("access", user, newRole, 600000L); // 10분
-    String newRefreshToken = jwtUtil.createJwt("refresh", user, newRole, 604800000L); // 7일
+    String newAccessToken = jwtUtil.createJwt("access", user, newRole, accessTokenExpiration); //1시간
+    String newRefreshToken = jwtUtil.createJwt("refresh", user, newRole, refreshTokenExpiration); // 7일
     refreshTokenRepository.deleteByUserId(userId);
 
     addRefreshToken(user, newRefreshToken, 604800000L); // 새로운 리프레시 토큰 저장
