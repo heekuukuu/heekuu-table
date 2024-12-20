@@ -32,7 +32,7 @@ public class OwnerService {
 
     // 사업자 등록증 업로드
     String businessRegistrationPath = s3Uploader.upload(businessRegistrationFile,
-        "business-registrations");
+        "restaurant-owner-approvals");
 
     // Owner 생성 및 저장
     Owner owner = Owner.builder()

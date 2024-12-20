@@ -56,5 +56,7 @@ public class OwnerController {
           .status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body("파일 업로드에 실패했습니다: " + e.getMessage());
     }
+
+
   }
 }

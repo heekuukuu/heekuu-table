@@ -1,5 +1,6 @@
 package heekuu.table.common.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -11,6 +12,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.io.IOException;
 import java.util.UUID;
 
+@Slf4j
 @Component
 public class S3Uploader {
 
@@ -60,7 +62,11 @@ public class S3Uploader {
             file.getInputStream(), // 업로드할 파일 스트림
             file.getSize() // 파일 크기
         )
+
     );
+
+    // 업로드 성공 로그
+    log.info("파일 업로드 성공: {}", fileName);
 
     // S3 URL 반환
     return generateS3Url(fileName);
@@ -73,6 +79,8 @@ public class S3Uploader {
    * @return S3 URL
    */
   private String generateS3Url(String fileName) {
+
     return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileName;
+
   }
 }
