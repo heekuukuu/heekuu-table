@@ -1,7 +1,10 @@
 package heekuu.table.user.repository;
 
 import heekuu.table.user.entity.User;
+import heekuu.table.user.type.Role;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,8 +16,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByProviderId(String providerId); // 소셜 로그인용 provider ID로 검색
 
     boolean existsByUsername(String username);
+    Page<User> findAllByRole(Role role, Pageable pageable);
 
-    //boolean existsByNickname(String nickname);
+    boolean existsByNickname(String nickname);
     //  이메일중복체크
     boolean existsByEmail(String email);
 

@@ -2,9 +2,10 @@ package heekuu.table.user.service;
 
 import heekuu.table.user.dto.AdminUpdateRequestDTO;
 import heekuu.table.user.dto.UserResponseDTO;
-import heekuu.table.user.entity.Role;
+
 import heekuu.table.user.entity.User;
 import heekuu.table.user.repository.UserRepository;
+import heekuu.table.user.type.Role;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

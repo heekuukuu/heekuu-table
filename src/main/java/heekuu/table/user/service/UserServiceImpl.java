@@ -12,11 +12,12 @@ import heekuu.table.user.dto.CustomUserDetails;
 import heekuu.table.user.dto.LoginDTO;
 import heekuu.table.user.dto.UserResponseDTO;
 import heekuu.table.user.dto.UserUpdateDTO;
-import heekuu.table.user.entity.LoginType;
-import heekuu.table.user.entity.Role;
+
 import heekuu.table.user.entity.User;
 import heekuu.table.user.repository.CountRepository;
 import heekuu.table.user.repository.UserRepository;
+import heekuu.table.user.type.LoginType;
+import heekuu.table.user.type.Role;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

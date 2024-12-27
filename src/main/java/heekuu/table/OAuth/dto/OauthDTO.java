@@ -1,6 +1,6 @@
 package heekuu.table.OAuth.dto;
 
-import heekuu.table.user.entity.LoginType;
+import heekuu.table.user.type.LoginType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

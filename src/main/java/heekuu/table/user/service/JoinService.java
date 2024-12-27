@@ -2,10 +2,12 @@ package heekuu.table.user.service;
 
 
 import heekuu.table.user.dto.JoinDTO;
-import heekuu.table.user.entity.Role;
+
 import heekuu.table.user.entity.User;
 import heekuu.table.user.repository.UserRepository;
-import heekuu.table.user.entity.LoginType;
+
+import heekuu.table.user.type.LoginType;
+import heekuu.table.user.type.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

@@ -3,10 +3,11 @@ package heekuu.table.OAuth.controller;
 import heekuu.table.jwt.util.JWTUtil;
 import heekuu.table.token.entity.RefreshToken;
 import heekuu.table.token.repository.RefreshTokenRepository;
-import heekuu.table.user.entity.LoginType;
-import heekuu.table.user.entity.Role;
+
 import heekuu.table.user.entity.User;
 import heekuu.table.user.repository.UserRepository;
+import heekuu.table.user.type.LoginType;
+import heekuu.table.user.type.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

@@ -4,10 +4,11 @@ import heekuu.table.OAuth.dto.GoogleResponse;
 import heekuu.table.OAuth.dto.KakaoResponse;
 import heekuu.table.OAuth.dto.NaverResponse;
 import heekuu.table.OAuth.dto.OAuth2Response;
-import heekuu.table.user.entity.LoginType;
-import heekuu.table.user.entity.Role;
+
 import heekuu.table.user.entity.User;
 import heekuu.table.user.repository.UserRepository;
+import heekuu.table.user.type.LoginType;
+import heekuu.table.user.type.Role;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

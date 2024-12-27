@@ -1,7 +1,8 @@
 package heekuu.table.common.permission;
 
 import heekuu.table.common.util.SecurityUtil;
-import heekuu.table.user.entity.Role;
+
+import heekuu.table.user.type.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;

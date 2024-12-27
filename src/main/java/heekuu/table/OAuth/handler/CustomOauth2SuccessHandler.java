@@ -3,10 +3,11 @@ package heekuu.table.OAuth.handler;
 import heekuu.table.jwt.util.JWTUtil;
 import heekuu.table.token.entity.RefreshToken;
 import heekuu.table.token.repository.RefreshTokenRepository;
-import heekuu.table.user.entity.LoginType;
-import heekuu.table.user.entity.Role;
+
 import heekuu.table.user.entity.User;
 import heekuu.table.user.repository.UserRepository;
+import heekuu.table.user.type.LoginType;
+import heekuu.table.user.type.Role;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
