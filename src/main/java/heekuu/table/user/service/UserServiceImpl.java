@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
   @Transactional
   public String loginUser(LoginDTO loginDTO) {
     // 사용자 조회
-    User user = userRepository.findByUsername(loginDTO.getUsername())
+    User user = userRepository.findByEmail(loginDTO.getEmail())
         .orElseThrow(() -> new RuntimeException("User not found"));
 
     // 비밀번호 확인
@@ -86,8 +86,8 @@ public class UserServiceImpl implements UserService {
   }
 
   // 유저 ID를 기반으로 LoginType 조회
-  public LoginType findLoginTypeByUsername(String username) {
-    User user = userRepository.findByUsername(username)
+  public LoginType findLoginTypeByEmail(String email) {
+    User user = userRepository.findByEmail(email)
         .orElseThrow(() -> new IllegalArgumentException("해당 유저를 찾을 수 없습니다."));
     return user.getLoginType();
   }

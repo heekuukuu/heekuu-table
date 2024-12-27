@@ -62,16 +62,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
       ObjectMapper mapper = new ObjectMapper();
       LoginDTO loginDTO = mapper.readValue(json.toString(), LoginDTO.class);
 
-      String username = loginDTO.getUsername();
+      String email = loginDTO.getEmail();
       String password = loginDTO.getPassword();
 
-      if (username == null || username.isEmpty()) {
+      if (email == null || email.isEmpty()) {
         log.warn("로그인 실패: 아이디가 비어있습니다.");
         throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, HttpStatus.BAD_REQUEST);
       }
 
       UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-          username, password);
+          email, password);
       return this.getAuthenticationManager().authenticate(authRequest);
     } catch (IOException e) {
       log.error("로그인 요청 데이터 처리 중 오류 발생: {}", e.getMessage());
