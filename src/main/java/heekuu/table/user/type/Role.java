@@ -1,4 +1,4 @@
-package heekuu.table.user.entity;
+package heekuu.table.user.type;
 
 
 public enum Role {
