@@ -4,19 +4,18 @@ import heekuu.table.user.dto.AdminUpdateRequestDTO;
 import heekuu.table.user.dto.UserResponseDTO;
 import heekuu.table.user.service.AdminService;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
 
   private final AdminService adminService;
 
-  public AdminController(AdminService adminService) {
-    this.adminService = adminService;
-  }
 
   // 모든 사용자 조회 (Admin 전용)
   @GetMapping("/users")
@@ -46,7 +45,7 @@ public class AdminController {
       @RequestBody AdminUpdateRequestDTO adminUpdateRequestDTO) {
     UserResponseDTO updatedUser = adminService.updateUserInfo(userId, adminUpdateRequestDTO);
 
-    System.out.println("Email: " + adminUpdateRequestDTO.getEmail());
+    System.out.println("password: " + adminUpdateRequestDTO.getPassword());
     System.out.println("Nickname: " + adminUpdateRequestDTO.getNickname());
 
     return ResponseEntity.ok(updatedUser);

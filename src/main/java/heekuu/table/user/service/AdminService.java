@@ -6,16 +6,19 @@ import heekuu.table.user.dto.UserResponseDTO;
 import heekuu.table.user.entity.User;
 import heekuu.table.user.repository.UserRepository;
 import heekuu.table.user.type.Role;
+
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class AdminService {
 
   private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
 
   // 모든 사용자 조회 (Admin 전용)
@@ -24,7 +27,7 @@ public class AdminService {
     List<User> users = userRepository.findAll();
     return users.stream().map(user -> {
       UserResponseDTO dto = new UserResponseDTO();
-      //dto.setUserId(user.getUserId());
+      dto.setUserId(user.getUserId());
       dto.setUsername(user.getUsername());
       dto.setEmail(user.getEmail());
       dto.setNickname(user.getNickname());
@@ -42,7 +45,7 @@ public class AdminService {
     }
     User user = userOptional.get();
     UserResponseDTO dto = new UserResponseDTO();
-    //dto.setUserId(user.getUserId());
+    dto.setUserId(user.getUserId());
     dto.setUsername(user.getUsername());
     dto.setEmail(user.getEmail());
     dto.setNickname(user.getNickname());
@@ -59,34 +62,34 @@ public class AdminService {
     userRepository.save(user);
 
     UserResponseDTO dto = new UserResponseDTO();
-    //dto.setUserId(user.getUserId());
+    dto.setUserId(user.getUserId());
     dto.setUsername(user.getUsername());
     dto.setEmail(user.getEmail());
     dto.setNickname(user.getNickname());
     dto.setRole(user.getRole().toString());
     return dto;
   }
-
+  @PreAuthorize("hasAuthority('ADMIN')")
   public UserResponseDTO updateUserInfo(Long userId, AdminUpdateRequestDTO adminUpdateRequestDTO) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
-    // 업데이트할 필드 설정
-
-    // 업데이트할 필드 설정 (null이 아닐 경우에만 업데이트)
-    if (adminUpdateRequestDTO.getEmail() != null) {
-      user.setEmail(adminUpdateRequestDTO.getEmail());
-    }
-
+    // 닉네임 변경
     if (adminUpdateRequestDTO.getNickname() != null) {
       user.setNickname(adminUpdateRequestDTO.getNickname());
+    }
+
+    // 비밀번호 변경 (비밀번호 인코딩 추가)
+    if (adminUpdateRequestDTO.getPassword() != null) {
+      String encodedPassword = passwordEncoder.encode(adminUpdateRequestDTO.getPassword());
+      user.setPassword(encodedPassword);
     }
 
     userRepository.save(user); // 변경된 사용자 정보 저장
 
     // 수정된 사용자 정보를 반환
     UserResponseDTO userResponseDTO = new UserResponseDTO();
-    //userResponseDTO.setUserId(user.getUserId());
+    userResponseDTO.setUserId(user.getUserId());
     userResponseDTO.setUsername(user.getUsername());
     userResponseDTO.setEmail(user.getEmail());
     userResponseDTO.setNickname(user.getNickname());

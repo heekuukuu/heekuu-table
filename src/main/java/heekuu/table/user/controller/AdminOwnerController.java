@@ -17,7 +17,6 @@ public class AdminOwnerController {
   private final AdminOwnerService adminOwnerService;
 
   // Owner 승인
-  @PreAuthorize("hasAuthority('ADMIN')") // 권한확인
   @PutMapping("/owners/{ownerId}/approve")
   public ResponseEntity<?> approveOwner(@PathVariable("ownerId") Long ownerId) {
     adminOwnerService.approveOwner(ownerId);
@@ -25,7 +24,6 @@ public class AdminOwnerController {
   }
 
   // Owner 거절
-  @PreAuthorize("hasAuthority('ADMIN')")
   @PutMapping("/owners/{ownerId}/reject")
   public ResponseEntity<?> rejectOwner(@PathVariable("ownerId") Long ownerId) {
     adminOwnerService.rejectOwner(ownerId);
@@ -33,7 +31,7 @@ public class AdminOwnerController {
   }
 
   // Owner 대기 상태 설정
-  @PreAuthorize("hasAuthority('ADMIN')")
+
   @PutMapping("/owners/{ownerId}/pending")
   public ResponseEntity<?> setOwnerToPending(@PathVariable("ownerId") Long ownerId) {
     adminOwnerService.setOwnerToPending(ownerId);

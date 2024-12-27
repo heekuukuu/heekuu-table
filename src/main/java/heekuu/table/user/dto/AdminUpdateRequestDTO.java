@@ -8,11 +8,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+
 // 어드민  업데이트페이지
 public class AdminUpdateRequestDTO {
 
 
-  private String email;
-  private String nickname;
 
+  private String nickname;
+  private String password;
 }
