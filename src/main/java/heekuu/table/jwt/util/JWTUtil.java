@@ -1,26 +1,40 @@
 package heekuu.table.jwt.util;
 
+import heekuu.table.config.TokenConfig;
 import heekuu.table.user.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
+@Slf4j
 @Component
+
 public class JWTUtil {
 
+  private final TokenConfig tokenConfig;
   private final Key key;
 
-  // 생성자: Base64로 인코딩된 시크릿을 디코딩해서 사용
-  public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
+  @Autowired
+  public JWTUtil(@Value("${spring.jwt.secret}") String secret, TokenConfig tokenConfig) {
+    this.tokenConfig = tokenConfig;
     byte[] keyBytes = Decoders.BASE64.decode(secret);  // Base64 디코딩
     this.key = Keys.hmacShaKeyFor(keyBytes); // 키 생성
-    System.out.println("Loaded JWT secret: " + secret);
+
+  }
+  @PostConstruct
+  public void init() {
+    // TokenConfig에서 토큰 만료 시간 값을 로그로 출력
+    log.info("JWTUtil - Access Token Expiration: {}", tokenConfig.getAccessTokenExpiration());
+    log.info("JWTUtil - Refresh Token Expiration: {}", tokenConfig.getRefreshTokenExpiration());
   }
 
   private Claims getClaims(String token) {
@@ -29,7 +43,10 @@ public class JWTUtil {
         .build()
         .parseClaimsJws(token)
         .getBody();
+
+
   }
+
 
 
   // User ID 추출
@@ -60,20 +77,34 @@ public class JWTUtil {
       // JWT가 만료된 경우 예외가 발생하므로, true 반환
       return true;
     }
+
   }
 
   // 토큰 생성
-  public String createJwt(String tokenType, User user, String role, Long expiredMs) {
+  public String createJwt(String tokenType, User user, String role) {
+    long expiredMs = tokenType.equals("access") ? tokenConfig.getAccessTokenExpiration() : tokenConfig.getRefreshTokenExpiration();
     Date now = new Date();
     Date expiration = new Date(now.getTime() + expiredMs);
+
+    log.info("Current time: {}", now);
+    log.info("Creating JWT with expiration: {}", expiredMs);
 
     return Jwts.builder()
         .claim("tokenType", tokenType)
         .claim("userid", user.getUserId())
         .claim("role", role)
-        .setIssuedAt(now)  //
-        .setExpiration(expiration)  //
+        .setIssuedAt(now)
+        .setExpiration(expiration)
         .signWith(key)
         .compact();
+  }
+  // Refresh Token 만료 시간 가져오기
+  public long getRefreshTokenExpiration() {
+    return tokenConfig.getRefreshTokenExpiration();
+
+  }
+
+  public long getAccessTokenExpiration() {
+    return tokenConfig.getAccessTokenExpiration();
   }
 }

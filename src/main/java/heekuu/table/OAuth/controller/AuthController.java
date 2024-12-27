@@ -54,8 +54,8 @@ public class AuthController {
     User user = userRepository.findByEmail(email)
         .orElseGet(() -> createUser(email, nickname, provider, providerId));
 
-    String newAccessToken = jwtUtil.createJwt("access", user, user.getRole().name(), 3600000L);
-    String newRefreshToken = jwtUtil.createJwt("refresh", user, user.getRole().name(), 604800000L);
+    String newAccessToken = jwtUtil.createJwt("access", user, user.getRole().name());
+    String newRefreshToken = jwtUtil.createJwt("refresh", user, user.getRole().name());
 
     saveRefreshToken(user, newRefreshToken);
 

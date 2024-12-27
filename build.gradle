@@ -39,7 +39,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
     // 환경 변수 처리
-    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+    implementation 'io.github.cdimascio:dotenv-java:5.2.2'
 
     // Spring Security OAuth2
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
@@ -67,6 +67,9 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.15.4'
     implementation 'org.springframework.boot:spring-boot-starter-logging'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    // 환경변수 설정
+    implementation 'io.github.cdimascio:dotenv-java:5.2.2'
 
 tasks.named('test') {
     useJUnitPlatform()

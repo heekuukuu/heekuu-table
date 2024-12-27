@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LoginDTO {
-  //todo: 이메일로 로그인하는걸로 변경하기!
+
   private String email;
   private String password;
 

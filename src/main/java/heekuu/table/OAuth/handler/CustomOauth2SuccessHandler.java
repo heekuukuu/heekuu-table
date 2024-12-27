@@ -54,16 +54,16 @@ public class CustomOauth2SuccessHandler implements AuthenticationSuccessHandler 
         .orElseGet(() -> createUser(email, name, provider, providerId));
 
     // 4. JWT 토큰 생성
-    String accessToken = jwtUtil.createJwt("access", user, user.getRole().name(), 3600000L); // 1시간
-    String refreshToken = jwtUtil.createJwt("refresh", user, user.getRole().name(),
-        604800000L); // 7일
+    String accessToken = jwtUtil.createJwt("access", user, user.getRole().name()); // 1시간
+    String refreshToken = jwtUtil.createJwt("refresh", user, user.getRole().name()); // 7일
 
     // 5. 리프레시 토큰 저장
     saveRefreshToken(user, refreshToken);
 
     // 6. 쿠키 설정
-    addCookie(response, "accessToken", accessToken, 3600);
-    addCookie(response, "refreshToken", refreshToken, 604800);
+    addCookie(response, "accessToken", accessToken, (int) jwtUtil.getAccessTokenExpiration() / 1000); // 만료 시간을 초로 설정
+    addCookie(response, "refreshToken", refreshToken, (int) jwtUtil.getRefreshTokenExpiration() / 1000); // 만료 시간을 초로 설정
+
 
     // 7. 리다이렉션
     response.sendRedirect("/dashboard?message=" + URLEncoder.encode("로그인 성공!", "UTF-8"));

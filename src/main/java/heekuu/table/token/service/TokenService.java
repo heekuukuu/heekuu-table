@@ -1,5 +1,6 @@
 package heekuu.table.token.service;
 
+import heekuu.table.config.TokenConfig;
 import heekuu.table.jwt.util.JWTUtil;
 import heekuu.table.token.entity.RefreshToken;
 import heekuu.table.token.repository.RefreshTokenRepository;
@@ -12,6 +13,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,7 @@ public class TokenService {   // 리프레시 토큰 발급 및 관리
   private final JWTUtil jwtUtil;
   private final UserRepository userRepository;
   private final RefreshTokenRepository refreshTokenRepository;
+
 
 
 
@@ -64,16 +68,13 @@ public class TokenService {   // 리프레시 토큰 발급 및 관리
           .orElseThrow(() -> new RuntimeException("User not found"));
 
       // 새로운 access 및 refresh 토큰 발급
-      String newAccess = jwtUtil.createJwt("access", user, role, 3600000L);// 1시간
-      String newRefresh = jwtUtil.createJwt("refresh", user, role, 604800000L); // 7일
+      String newAccess = jwtUtil.createJwt("access", user, role);// 1시간
+      String newRefresh = jwtUtil.createJwt("refresh", user, role); // 7일
 
-      // 기존 refresh 토큰 삭제 후 새 토큰 저장
-      refreshTokenRepository.deleteByUserId(userId);
 
       //기존 refresh 토큰 업데이트
-      updateRefreshToken(user, newRefresh, 604800000L);
+      updateRefreshToken(user, newRefresh);
 
-      //saveRefreshToken(user, newRefresh, 604800000L); // 새로운 refresh 토큰 저장
 
       // 갱신된 토큰을 응답으로 전송
       response.setHeader("access", newAccess);
@@ -109,21 +110,33 @@ public class TokenService {   // 리프레시 토큰 발급 및 관리
       return true;
     }
   }
-
-  // refresh 토큰 여부 확인
+  // 리프레시 토큰 여부 확인
   private boolean isRefreshToken(String token) {
+    // JWTUtil에서 토큰 타입을 확인하여 리프레시 토큰인지 확인
     return "refresh".equals(jwtUtil.getTokenType(token));
   }
 
-  // Refresh 토큰 저장
-  private void updateRefreshToken(User user, String refreshToken, Long expiredMs) {
+  // Refresh 토큰 저장 및 업데이트
+  private void updateRefreshToken(User user, String refreshToken) {
+    long expiredMs = jwtUtil.getRefreshTokenExpiration();
     Date expirationDate = new Date(System.currentTimeMillis() + expiredMs);
-    RefreshToken refreshTokenEntity = new RefreshToken();
-    refreshTokenEntity.setUser(user);
+
+    // 기존 리프레시 토큰 존재 여부 확인
+    RefreshToken refreshTokenEntity = refreshTokenRepository
+        .findByUser_UserId(user.getUserId()) // user_id로 기존 리프레시 토큰 조회
+        .orElseGet(() -> {
+          // 리프레시 토큰이 없다면 새로 생성
+          RefreshToken newToken = new RefreshToken();
+          newToken.setUser(user);
+          return newToken;
+        });
+
+    // 리프레시 토큰과 만료일자 업데이트
     refreshTokenEntity.setRefresh(refreshToken);
     refreshTokenEntity.setExpiration(expirationDate.toString());
-    // 변경된 토큰 저장
-    refreshTokenRepository.save(refreshTokenEntity);
+
+    // 저장
+    refreshTokenRepository.save(refreshTokenEntity); // 존재하는 경우 업데이트, 없으면 새로 추가
   }
 
   // 쿠키 생성 메서드

@@ -9,10 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 
-// 어드민  업데이트페이지
+// 어드민  업데이트사항
 public class AdminUpdateRequestDTO {
-
-
 
   private String nickname;
   private String password;

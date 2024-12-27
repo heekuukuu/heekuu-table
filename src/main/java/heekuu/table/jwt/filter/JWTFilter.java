@@ -13,6 +13,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,16 +21,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+@RequiredArgsConstructor
 @Slf4j
 public class JWTFilter extends OncePerRequestFilter {
 
   private final UserRepository userRepository;
   private final JWTUtil jwtUtil;
 
-  public JWTFilter(UserRepository userRepository, JWTUtil jwtUtil) {
-    this.userRepository = userRepository;
-    this.jwtUtil = jwtUtil;
-  }
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,

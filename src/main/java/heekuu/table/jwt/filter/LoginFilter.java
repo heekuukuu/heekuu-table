@@ -3,6 +3,7 @@ package heekuu.table.jwt.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import heekuu.table.common.exception.CustomException;
 import heekuu.table.common.exception.ErrorCode;
+import heekuu.table.config.TokenConfig;
 import heekuu.table.jwt.util.JWTUtil;
 import heekuu.table.token.entity.RefreshToken;
 import heekuu.table.token.repository.RefreshTokenRepository;
@@ -10,6 +11,7 @@ import heekuu.table.user.dto.CustomUserDetails;
 import heekuu.table.user.dto.LoginDTO;
 import heekuu.table.user.entity.User;
 import heekuu.table.user.repository.UserRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,12 +42,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
   private final RefreshTokenRepository refreshTokenRepository;
   private final UserRepository userRepository;
 
+
+
   public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
       RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
     super.setAuthenticationManager(authenticationManager);
     this.jwtUtil = jwtUtil;
     this.userRepository = userRepository;
     this.refreshTokenRepository = refreshTokenRepository;
+
     this.setFilterProcessesUrl("/users/login");
   }
 
@@ -70,8 +76,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, HttpStatus.BAD_REQUEST);
       }
 
-      UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-          email, password);
+      UsernamePasswordAuthenticationToken authRequest =
+          new UsernamePasswordAuthenticationToken(email, password);
       return this.getAuthenticationManager().authenticate(authRequest);
     } catch (IOException e) {
       log.error("로그인 요청 데이터 처리 중 오류 발생: {}", e.getMessage());
@@ -112,16 +118,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
       }
 
+
       // 1. 새로운 Access Token 및 Refresh Token 생성
-      String accessToken = jwtUtil.createJwt("access", user, role,
-          Duration.ofMinutes(10).toMillis());
-      String refreshToken = jwtUtil.createJwt("refresh", user, role, Duration.ofDays(7).toMillis());
+      String accessToken = jwtUtil.createJwt("access", user, role);
+      String refreshToken = jwtUtil.createJwt("refresh", user, role);
 
       log.info("새로운 Access Token 생성 완료: {}", accessToken);
       log.info("새로운 Refresh Token 생성 완료: {}", refreshToken);
 
+
       // 2. Refresh Token 덮어쓰기
-      upsertRefreshToken(user, refreshToken, Duration.ofDays(7).toMillis());
+      upsertRefreshToken(user, refreshToken );
 
       // 3. 응답 처리
       Map<String, String> tokens = new HashMap<>();
@@ -141,11 +148,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
   }
 
-  // Refresh Token 덮어쓰기 메서드
-  private void upsertRefreshToken(User user, String refreshToken, Long expiredMs) {
+
+// Refresh Token 덮어쓰기 메서드
+  private void upsertRefreshToken(User user, String refreshToken) {
+    long expiredMs = jwtUtil.getRefreshTokenExpiration();
     Date expirationDate = new Date(System.currentTimeMillis() + expiredMs);
 
-    // Refresh Token 엔티티 검색 또는 새로 생성
     RefreshToken refreshTokenEntity = refreshTokenRepository
         .findByUser_UserId(user.getUserId())
         .orElseGet(() -> {
