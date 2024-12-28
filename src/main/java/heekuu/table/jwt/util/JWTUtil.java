@@ -1,6 +1,7 @@
 package heekuu.table.jwt.util;
 
 import heekuu.table.config.TokenConfig;
+import heekuu.table.owner.entity.Owner;
 import heekuu.table.user.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 @Slf4j
 @Component
 
@@ -30,6 +32,7 @@ public class JWTUtil {
     this.key = Keys.hmacShaKeyFor(keyBytes); // 키 생성
 
   }
+
   @PostConstruct
   public void init() {
     // TokenConfig에서 토큰 만료 시간 값을 로그로 출력
@@ -47,6 +50,11 @@ public class JWTUtil {
 
   }
 
+  // 클레임에서 Owner ID 추출
+  public Long getOwnerId(String token) {
+    Claims claims = getClaims(token);
+    return claims.get("ownerId", Long.class);
+  }
 
 
   // User ID 추출
@@ -80,14 +88,12 @@ public class JWTUtil {
 
   }
 
-  // 토큰 생성
+  // 유저타입토큰 생성
   public String createJwt(String tokenType, User user, String role) {
-    long expiredMs = tokenType.equals("access") ? tokenConfig.getAccessTokenExpiration() : tokenConfig.getRefreshTokenExpiration();
+    long expiredMs = tokenType.equals("access") ? tokenConfig.getAccessTokenExpiration()
+        : tokenConfig.getRefreshTokenExpiration();
     Date now = new Date();
     Date expiration = new Date(now.getTime() + expiredMs);
-
-    log.info("Current time: {}", now);
-    log.info("Creating JWT with expiration: {}", expiredMs);
 
     return Jwts.builder()
         .claim("tokenType", tokenType)
@@ -98,6 +104,28 @@ public class JWTUtil {
         .signWith(key)
         .compact();
   }
+
+
+  // 토큰 생성 (Owner용)
+  public String createOwnerJwt(String tokenType, Owner owner, String role) {
+    long expiredMs = tokenType.equals("access")
+        ? tokenConfig.getAccessTokenExpiration()
+        : tokenConfig.getRefreshTokenExpiration();
+
+    Date now = new Date();
+    Date expiration = new Date(now.getTime() + expiredMs);
+
+    return Jwts.builder()
+        .claim("tokenType", tokenType)
+        .claim("ownerId", owner.getOwnerId()) // Owner의 고유 ID
+        .claim("role", role)
+        .setIssuedAt(now)
+        .setExpiration(expiration)
+        .signWith(key)
+        .compact();
+  }
+
+
   // Refresh Token 만료 시간 가져오기
   public long getRefreshTokenExpiration() {
     return tokenConfig.getRefreshTokenExpiration();
@@ -106,5 +134,16 @@ public class JWTUtil {
 
   public long getAccessTokenExpiration() {
     return tokenConfig.getAccessTokenExpiration();
+  }
+
+  // Access Token의 남은 유효시간 계산
+  public long getRemainingExpiration(String token) {
+    try {
+      Claims claims = getClaims(token);
+      Date expiration = claims.getExpiration();
+      return expiration.getTime() - System.currentTimeMillis();
+    } catch (ExpiredJwtException e) {
+      return 0; // 토큰이 이미 만료된 경우 남은 시간이 0
+    }
   }
 }

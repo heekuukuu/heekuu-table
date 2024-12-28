@@ -71,6 +71,9 @@ dependencies {
     // 환경변수 설정
     implementation 'io.github.cdimascio:dotenv-java:5.2.2'
 
+    // 레디스 설정
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 tasks.named('test') {
     useJUnitPlatform()
 }

@@ -81,7 +81,8 @@ public class SecurityConfig {
             "api/auth/social-login",
             "/api/owners/**",
             "/api/reservation/**",
-            "/api/calendar/**"
+            "/api/calendar/**",
+            "/api/owners/**"
         ).permitAll()
         // .requestMatchers("/api/calendar").hasAnyAuthority("USER", "ADMIN")
         .requestMatchers("/api/reservation/**").authenticated()

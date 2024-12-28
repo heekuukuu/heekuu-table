@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JacksonConfig {
 
+  // TODO: 토큰 저장시 만료시간전역 타압으로변경
   // 전역날짜포맷 기본설정
   private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm";
 

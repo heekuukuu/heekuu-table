@@ -2,11 +2,19 @@ package heekuu.table.owner.service;
 
 
 import heekuu.table.common.util.S3Uploader;
+import heekuu.table.config.TokenConfig;
+import heekuu.table.jwt.util.JWTUtil;
+import heekuu.table.owner.dto.OwnerJoinRequest;
+import heekuu.table.owner.dto.OwnerLoginRequest;
 import heekuu.table.owner.entity.Owner;
 import heekuu.table.owner.repository.OwnerRepository;
 import heekuu.table.owner.type.OwnerStatus;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,30 +28,99 @@ public class OwnerService {
   private final OwnerRepository ownerRepository;
   private final PasswordEncoder passwordEncoder;
   private final S3Uploader s3Uploader;
+  private final RedisTemplate<String, Object> redisTemplate;
+  private final JWTUtil jwtUtil;
+  private final TokenConfig tokenConfig;
 
-  // 사업자 회원 등록
+  // 사업자 회원가입
   @Transactional
-  public void registerOwner(String email, String password, String businessName, String contact,
-      MultipartFile businessRegistrationFile) throws IOException {
-    // 이메일 중복 체크
-    if (ownerRepository.findByEmail(email).isPresent()) {
+  public void registerOwner(OwnerJoinRequest ownerJoinRequest) {
+    if (ownerRepository.findByEmail(ownerJoinRequest.getEmail()).isPresent()) {
       throw new IllegalStateException("이미 등록된 이메일입니다.");
     }
 
-    // 사업자 등록증 업로드
-    String businessRegistrationPath = s3Uploader.upload(businessRegistrationFile,
-        "restaurant-owner-approvals");
-
-    // Owner 생성 및 저장
     Owner owner = Owner.builder()
-        .email(email)
-        .password(passwordEncoder.encode(password))
-        .businessName(businessName)
-        .contact(contact)
-        .businessRegistrationPath(businessRegistrationPath)
-        .ownerStatus(OwnerStatus.PENDING) // 초기 상태: 대기
+        .email(ownerJoinRequest.getEmail())
+        .password(passwordEncoder.encode(ownerJoinRequest.getPassword()))
+        .businessName(ownerJoinRequest.getBusinessName())
+        .contact(ownerJoinRequest.getContact())
+        .businessRegistrationPath(null)
+        .ownerStatus(OwnerStatus.unregistered) // 미등록
         .build();
 
     ownerRepository.save(owner);
   }
+
+  // 사업자 로그인
+
+  public Map<String, String> login(OwnerLoginRequest ownerLoginRequest) {
+
+    String email = ownerLoginRequest.getEmail();
+    String password = ownerLoginRequest.getPassword();
+
+    Owner owner = ownerRepository.findByEmail(ownerLoginRequest.getEmail())
+        .orElseThrow(() -> new IllegalStateException("등록되지 않은 이메일입니다."));
+
+    if (!passwordEncoder.matches(ownerLoginRequest.getPassword(), owner.getPassword())) {
+      throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
+    }
+
+    String accessToken = jwtUtil.createOwnerJwt("access", owner, "OWNER");
+    String refreshToken = jwtUtil.createOwnerJwt("refresh", owner, "OWNER");
+
+    // Refresh Token을 Redis에 저장 (덮어쓰기)
+    redisTemplate.opsForValue().set(
+        "OWNER_REFRESH_TOKEN:" + owner.getOwnerId(), // Redis 키에 Owner ID 포함
+        refreshToken,
+        tokenConfig.getRefreshTokenExpiration(), //7일
+        TimeUnit.MILLISECONDS
+    );
+    Map<String, String> tokens = new HashMap<>();
+    tokens.put("access_token", accessToken);
+    tokens.put("refresh_token", refreshToken);
+
+    return tokens; // 클라이언트에 반환
+  }
+
+  // 사업자 로그아웃
+  public void logout(String accessToken, String refreshToken) {
+    // Refresh Token 삭제
+    String refreshTokenKey = "OWNER_REFRESH_TOKEN:" + jwtUtil.getOwnerId(refreshToken); // 키 변경
+    boolean isDeleted = redisTemplate.delete(refreshTokenKey);
+    if (!isDeleted) {
+      throw new IllegalStateException("Refresh Token이 이미 삭제되었거나 존재하지 않습니다.");
+    }
+
+    // Access Token 블랙리스트에 추가
+    try {
+      long expiration = jwtUtil.getRemainingExpiration(accessToken);
+      if (expiration > 0) {
+        redisTemplate.opsForValue().set(
+            "BLACKLIST:" + accessToken,
+            "logout",
+            expiration,
+            TimeUnit.MILLISECONDS
+        );
+        System.out.println("Access Token이 블랙리스트에 추가되었습니다.");
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("유효하지 않은 Access Token입니다.", e);
+    }
+  }
+
+
+  // 사업자 등록증 제출
+  @Transactional
+  public void submitBusinessRegistration(Long ownerId, MultipartFile businessRegistrationFile)
+      throws IOException {
+    Owner owner = ownerRepository.findById(ownerId)
+        .orElseThrow(() -> new IllegalStateException("해당 사업자를 찾을 수 없습니다."));
+
+    String path = s3Uploader.upload(businessRegistrationFile, "restaurant-owner-approvals");
+    owner.setBusinessRegistrationPath(path);
+    owner.setOwnerStatus(OwnerStatus.PENDING); // 상태를 대기 중으로 변경
+    ownerRepository.save(owner);
+  }
+
+
 }
