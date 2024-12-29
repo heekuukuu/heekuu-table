@@ -2,6 +2,8 @@ package heekuu.table.owner.entity;
 
 import heekuu.table.common.entity.BaseEntity;
 import heekuu.table.owner.type.OwnerStatus;
+import heekuu.table.store.entity.Store;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,5 +48,6 @@ public class Owner extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private OwnerStatus ownerStatus;
 
-
+ @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+ private Store store;
 }

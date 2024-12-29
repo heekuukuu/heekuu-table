@@ -1,6 +1,6 @@
 package heekuu.table.user.entity;
 
-import heekuu.table.calendar.entity.Calendar;
+
 import heekuu.table.common.entity.BaseEntity;
 import heekuu.table.rewards.entity.Rewards;
 import heekuu.table.token.entity.RefreshToken;
@@ -19,6 +19,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.Calendar;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,8 +41,7 @@ public class User extends BaseEntity {
   @Column(name = "user_id")
   private Long userId;
 
-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-  private Calendar calendar;
+
 
   @Column(nullable = false, unique = true)
   private String username;
