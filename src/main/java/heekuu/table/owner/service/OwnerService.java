@@ -122,5 +122,13 @@ public class OwnerService {
     ownerRepository.save(owner);
   }
 
+  // 오너 상태 검증 메서드
+  public void validateOwnerStatus(Long ownerId) throws IllegalAccessException {
+    Owner owner = ownerRepository.findById(ownerId)
+        .orElseThrow(() -> new IllegalStateException("해당 사업자를 찾을 수 없습니다."));
 
+    if (owner.getOwnerStatus() != OwnerStatus.APPROVED) {
+      throw new IllegalAccessException("스토어 등록/삭제 권한이 없습니다. 승인된 사업자만 가능합니다.");
+    }
+  }
 }

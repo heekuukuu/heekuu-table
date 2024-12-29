@@ -1,5 +1,6 @@
 package heekuu.table.store.entity;
 
+import heekuu.table.menu.entity.Menu;
 import heekuu.table.owner.entity.Owner;
 import heekuu.table.reservation.entity.Reservation;
 import jakarta.persistence.CascadeType;
@@ -48,5 +49,8 @@ public class Store {
   // 예약리스트
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Reservation> reservations = new ArrayList<>();
+
+  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Menu> menus = new ArrayList<>(); // 가게 메뉴
 
 }
