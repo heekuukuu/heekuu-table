@@ -7,6 +7,7 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
@@ -72,6 +73,20 @@ public class S3Uploader {
     return generateS3Url(fileName);
   }
 
+  //사진삭제
+  public void delete(String fileName) {
+    try {
+      s3Client.deleteObject(DeleteObjectRequest.builder()
+          .bucket(bucketName)
+          .key(fileName)
+          .build());
+      log.info("S3 파일 삭제 성공: {}", fileName);
+    } catch (Exception e) {
+      log.error("S3 파일 삭제 실패: {}", fileName, e);
+      throw new RuntimeException("파일 삭제 중 오류가 발생했습니다.");
+    }
+  }
+
   /**
    * S3 URL을 생성합니다.
    *
@@ -82,5 +97,9 @@ public class S3Uploader {
 
     return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileName;
 
+  }
+
+  public String extractFileNameFromUrl(String url) {
+    return url.substring(url.lastIndexOf("/") + 1);
   }
 }
