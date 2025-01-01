@@ -73,13 +73,12 @@ public class SecurityConfig {
             "/oauth2/**",
             "/login", // '/login' 경로 추가
             "/error",
-            "/css/**", // 정적 리소스 경로 허용
-            "/js/**",
             "/images/**",
             "/users/social-logout",
             "login/**",
             "api/auth/social-login",
             "/api/owners/**",
+            "/api/restaurants/**",
             "/api/reservation/**",
             "/api/calendar/**",
             "/api/owners/**",
@@ -87,7 +86,8 @@ public class SecurityConfig {
             "/api/stores",
             "/api/menus/**"
         ).permitAll()
-        // .requestMatchers("/api/calendar").hasAnyAuthority("USER", "ADMIN")
+        .requestMatchers("/api/owners/reservations/**").authenticated()
+        .requestMatchers("/api/users/reservations/**").authenticated()
         .requestMatchers("/api/reservation/**").authenticated()
         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
         .requestMatchers("/user/**").hasAuthority("USER")

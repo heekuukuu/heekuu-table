@@ -1,7 +1,7 @@
 package heekuu.table.questions.dto;
 
 import heekuu.table.questions.entity.Question;
-import heekuu.table.questions.type.SubjectNames;
+import heekuu.table.questions.type.Category;
 import java.time.format.DateTimeFormatter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,7 @@ import lombok.Getter;
 public class AddQuestionResponseDto {
 
   private final Long questionId;
-  private final SubjectNames subjectName;
+  private final Category category;
   private final String title;
   private final String content;
   private final byte[] image;
@@ -25,7 +25,7 @@ public class AddQuestionResponseDto {
     return AddQuestionResponseDto.builder()
         .questionId(question.getQuestionId())
         .title(question.getTitle())
-        .subjectName(question.getSubjectName())
+        .category(question.getCategory())
         .content(question.getContent())
         .image(question.getImage())
         .isSolved(question.isSolved())

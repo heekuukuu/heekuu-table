@@ -10,7 +10,7 @@ import heekuu.table.questions.dto.UpdateQuestionRequest;
 import heekuu.table.questions.dto.UpdateQuestionResponse;
 import heekuu.table.questions.entity.Question;
 import heekuu.table.questions.repository.QuestionRepository;
-import heekuu.table.questions.type.SubjectNames;
+import heekuu.table.questions.type.Category;
 import heekuu.table.user.entity.User;
 import heekuu.table.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -95,7 +95,7 @@ public class QuestionServiceImpl implements QuestionService {
 
   @Override
   public Page<GetQuestionResponseDto> getQuestionListBySubject(Long userId,
-      SubjectNames subjectNames, Pageable pageable) {
+      Category category, Pageable pageable) {
     return null;
   }
 
@@ -109,18 +109,18 @@ public class QuestionServiceImpl implements QuestionService {
    * 로그인된 사용자가 선택한 과목별 질문 목록을 조회합니다.
    *
    * @param userId       조회할 사용자 ID
-   * @param subjectNames 사용자가 선택한 과목 이름
+   * @param category 사용자가 선택한 과목 이름
    * @param pageable     페이지네이션 정보
    * @return 조회한 과목별 질문 목록을 반환합니다.
    */
   @Override
   public Page<GetQuestionResponseDto> getUserQuestionsBySubject(
       Long userId,
-      SubjectNames subjectNames,
+      Category category,
       Pageable pageable
   ) {
-    Page<Question> questions = questionRepository.findAllByUser_UserIdAndSubjectName(userId,
-        subjectNames, pageable);
+    Page<Question> questions = questionRepository.findAllByUser_UserIdAndCategory(userId,
+        category, pageable);
     return questions.map(GetQuestionResponseDto::fromEntity);
   }
 
@@ -138,15 +138,15 @@ public class QuestionServiceImpl implements QuestionService {
   /**
    * 모든 사용자가 선택한 과목의 전체 질문 목록을 조회합니다.
    *
-   * @param subjectNames 과목명
+   * @param category 과목명
    * @param pageable     페이지네이션 정보
    * @return 조회한 과목별 질문 목록을 반환합니다.
    */
   public Page<GetQuestionResponseDto> getAllQuestionsBySubject(
-      SubjectNames subjectNames,
+      Category category,
       Pageable pageable
   ) {
-    Page<Question> questions = questionRepository.findAllBySubjectName(subjectNames, pageable);
+    Page<Question> questions = questionRepository.findAllByCategory(category, pageable);
     return questions.map(GetQuestionResponseDto::fromEntity);
   }
 

@@ -3,7 +3,7 @@ package heekuu.table.reservation.entity;
 
 import heekuu.table.common.entity.BaseEntity;
 import heekuu.table.reservation.type.ReservationStatus;
-import heekuu.table.restaurant.entity.Restaurant;
+
 import heekuu.table.store.entity.Store;
 import heekuu.table.user.entity.User;
 import jakarta.persistence.CascadeType;

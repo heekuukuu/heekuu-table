@@ -1,7 +1,7 @@
 package heekuu.table.questions.dto;
 
 import heekuu.table.questions.entity.Question;
-import heekuu.table.questions.type.SubjectNames;
+import heekuu.table.questions.type.Category;
 import heekuu.table.user.entity.User;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
@@ -16,16 +16,16 @@ public class QuestionRequest {
   @NotNull
   private String title;
   @NotNull
-  private SubjectNames subjectName;
+  private Category category;
   @NotNull
   private String content;
   private MultipartFile image;
 
-  @ConstructorProperties({"title", "subjectName", "content", "image"})
-  public QuestionRequest(String title, SubjectNames subjectName,
+  @ConstructorProperties({"title", "category", "content", "image"})
+  public QuestionRequest(String title, Category category,
       String content, MultipartFile image) {
     this.title = title;
-    this.subjectName = subjectName;
+    this.category = category;
     this.content = content;
     this.image = image;
   }
@@ -34,7 +34,7 @@ public class QuestionRequest {
     return Question.builder()
         .user(user)
         .title(request.getTitle())
-        .subjectName(request.getSubjectName())
+        .category(request.getCategory())
         .content(request.getContent())
         .image(imageBytes)
         .build();

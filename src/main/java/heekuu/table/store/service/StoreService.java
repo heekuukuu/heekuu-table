@@ -92,7 +92,7 @@ public class StoreService {
 
   /**
    * 가게 삭제
-   *
+   * todo: 삭제말고비활성화로 변경
    * @param storeId 삭제할 가게 ID
    * @param authenticatedOwnerId 인증된 소유주 ID
    */

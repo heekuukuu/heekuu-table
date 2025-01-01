@@ -11,7 +11,7 @@ import heekuu.table.questions.dto.UpdateQuestionResponse;
 import heekuu.table.questions.entity.Question;
 import heekuu.table.questions.service.QuestionService;
 import heekuu.table.questions.service.QuestionServiceImpl;
-import heekuu.table.questions.type.SubjectNames;
+import heekuu.table.questions.type.Category;
 import heekuu.table.rewards.service.QuestionRewardService;
 import heekuu.table.user.dto.CustomUserDetails;
 import jakarta.validation.Valid;
@@ -95,7 +95,7 @@ public class QuestionApiController {
 
     try {
       Long userId = securityUtil.getCurrentUserId();
-      SubjectNames subject = SubjectNames.valueOf(subjectName.toUpperCase());
+      Category subject = Category.valueOf(subjectName.toUpperCase());
       Page<GetQuestionResponseDto> questions = questionService.getAllQuestionsBySubject(subject,
               pageable);
       return ResponseEntity.ok(questions);
@@ -117,7 +117,7 @@ public class QuestionApiController {
 
     try {
       Long userId = securityUtil.getCurrentUserId();
-      SubjectNames subject = SubjectNames.valueOf(subjectName.toUpperCase());
+      Category subject = Category.valueOf(subjectName.toUpperCase());
       Page<GetQuestionResponseDto> questions = questionService.getUserQuestionsBySubject(userId,
               subject, pageable);
       return ResponseEntity.ok(questions);

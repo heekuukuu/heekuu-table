@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import heekuu.table.answer.entity.Answer;
 import heekuu.table.common.entity.BaseEntity;
 import heekuu.table.common.permission.OwnedResource;
-import heekuu.table.questions.type.SubjectNames;
+import heekuu.table.questions.type.Category;
 import heekuu.table.user.entity.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -54,7 +54,7 @@ public class Question extends BaseEntity implements OwnedResource {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private SubjectNames subjectName;
+  private Category category;
 
   @Column(nullable = false)
   private String content;
@@ -67,22 +67,22 @@ public class Question extends BaseEntity implements OwnedResource {
 
   @Builder
   public Question(
-          User user, String title, SubjectNames subjectName, String content, byte[] image
+          User user, String title, Category category, String content, byte[] image
   ) {
     this.user = user;
     this.title = title;
-    this.subjectName = subjectName;
+    this.category = category;
     this.content = content;
     this.image = image;
   }
 
-  public void update(String title, SubjectNames subjectName, String content, byte[] image) {
+  public void update(String title, Category category, String content, byte[] image) {
     if (this.isSolved) { // 문제 해결여부 확인
       throw new IllegalStateException("이미 해결된 질문은 수정할 수 없습니다.");
     }
 
     if (title != null) this.title = title;
-    if (subjectName != null) this.subjectName = subjectName;
+    if (category != null) this.category = category;
     if (content != null) this.content = content;
     if (image != null) this.image = image;
   }

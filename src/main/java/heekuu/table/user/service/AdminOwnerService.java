@@ -43,4 +43,6 @@ public class AdminOwnerService {
     owner.setOwnerStatus(OwnerStatus.PENDING);
     ownerRepository.save(owner);
   }
+
+  //  todo: 오너의 스토어를 비활성화 시킬수있다
 }

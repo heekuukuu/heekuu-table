@@ -1,7 +1,7 @@
 package heekuu.table.questions.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import heekuu.table.questions.type.SubjectNames;
+import heekuu.table.questions.type.Category;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,14 +10,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class UpdateQuestionRequest {
 
   private final String title;
-  private final SubjectNames subjectName;
+  private final Category subjectName;
   private final String content;
   private final MultipartFile image;
 
   @Builder
   public UpdateQuestionRequest(
       @JsonProperty("title") String title,
-      @JsonProperty("subjectName") SubjectNames subjectName,
+      @JsonProperty("subjectName") Category subjectName,
       @JsonProperty("content") String content,
       @JsonProperty("image") MultipartFile image) {
     this.title = title;

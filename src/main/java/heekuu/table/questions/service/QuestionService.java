@@ -5,7 +5,7 @@ import heekuu.table.questions.dto.QuestionRequest;
 import heekuu.table.questions.dto.UpdateQuestionRequest;
 import heekuu.table.questions.dto.UpdateQuestionResponse;
 import heekuu.table.questions.entity.Question;
-import heekuu.table.questions.type.SubjectNames;
+import heekuu.table.questions.type.Category;
 import java.io.IOException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,9 +16,9 @@ public interface QuestionService {
   UpdateQuestionResponse updateQuestion(Long questionId, UpdateQuestionRequest request);
   void deleteQuestion(Long questionId);
   Page<GetQuestionResponseDto> getQuestionList(Long userId, Pageable pageable);
-  Page<GetQuestionResponseDto> getQuestionListBySubject(Long userId, SubjectNames subjectNames, Pageable pageable);
+  Page<GetQuestionResponseDto> getQuestionListBySubject(Long userId, Category category, Pageable pageable);
   Page<GetQuestionResponseDto> getQuestionsBySolvedStatus(Long userId, Boolean isSolved, Pageable pageable);
   Page<GetQuestionResponseDto> getAllQuestions(Pageable pageable);
-  Page<GetQuestionResponseDto> getAllQuestionsBySubject(SubjectNames subject, Pageable pageable);
-  Page<GetQuestionResponseDto> getUserQuestionsBySubject(Long userId, SubjectNames subject, Pageable pageable);
+  Page<GetQuestionResponseDto> getAllQuestionsBySubject(Category subject, Pageable pageable);
+  Page<GetQuestionResponseDto> getUserQuestionsBySubject(Long userId, Category subject, Pageable pageable);
 }

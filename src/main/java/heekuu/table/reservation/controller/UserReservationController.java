@@ -1,9 +1,11 @@
 package heekuu.table.reservation.controller;
 
+import heekuu.table.reservation.dto.ReservationRequest;
 import heekuu.table.reservation.entity.Reservation;
 import heekuu.table.reservation.service.UserReservationService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,9 +27,17 @@ public class UserReservationController {
     return userReservationService.getUserReservations(userId);
   }
 
+
+  /**
+   * 예약 생성 (주문 필수)
+   */
   @PostMapping
-  public Reservation createReservation(@RequestBody Reservation reservation) {
-    return userReservationService.createReservation(reservation);
+  public ResponseEntity<Reservation> createReservation(
+      @RequestBody ReservationRequest reservationRequest,
+      @RequestParam Long userId) {
+    // 예약 생성 서비스 호출
+    Reservation reservation = userReservationService.createReservation(reservationRequest, userId);
+    return ResponseEntity.ok(reservation);
   }
 
   @DeleteMapping("/{reservationId}")
