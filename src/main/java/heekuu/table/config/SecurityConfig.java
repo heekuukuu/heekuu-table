@@ -52,6 +52,7 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
     // CSRF 및 CORS 설정
+
     http.csrf().disable();
     http.cors().disable();
 
@@ -64,6 +65,7 @@ public class SecurityConfig {
         .requestMatchers(
             "/",
             "/users/check-email",
+            "/users/social-logout",
             "/users/logout",
             "/users/login",
             "/users/join",
@@ -71,10 +73,9 @@ public class SecurityConfig {
             "/questions/all",
             "/answers/{answerId}",
             "/oauth2/**",
-            "/login", // '/login' 경로 추가
+            "/login",
             "/error",
             "/images/**",
-            "/users/social-logout",
             "login/**",
             "api/auth/social-login",
             "/api/owners/**",
@@ -86,6 +87,7 @@ public class SecurityConfig {
             "/api/stores",
             "/api/menus/**"
         ).permitAll()
+        .requestMatchers("/api/order-items/**").authenticated()
         .requestMatchers("/api/owners/reservations/**").authenticated()
         .requestMatchers("/api/users/reservations/**").authenticated()
         .requestMatchers("/api/reservation/**").authenticated()
@@ -125,7 +127,7 @@ public class SecurityConfig {
         UsernamePasswordAuthenticationFilter.class);
 
 
-    http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository),
+    http.addFilterBefore(new CustomLogoutFilter(refreshTokenRepository, jwtUtil),
         LogoutFilter.class);
 
     return http.build();

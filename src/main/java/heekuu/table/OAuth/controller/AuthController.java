@@ -3,22 +3,27 @@ package heekuu.table.OAuth.controller;
 import heekuu.table.jwt.util.JWTUtil;
 import heekuu.table.token.entity.RefreshToken;
 import heekuu.table.token.repository.RefreshTokenRepository;
-
 import heekuu.table.user.entity.User;
 import heekuu.table.user.repository.UserRepository;
 import heekuu.table.user.type.LoginType;
 import heekuu.table.user.type.Role;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDateTime;
-import java.util.Map;
-
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -28,25 +33,20 @@ public class AuthController {
   private final RestTemplate restTemplate;
   private final RefreshTokenRepository refreshTokenRepository;
 
-  @Autowired
-  public AuthController(JWTUtil jwtUtil, UserRepository userRepository,
-      RefreshTokenRepository refreshTokenRepository) {
-    this.jwtUtil = jwtUtil;
-    this.userRepository = userRepository;
-    this.refreshTokenRepository = refreshTokenRepository;
-    this.restTemplate = new RestTemplate();
-  }
+
 
   @PostMapping("/social-login")
   public ResponseEntity<?> socialLogin(@RequestParam("provider") String provider,
-      @RequestBody Map<String, String> request) {
-    String accessToken = request.get("access_token");
-    Map<String, Object> userInfo = getUserInfo(provider, accessToken);
+      @RequestBody Map<String, String> request,
+      HttpServletResponse response) {
 
+    String accessToken = request.get("access_token");
+
+    Map<String, Object> userInfo = getUserInfo(provider, accessToken);
     if (userInfo == null) {
       return ResponseEntity.badRequest().body("Invalid provider or access token");
     }
-
+     // 사용자 정보 추출
     String email = (String) userInfo.get("email");
     String nickname = (String) userInfo.get("nickname");
     String providerId = (String) userInfo.get("id");
@@ -54,10 +54,14 @@ public class AuthController {
     User user = userRepository.findByEmail(email)
         .orElseGet(() -> createUser(email, nickname, provider, providerId));
 
+    // 토큰생성
     String newAccessToken = jwtUtil.createJwt("access", user, user.getRole().name());
     String newRefreshToken = jwtUtil.createJwt("refresh", user, user.getRole().name());
 
     saveRefreshToken(user, newRefreshToken);
+
+    // Refresh Token을 쿠키에 저장
+    setRefreshTokenCookie(response, newRefreshToken);
 
     return ResponseEntity.ok(
         Map.of("access_token", newAccessToken, "refresh_token", newRefreshToken));
@@ -118,7 +122,15 @@ public class AuthController {
         return null;
     }
   }
-
+  // Refresh Token 쿠키 저장 메서드 추가
+  private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+    Cookie refreshCookie = new Cookie("refresh", refreshToken);
+    refreshCookie.setHttpOnly(true); // JavaScript로 접근 불가
+    refreshCookie.setSecure(false); // HTTPS 환경에서만 전송 (운영 환경에서는 true로 설정)
+    refreshCookie.setPath("/"); // 애플리케이션 전체에서 유효
+    refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+    response.addCookie(refreshCookie);
+  }
   private User createUser(String email, String nickname, String provider, String providerId) {
     User newUser = new User();
     newUser.setEmail(email);

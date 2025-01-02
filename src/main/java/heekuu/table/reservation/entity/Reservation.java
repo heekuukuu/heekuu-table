@@ -2,6 +2,7 @@ package heekuu.table.reservation.entity;
 
 
 import heekuu.table.common.entity.BaseEntity;
+import heekuu.table.orderitem.entity.OrderItem;
 import heekuu.table.reservation.type.ReservationStatus;
 
 import heekuu.table.store.entity.Store;
@@ -18,8 +19,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;

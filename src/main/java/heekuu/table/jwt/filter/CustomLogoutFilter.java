@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,15 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.GenericFilterBean;
 
 @Slf4j
+@RequiredArgsConstructor
 public class CustomLogoutFilter extends GenericFilterBean {
 
   private final RefreshTokenRepository refreshTokenRepository;
   private final JWTUtil jwtUtil;
 
-  public CustomLogoutFilter(JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
-    this.refreshTokenRepository = refreshTokenRepository;
-    this.jwtUtil = jwtUtil;
-  }
+
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -53,7 +52,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
     }
 
     // 소셜 로그아웃 처리
-    if (requestUri.equals("/users/social-logout") && requestMethod.equals("GET") || requestMethod.equals("DELETE")) {
+    if (requestUri.startsWith("/users/social-logout") && requestMethod.equals("DELETE")) {
       log.debug("Processing social logout");
       processSocialLogout(httpRequest, httpResponse);
       return;
@@ -99,10 +98,10 @@ public class CustomLogoutFilter extends GenericFilterBean {
     String refreshToken = extractRefreshToken(request);
     if (refreshToken != null) {
       Long userId = jwtUtil.getUserId(refreshToken);
-      log.debug("Deleting refresh token for user ID: " + userId);
+      log.info("Deleting refresh token for user ID: " + userId);
       refreshTokenRepository.deleteByUserId(userId);
     } else {
-      log.debug("No refresh token found in cookies for social logout.");
+      log.info("No refresh token found in cookies for social logout.");
     }
 
     // AccessToken 및 RefreshToken 쿠키 제거

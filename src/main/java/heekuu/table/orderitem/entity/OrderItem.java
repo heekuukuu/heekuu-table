@@ -1,6 +1,7 @@
-package heekuu.table.reservation.entity;
+package heekuu.table.orderitem.entity;
 
 import heekuu.table.menu.entity.Menu;
+import heekuu.table.reservation.entity.Reservation;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

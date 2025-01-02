@@ -2,11 +2,11 @@ package heekuu.table.reservation.service;
 
 import heekuu.table.menu.entity.Menu;
 import heekuu.table.menu.repository.MenuRepository;
-import heekuu.table.reservation.dto.OrderItemDto;
+import heekuu.table.orderitem.dto.OrderItemDto;
 import heekuu.table.reservation.dto.ReservationRequest;
-import heekuu.table.reservation.entity.OrderItem;
+import heekuu.table.orderitem.entity.OrderItem;
 import heekuu.table.reservation.entity.Reservation;
-import heekuu.table.reservation.repository.OrderItemRepository;
+import heekuu.table.orderitem.repository.OrderItemRepository;
 import heekuu.table.reservation.repository.ReservationRepository;
 import heekuu.table.reservation.type.ReservationStatus;
 import heekuu.table.store.entity.Store;

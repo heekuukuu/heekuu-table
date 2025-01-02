@@ -1,6 +1,7 @@
 package heekuu.table.reservation.dto;
 
 
+import heekuu.table.orderitem.dto.OrderItemDto;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;

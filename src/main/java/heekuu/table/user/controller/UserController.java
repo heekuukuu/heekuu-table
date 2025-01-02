@@ -69,7 +69,7 @@ public class UserController {
 
   /**
    * 사용자 삭제 (ussr, admin 같이사용)
-   *
+   * 본인 삭제
    * @return 204 No Content
    */
   @DeleteMapping("/delete/{userId}")
