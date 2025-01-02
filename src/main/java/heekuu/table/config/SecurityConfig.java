@@ -81,7 +81,7 @@ public class SecurityConfig {
             "/api/owners/**",
             "/api/restaurants/**",
             "/api/reservation/**",
-            "/api/calendar/**",
+            "/api/owners/logout",
             "/api/owners/**",
             "/api/stores/**",
             "/api/stores",

@@ -1,6 +1,8 @@
 package heekuu.table.store.controller;
 
+import heekuu.table.jwt.util.JWTUtil;
 import heekuu.table.store.dto.StoreDto;
+import heekuu.table.store.dto.StoreUpdateRequest;
 import heekuu.table.store.service.StoreService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class StoreController {
 
   private final StoreService storeService;
-
+  private final JWTUtil jwtUtil;
   /**
    * 가게 등록
    *
@@ -31,46 +34,47 @@ public class StoreController {
    */
   @PostMapping
   public ResponseEntity<StoreDto> registerStore(
-      @RequestBody StoreDto storeDto,
-      @RequestParam(name = "authenticatedOwnerId") Long authenticatedOwnerId
+      @Valid @RequestBody StoreDto storeDto,
+      @RequestHeader("Authorization") String token
   )
       throws IllegalAccessException {
-
-    return ResponseEntity.ok(storeService.registerStore(storeDto, authenticatedOwnerId));
+    Long ownerId = jwtUtil.getOwnerId(token.replace("Bearer ", "")); // 토큰에서 ownerId 추출
+    return ResponseEntity.ok(storeService.registerStore(storeDto, ownerId));
   }
 
   /**
    * 가게 수정
    *
    * @param storeId  수정할 가게 ID
-   * @param storeDto 수정할 내용
+   * @param storeUpdateRequest 수정할 내용
    * @return 수정된 가게 정보
    */
   @PutMapping("/{storeId}")
   public ResponseEntity<StoreDto> updateStore(
       @PathVariable(name = "storeId") Long storeId,
-      @RequestBody StoreDto storeDto,
-      @RequestParam(name = "authenticatedOwnerId") Long authenticatedOwnerId
+      @Valid @RequestBody StoreUpdateRequest storeUpdateRequest,
+      @RequestHeader("Authorization") String token
   ) throws IllegalAccessException {
-    StoreDto updatedStore = storeService.updateStore(storeId, storeDto, authenticatedOwnerId);
-    return ResponseEntity.ok(updatedStore);
+    Long ownerId = jwtUtil.getOwnerId(token.replace("Bearer ", ""));
+    return ResponseEntity.ok(storeService.updateStore(storeId, storeUpdateRequest, ownerId));
   }
 
 
   /**
    * 가게 삭제
    * @param storeId 삭제할 가게 ID
-   * @param authenticatedOwnerId 인증된소유주 ID
    * @return 삭제 결과
    */
   @DeleteMapping("/{storeId}")
   public ResponseEntity<Void> deleteStore(
       @PathVariable(name = "storeId") Long storeId,
-      @RequestParam(name = "authenticatedOwnerId") Long authenticatedOwnerId
+      @RequestHeader("Authorization") String token
   ) throws IllegalAccessException {
-    storeService.deleteStore(storeId, authenticatedOwnerId);
-    return ResponseEntity.noContent().build(); // HTTP 204 No Content
+    Long ownerId = jwtUtil.getOwnerId(token.replace("Bearer ", ""));
+    storeService.deleteStore(storeId, ownerId);
+    return ResponseEntity.noContent().build();
   }
+
 
 
   /**

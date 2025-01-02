@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,9 +82,43 @@ public class OwnerService {
 
     return tokens; // 클라이언트에 반환
   }
+  //갱신
+  @Transactional
+  public Map<String, String> refreshAccessToken(String refreshToken) {
+    // 1. Refresh Token 유효성 확인
+    if (jwtUtil.isExpired(refreshToken)) {
+      throw new IllegalStateException("유효하지 않은 Refresh Token입니다.");
+    }
 
+    // 2. Redis에서 Refresh Token 확인
+    Long ownerId = jwtUtil.getOwnerId(refreshToken);
+    String redisKey = "OWNER_REFRESH_TOKEN:" + ownerId;
+    String storedRefreshToken = (String) redisTemplate.opsForValue().get(redisKey);
+
+    if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+      throw new IllegalStateException("Refresh Token이 일치하지 않습니다.");
+    }
+
+    // 3. Access Token 생성
+    Owner owner = ownerRepository.findById(ownerId)
+        .orElseThrow(() -> new IllegalStateException("해당 Owner를 찾을 수 없습니다."));
+    String newAccessToken = jwtUtil.createOwnerJwt("access", owner, "OWNER");
+
+    // 4. 응답 반환
+    Map<String, String> response = new HashMap<>();
+    response.put("access_token", newAccessToken);
+    return response;
+  }
   // 사업자 로그아웃
+
   public void logout(String accessToken, String refreshToken) {
+    // 검증 로직 추가
+    if (accessToken == null || accessToken.isEmpty()) {
+      throw new IllegalArgumentException("Access Token cannot be null or empty.");
+    }
+    if (refreshToken == null || refreshToken.isEmpty()) {
+      throw new IllegalArgumentException("Refresh Token cannot be null or empty.");
+    }
     // Refresh Token 삭제
     String refreshTokenKey = "OWNER_REFRESH_TOKEN:" + jwtUtil.getOwnerId(refreshToken); // 키 변경
     boolean isDeleted = redisTemplate.delete(refreshTokenKey);
@@ -131,4 +166,6 @@ public class OwnerService {
       throw new IllegalAccessException("스토어 등록/삭제 권한이 없습니다. 승인된 사업자만 가능합니다.");
     }
   }
+
+
 }

@@ -44,13 +44,24 @@ public class OwnerController {
     return ResponseEntity.ok(tokens);
   }
 
+  @PostMapping("/refresh")
+  public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestBody Map<String, String> request) {
+    String refreshToken = request.get("refresh_token");
+    if (refreshToken == null || refreshToken.isEmpty()) {
+      return ResponseEntity.badRequest().body(Map.of("error", "Refresh Token이 필요합니다."));
+    }
 
-  // 사업자 로그아웃
+    Map<String, String> newTokens = ownerService.refreshAccessToken(refreshToken);
+    return ResponseEntity.ok(newTokens);
+  }
   @DeleteMapping("/logout")
-  public ResponseEntity<String> logout(
-      @RequestParam(value = "accessToken") String accessToken,
-      @RequestParam(value = "refreshToken") String refreshToken) {
+  public ResponseEntity<String> logout(@RequestBody Map<String, String> tokens) {
+    String accessToken = tokens.get("access_token");
+    String refreshToken = tokens.get("refresh_token");
+
+    // 서비스 호출
     ownerService.logout(accessToken, refreshToken);
+
     return ResponseEntity.ok("사업자 로그아웃이 완료되었습니다.");
   }
 }

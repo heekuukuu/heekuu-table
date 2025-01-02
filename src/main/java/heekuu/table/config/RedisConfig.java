@@ -14,11 +14,7 @@ public class RedisConfig {
   public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
     RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
     redisTemplate.setConnectionFactory(connectionFactory);
-
-    // Key와 Value 직렬화 설정
     redisTemplate.setKeySerializer(new StringRedisSerializer());
-
-    // Value 직렬화 설정 (JSON 직렬화)
     redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
     return redisTemplate;
   }

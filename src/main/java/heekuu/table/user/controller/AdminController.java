@@ -45,8 +45,7 @@ public class AdminController {
       @RequestBody AdminUpdateRequestDTO adminUpdateRequestDTO) {
     UserResponseDTO updatedUser = adminService.updateUserInfo(userId, adminUpdateRequestDTO);
 
-    System.out.println("password: " + adminUpdateRequestDTO.getPassword());
-    System.out.println("Nickname: " + adminUpdateRequestDTO.getNickname());
+
 
     return ResponseEntity.ok(updatedUser);
   }

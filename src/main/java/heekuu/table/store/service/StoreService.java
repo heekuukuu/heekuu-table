@@ -5,6 +5,7 @@ import heekuu.table.owner.entity.Owner;
 import heekuu.table.owner.repository.OwnerRepository;
 import heekuu.table.owner.service.OwnerService;
 import heekuu.table.store.dto.StoreDto;
+import heekuu.table.store.dto.StoreUpdateRequest;
 import heekuu.table.store.entity.Store;
 import heekuu.table.store.repository.StoreRepository;
 import jakarta.transaction.Transactional;
@@ -59,33 +60,28 @@ public class StoreService {
    * 가게 수정
    *
    * @param storeId  수정할 가게 ID
-   * @param storeDto 수정된 정보가 담긴 StoreDto 객체
+   * @param storeUpdateRequest 수정된 정보가 담긴객체
    * @return 수정된 StoreDto 객체
    */
   @Transactional
-  public StoreDto updateStore(Long storeId, StoreDto storeDto, Long authenticatedOwnerId)
+  public StoreDto updateStore(Long storeId, StoreUpdateRequest storeUpdateRequest, Long authenticatedOwnerId)
       throws IllegalAccessException {
     // 기존 가게 조회
     Store existingStore = storeRepository.findById(storeId)
         .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
 
-    // 권한 확인
+    // 권한 및 상태 검증
     validateOwner(authenticatedOwnerId, existingStore.getOwner().getOwnerId());
-
-    // 오너 상태 검증 (승인된 사업자인지 확인)
     ownerService.validateOwnerStatus(authenticatedOwnerId);
 
+    // 값 업데이트
+    existingStore.setName(storeUpdateRequest.getName());
+    existingStore.setAddress(storeUpdateRequest.getAddress());
+    existingStore.setStoreNumber(storeUpdateRequest.getStoreNumber());
+    existingStore.setOpenTime(storeUpdateRequest.getOpenTime());
+    existingStore.setCloseTime(storeUpdateRequest.getCloseTime());
 
-
-    // 수정된 정보 반영
-    existingStore.setName(storeDto.getName());
-    existingStore.setAddress(storeDto.getAddress());
-    existingStore.setStoreNumber(storeDto.getStoreNumber());
-    existingStore.setOpenTime(storeDto.getOpenTime());
-    existingStore.setCloseTime(storeDto.getCloseTime());
-
-
-    // 저장 및 결과 반환
+    // 저장 및 반환
     return StoreDto.fromEntity(storeRepository.save(existingStore));
   }
 

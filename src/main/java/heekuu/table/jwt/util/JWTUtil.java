@@ -49,7 +49,15 @@ public class JWTUtil {
 
 
   }
-
+  public boolean isJwtExpired(String token) {
+    try {
+      Claims claims = getClaims(token);
+      return claims.getExpiration().before(new Date());
+    } catch (ExpiredJwtException e) {
+      log.error("Token has expired: {}", e.getMessage());
+      return true;  // 만료된 경우 true 반환
+    }
+  }
   // 클레임에서 Owner ID 추출
   public Long getOwnerId(String token) {
     Claims claims = getClaims(token);
