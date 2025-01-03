@@ -35,7 +35,7 @@ public class Menu {
   @Lob
   private String description; // 음식소개
   private String imagePath; // 음식사진
-
+  private Boolean available;// 판매가능여부
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "store_id", nullable = false)
   private Store store; // 해당 메뉴가 속한 가게

@@ -15,7 +15,7 @@ public class MenuDto {
   private BigDecimal price;
   private String description;
   private String imagePath;
-
+  private Boolean available;// 판매가능여부
 
   // Entity -> DTO 변환
   public static MenuDto fromEntity(Menu menu) {
@@ -25,6 +25,7 @@ public class MenuDto {
     dto.setPrice(menu.getPrice());
     dto.setDescription(menu.getDescription());
     dto.setImagePath(menu.getImagePath());
+    dto.setAvailable(menu.getAvailable());
     return dto;
   }
 
@@ -35,6 +36,7 @@ public class MenuDto {
         .price(dto.getPrice())
         .description(dto.getDescription())
         .imagePath(dto.getImagePath())
+        .available(dto.getAvailable())
         .build();
   }
 }

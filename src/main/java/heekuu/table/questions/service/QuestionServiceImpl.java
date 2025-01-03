@@ -93,11 +93,6 @@ public class QuestionServiceImpl implements QuestionService {
     return questions.map(GetQuestionResponseDto::fromEntity);
   }
 
-  @Override
-  public Page<GetQuestionResponseDto> getQuestionListBySubject(Long userId,
-      Category category, Pageable pageable) {
-    return null;
-  }
 
   @Override
   public Page<GetQuestionResponseDto> getQuestionsBySolvedStatus(Long userId, Boolean isSolved,
@@ -114,7 +109,7 @@ public class QuestionServiceImpl implements QuestionService {
    * @return 조회한 과목별 질문 목록을 반환합니다.
    */
   @Override
-  public Page<GetQuestionResponseDto> getUserQuestionsBySubject(
+  public Page<GetQuestionResponseDto> getUserQuestionsByCategory(
       Long userId,
       Category category,
       Pageable pageable
@@ -142,7 +137,7 @@ public class QuestionServiceImpl implements QuestionService {
    * @param pageable     페이지네이션 정보
    * @return 조회한 과목별 질문 목록을 반환합니다.
    */
-  public Page<GetQuestionResponseDto> getAllQuestionsBySubject(
+  public Page<GetQuestionResponseDto> getAllQuestionsByCategory(
       Category category,
       Pageable pageable
   ) {

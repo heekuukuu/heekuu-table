@@ -9,7 +9,7 @@ public enum ErrorCode {
 
   // 질문 관련
   QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "질문을 찾을 수 없습니다."),
-  INVALID_SUBJECT(HttpStatus.BAD_REQUEST, "잘못된 과목입니다."),
+  INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "잘못된 카테고리항목입니다."),
 
 
   //일반

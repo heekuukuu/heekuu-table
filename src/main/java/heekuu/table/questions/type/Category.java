@@ -3,7 +3,9 @@ package heekuu.table.questions.type;
 
 public enum Category {
 
-  NEWS,
+  FOOD,
   LIFE,
-  MATHEMATICS
+  CULTURE,
+  HEALTH,
+  ETC
 }

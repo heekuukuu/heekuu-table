@@ -43,10 +43,7 @@ public class StoreController {
       throws IllegalAccessException {
 
 
-
     Long ownerId = jwtUtil.getOwnerId(token.replace("Bearer ", ""));
-
-
 
     StoreDto createdStore = storeService.registerStore(storeDto, ownerId);
 

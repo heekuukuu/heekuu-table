@@ -83,47 +83,53 @@ public class QuestionApiController {
   /**
    * 모든 사용자가 과목별로 조회 가능한 문제를 조회합니다.
    *
-   * @param subjectName 과목명
+   * @param categoryParam    과목
    * @param pageable    페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
    *                    *                       DESC)
    * @return 사용자가 선택한 과목별 조회 내용 반환
    */
-  @GetMapping("/subject/{subjectName}")
-  public ResponseEntity<Page<GetQuestionResponseDto>> getQuestionBySubject(
-          @PathVariable("subjectName") @NotNull String subjectName,
-          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+  @GetMapping("/{category}")
+  public ResponseEntity<Page<GetQuestionResponseDto>> getQuestionByCategory(
+      @PathVariable("category") @NotNull String categoryParam,
+      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
     try {
+      // 현재 사용자 ID (필요 시 사용)
       Long userId = securityUtil.getCurrentUserId();
-      Category subject = Category.valueOf(subjectName.toUpperCase());
-      Page<GetQuestionResponseDto> questions = questionService.getAllQuestionsBySubject(subject,
-              pageable);
+
+      // Category Enum 변환
+      Category category = Category.valueOf(categoryParam.toUpperCase());
+
+      // 서비스 호출
+      Page<GetQuestionResponseDto> questions = questionService.getAllQuestionsByCategory(category, pageable);
+
       return ResponseEntity.ok(questions);
+
     } catch (IllegalArgumentException e) {
-      throw new CustomException(ErrorCode.INVALID_SUBJECT);
-    }
-  }
+      // Enum 변환 실패 시 사용자 정의 예외 던짐
+      throw new CustomException(ErrorCode.INVALID_CATEGORY);
+    }}
 
   /**
-   * @param subjectName    과목명
+   * @param categoryName
    * @param pageable       페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
    *                       DESC)
-   * @return 과목별 조회한 문제 목록 반환
+   * @return 카테고리이름 조회한 문제 목록 반환
    */
-  @GetMapping("/user/subject/{subjectName}")
-  public ResponseEntity<Page<GetQuestionResponseDto>> getUserQuestionBySubject(
-          @PathVariable("subjectName") @NotNull String subjectName,
+  @GetMapping("/user/category/{category}")
+  public ResponseEntity<Page<GetQuestionResponseDto>> getUserQuestionByCategory(
+          @PathVariable("category") @NotNull String categoryName,
           @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
 
     try {
       Long userId = securityUtil.getCurrentUserId();
-      Category subject = Category.valueOf(subjectName.toUpperCase());
-      Page<GetQuestionResponseDto> questions = questionService.getUserQuestionsBySubject(userId,
-              subject, pageable);
+      Category category = Category.valueOf(categoryName.toUpperCase());
+      Page<GetQuestionResponseDto> questions = questionService.getUserQuestionsByCategory(userId,
+              category, pageable);
       return ResponseEntity.ok(questions);
 
     } catch (IllegalArgumentException e) {
-      throw new CustomException(ErrorCode.INVALID_SUBJECT);
+      throw new CustomException(ErrorCode.INVALID_CATEGORY);
     }
   }
 
