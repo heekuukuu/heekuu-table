@@ -16,7 +16,7 @@ public class AddQuestionResponseDto {
   private final Category category;
   private final String title;
   private final String content;
-  private final byte[] image;
+  private final String imageUrl;
   private final boolean isSolved;
   private final String createdAt;
 
@@ -27,7 +27,7 @@ public class AddQuestionResponseDto {
         .title(question.getTitle())
         .category(question.getCategory())
         .content(question.getContent())
-        .image(question.getImage())
+        .imageUrl(question.getImageUrl())
         .isSolved(question.isSolved())
         .createdAt(question.getCreatedAt().format(formatter))
         .build();

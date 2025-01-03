@@ -2,6 +2,7 @@ package heekuu.table.questions.service;
 
 import heekuu.table.common.permission.PermissionValidator;
 import heekuu.table.common.util.ImageUtil;
+import heekuu.table.common.util.S3Uploader;
 import heekuu.table.common.util.SecurityUtil;
 import heekuu.table.forbidden.service.ForbiddenService;
 import heekuu.table.questions.dto.GetQuestionResponseDto;
@@ -28,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class QuestionServiceImpl implements QuestionService {
-
+  private final S3Uploader s3Uploader;
   private final QuestionRepository questionRepository;
   private final UserRepository userRepository;
   private final SecurityUtil securityUtil;
@@ -36,6 +37,15 @@ public class QuestionServiceImpl implements QuestionService {
   private final PermissionValidator permissionValidator;
   private final ForbiddenService forbiddenService;
 
+  //카테고리이름검증
+  public static boolean isValidCategory(String categoryName) {
+    try {
+      Category.valueOf(categoryName.toUpperCase());
+      return true;
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
+  }
   /**
    * 새로운 질문을 저장합니다.
    *
@@ -47,33 +57,40 @@ public class QuestionServiceImpl implements QuestionService {
   @Transactional
   @Override
   public Question saveQuestion(QuestionRequest request, Long userId) throws IOException {
-
     // 검열 로직 추가
     forbiddenService.validateContent(request.getContent());
 
+    // 사용자 조회
     User user = userRepository.findById(userId)
         .orElseThrow(() -> {
           log.error("User not found with ID: {}", userId);
           return new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId);
         });
 
-    // 이미지가 포함된 경우 이미지 바이트 처리
-    byte[] imageBytes = null;
+    // Category 유효성 검사
+    if (!isValidCategory(String.valueOf(request.getCategory()))) {
+      log.error("Invalid category: {}", request.getCategory());
+      throw new IllegalArgumentException("유효하지 않은 카테고리 값입니다: " + request.getCategory());
+    }
+
+    // S3 이미지 업로드 처리
+    String imageUrl = null;
     if (request.getImage() != null && !request.getImage().isEmpty()) {
       try {
-        imageBytes = request.getImage().getBytes();
-        log.debug("Image processed successfully. Size: {} bytes", imageBytes.length);
+        imageUrl = s3Uploader.upload(request.getImage(), "questions");
       } catch (IOException e) {
-        log.error("Error processing image", e);
-        throw new IOException("이미지 처리 중 오류가 발생했습니다", e);
+        log.error("Error uploading image to S3", e);
+        throw new RuntimeException("이미지 업로드 중 오류가 발생했습니다", e);
       }
     }
-    // 요청을 바탕으로 Question 엔티티 생성
-    Question question = request.toEntity(request, user, imageBytes);
-    // 생성된 질문 저장 및 반환
+
+    // Question 엔티티 생성
+    Question question = request.toEntity(request, user, imageUrl);
+
+    // 질문 저장
     try {
       Question savedQuestion = questionRepository.save(question);
-      log.debug("Question saved successfully. ID: {}", savedQuestion.getQuestionId());
+      log.info("Question saved successfully. ID: {}", savedQuestion.getQuestionId());
       return savedQuestion;
     } catch (Exception e) {
       log.error("Error saving question", e);
@@ -158,27 +175,51 @@ public class QuestionServiceImpl implements QuestionService {
     // 검열 로직 추가
     forbiddenService.validateContent(request.getContent());
 
+    // 질문 조회
     Question question = questionRepository.findById(questionId)
-        .orElseThrow(() -> new EntityNotFoundException("질문을 찾을 수 없습니다"));
+        .orElseThrow(() -> {
+          log.error("Question not found with ID: {}", questionId);
+          return new EntityNotFoundException("질문을 찾을 수 없습니다");
+        });
 
+    // 현재 사용자 ID 확인
     Long currentUserId = securityUtil.getCurrentUserId();
     if (!question.getUser().getUserId().equals(currentUserId)) {
+      log.warn("User with ID: {} tried to update question owned by user with ID: {}",
+          currentUserId, question.getUser().getUserId());
       throw new AccessDeniedException("질문을 수정할 권한이 없습니다");
     }
 
+    // 요청 데이터 유효성 검사
     request.validate();
-    byte[] imageBytes = imageUtil.convertToBytes(request.getImage());
 
+    // 이미지 처리
+    String imageUrl = null;
+    if (request.getImage() != null && !request.getImage().isEmpty()) {
+      try {
+        imageUrl = s3Uploader.upload(request.getImage(), "questions");
+      } catch (IOException e) {
+        log.error("Error uploading image to S3 for question ID: {}", questionId, e);
+        throw new RuntimeException("이미지 업로드 중 오류가 발생했습니다", e);
+      }
+    }
+
+    // 질문 수정
     try {
       question.update(
           request.getTitle(),
-          request.getSubjectName(),
+          request.getCategory(),
           request.getContent(),
-          imageBytes
+          imageUrl
       );
     } catch (IllegalStateException e) {
-      throw new IllegalStateException("이미 해결된 질문은 수정할 수 없습니다.");
+      log.error("Attempt to update a solved question with ID: {}", questionId, e);
+      throw new IllegalStateException("이미 해결된 질문은 수정할 수 없습니다.", e);
     }
+
+    log.info("Question with ID: {} updated successfully by user ID: {}", questionId, currentUserId);
+
+    // 수정된 질문 반환
     return UpdateQuestionResponse.fromEntity(question);
   }
 

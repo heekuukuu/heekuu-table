@@ -31,6 +31,7 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @Entity
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Question extends BaseEntity implements OwnedResource {
 
@@ -45,7 +46,7 @@ public class Question extends BaseEntity implements OwnedResource {
   private User user;
 
   @OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+  @JsonIgnoreProperties({"answers", "hibernateLazyInitializer", "handler"})
   private List<Answer> answers = new ArrayList<>();
 
 
@@ -53,30 +54,31 @@ public class Question extends BaseEntity implements OwnedResource {
   private String title;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
+  @Column(length = 20, nullable = false)
   private Category category;
+
 
   @Column(nullable = false)
   private String content;
 
-  @Lob
-  private byte[] image;
+  @Column(name = "image_url")
+  private String imageUrl; // 사진파일
 
   @Column(name = "is_solved", nullable = false)
   private boolean isSolved = false;
 
   @Builder
   public Question(
-          User user, String title, Category category, String content, byte[] image
+          User user, String title, Category category, String content,String imageUrl
   ) {
     this.user = user;
     this.title = title;
     this.category = category;
     this.content = content;
-    this.image = image;
+    this.imageUrl = imageUrl;
   }
 
-  public void update(String title, Category category, String content, byte[] image) {
+  public void update(String title, Category category, String content, String image) {
     if (this.isSolved) { // 문제 해결여부 확인
       throw new IllegalStateException("이미 해결된 질문은 수정할 수 없습니다.");
     }
@@ -84,7 +86,7 @@ public class Question extends BaseEntity implements OwnedResource {
     if (title != null) this.title = title;
     if (category != null) this.category = category;
     if (content != null) this.content = content;
-    if (image != null) this.image = image;
+    if (image != null) this.imageUrl = image;
   }
 
   /**

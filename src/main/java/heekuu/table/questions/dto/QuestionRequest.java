@@ -30,13 +30,13 @@ public class QuestionRequest {
     this.image = image;
   }
 
-  public Question toEntity(QuestionRequest request, User user, byte[] imageBytes) {
+  public Question toEntity(QuestionRequest request, User user, String imageUrl)  {
     return Question.builder()
         .user(user)
         .title(request.getTitle())
         .category(request.getCategory())
         .content(request.getContent())
-        .image(imageBytes)
+        .imageUrl(imageUrl)
         .build();
   }
 }

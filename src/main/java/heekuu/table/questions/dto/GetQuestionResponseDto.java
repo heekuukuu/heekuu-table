@@ -13,10 +13,10 @@ import lombok.Getter;
 public class GetQuestionResponseDto {
   private final Long questionId;
   private Long userId;
-  private final Category subjectName;
+  private final Category category;
   private final String title;
   private final String content;
-  private final byte[] image;
+  private final String imageUrl;
   private final boolean isSolved;
   private final LocalDateTime createdAt;
   private final LocalDateTime updatedAt;
@@ -25,10 +25,10 @@ public class GetQuestionResponseDto {
     return GetQuestionResponseDto.builder()
         .questionId(question.getQuestionId())
         .userId(question.getUser().getUserId())
-        .subjectName(question.getCategory())
+        .category(question.getCategory())
         .title(question.getTitle())
         .content(question.getContent())
-        .image(question.getImage())
+        .imageUrl(question.getImageUrl())
         .isSolved(question.isSolved())
         .createdAt(question.getCreatedAt())
         .updatedAt(question.getUpdatedAt())

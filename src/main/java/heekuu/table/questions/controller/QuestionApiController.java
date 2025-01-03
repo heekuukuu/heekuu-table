@@ -135,13 +135,13 @@ public class QuestionApiController {
 
   @PutMapping("/{questionId}")
   public ResponseEntity<UpdateQuestionResponse> updateQuestion(
-          @PathVariable Long questionId,
+          @PathVariable(name = "questionId") Long questionId,
           @ModelAttribute @Valid UpdateQuestionRequest request
   ) {
     UpdateQuestionResponse response = questionService.updateQuestion(questionId, request);
     return ResponseEntity.ok(response);
   }
-
+  //질문등록
   @PostMapping
   public ResponseEntity<AddQuestionResponseDto> addQuestion(
           @ModelAttribute @Valid QuestionRequest addQuestionRequest, Authentication authentication)
