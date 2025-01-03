@@ -1,5 +1,6 @@
 package heekuu.table.user.dto;
 
+import heekuu.table.owner.entity.Owner;
 import heekuu.table.user.entity.User;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,6 +13,7 @@ public class CustomUserDetails implements UserDetails {
 
   // User 객체를 반환하는 메서드 추가
   private final User user;
+
 
   public CustomUserDetails(User user) {
 
@@ -78,6 +80,7 @@ public class CustomUserDetails implements UserDetails {
 
     return true;
   }
+
 
 
 }

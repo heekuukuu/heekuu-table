@@ -9,10 +9,12 @@ import heekuu.table.store.dto.StoreUpdateRequest;
 import heekuu.table.store.entity.Store;
 import heekuu.table.store.repository.StoreRepository;
 import jakarta.transaction.Transactional;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 // 오너가 가게 CRUD
 
@@ -24,35 +26,28 @@ public class StoreService {
   private final StoreRepository storeRepository;
   private final OwnerService ownerService;
 
-  /**
-   * 가게 생성
-   */
   @Transactional
-  public StoreDto registerStore(StoreDto storeDto, Long authenticatedOwnerId)
-      throws IllegalAccessException {
-    // 권한 확인
-    validateOwner(authenticatedOwnerId, storeDto.getOwnerId());
+  public StoreDto registerStore(StoreDto storeDto, Long ownerId) throws IllegalAccessException {
+    // 1) Owner 조회 & 상태검증
+    Owner owner = ownerRepository.findById(ownerId)
+        .orElseThrow(() -> new IllegalArgumentException("소유주를 찾을 수 없습니다."));
 
+    ownerService.validateOwnerStatus(owner.getOwnerId());
 
-    // 오너 상태 검증 (승인된 사업자인지 확인)
-    ownerService.validateOwnerStatus(authenticatedOwnerId);
+    // 2) 중복검증 (Optional 활용)
+    // findByNameAndAddress -> Optional<Store> 반환하도록 Repository 정의
+    storeRepository.findByNameAndAddress(storeDto.getName(), storeDto.getAddress())
+        .ifPresent(s -> {
+          throw new IllegalStateException("이미 동일한 이름과 주소의 가게가 등록되어 있습니다.");
+        });
 
-
-
-    // 필수 정보 검증
-    if (storeDto.getName() == null || storeDto.getAddress() == null) {
-      throw new IllegalArgumentException("가게 이름과 주소는 필수입니다.");
-    }
-
-    // 스토어 엔티티 및 소유주 설정
+    // 3) Store 엔티티 생성 및 저장
     Store store = StoreDto.toEntity(storeDto);
-    store.setOwner(fetchOwnerById(storeDto.getOwnerId()));
+    store.setOwner(owner);
+    store = storeRepository.save(store);
 
-
-
-    return StoreDto.fromEntity(storeRepository.save(store));
-
-
+    // 4) DTO 반환
+    return StoreDto.fromEntity(store);
   }
 
 
@@ -108,16 +103,17 @@ public class StoreService {
   /**
    * 모든 가게 조회
    *
+   * 토큰 X : 전체조회
    * @return List<StoreDto> 가게 DTO 리스트
    */
   @Transactional
   public List<StoreDto> getAllStores() {
-     return storeRepository.findAll().stream()
-        .map(StoreDto::fromEntity) // Entity를 DTO로 변환
-        .collect(Collectors.toList());
+    List<Store> stores = storeRepository.findAll();  // Store 엔티티 리스트 조회
+    if (stores == null || stores.isEmpty()) {
+      return Collections.emptyList();  // 비어 있으면 빈 리스트 반환
+    }
+    return stores.stream().map(StoreDto::fromEntity).collect(Collectors.toList());
   }
-
-
 
   /**
    * 권한 확인 메서드

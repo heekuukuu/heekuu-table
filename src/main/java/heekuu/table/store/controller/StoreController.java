@@ -4,10 +4,13 @@ import heekuu.table.jwt.util.JWTUtil;
 import heekuu.table.store.dto.StoreDto;
 import heekuu.table.store.dto.StoreUpdateRequest;
 import heekuu.table.store.service.StoreService;
+import heekuu.table.user.dto.CustomUserDetails;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,10 +41,18 @@ public class StoreController {
       @RequestHeader("Authorization") String token
   )
       throws IllegalAccessException {
-    Long ownerId = jwtUtil.getOwnerId(token.replace("Bearer ", "")); // 토큰에서 ownerId 추출
-    return ResponseEntity.ok(storeService.registerStore(storeDto, ownerId));
-  }
 
+
+
+    Long ownerId = jwtUtil.getOwnerId(token.replace("Bearer ", ""));
+
+
+
+    StoreDto createdStore = storeService.registerStore(storeDto, ownerId);
+
+    // 4) 200 OK + 생성된 스토어 정보
+    return ResponseEntity.ok(createdStore);
+  }
   /**
    * 가게 수정
    *
@@ -72,7 +83,7 @@ public class StoreController {
   ) throws IllegalAccessException {
     Long ownerId = jwtUtil.getOwnerId(token.replace("Bearer ", ""));
     storeService.deleteStore(storeId, ownerId);
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok().build();
   }
 
 
@@ -85,8 +96,12 @@ public class StoreController {
   @GetMapping
   public ResponseEntity<List<StoreDto>> getAllStores() {
     List<StoreDto> stores = storeService.getAllStores();
-    return ResponseEntity.ok(stores);
-  }
 
+    if (stores.isEmpty()) {
+      return ResponseEntity.notFound().build();  // 가게가 없으면 404 Not Found
+    }
+
+    return ResponseEntity.ok(stores);  // 가게가 있으면 200 OK와 함께 반환
+  }
 
 }

@@ -2,6 +2,9 @@ package heekuu.table.jwt.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import heekuu.table.jwt.util.JWTUtil;
+import heekuu.table.owner.entity.Owner;
+import heekuu.table.owner.repository.OwnerRepository;
+import heekuu.table.owner.service.CustomOwnerDetails;
 import heekuu.table.user.dto.CustomUserDetails;
 import heekuu.table.user.dto.UserResponseDTO;
 import heekuu.table.user.entity.User;
@@ -26,6 +29,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JWTFilter extends OncePerRequestFilter {
 
   private final UserRepository userRepository;
+  private final OwnerRepository ownerRepository;
   private final JWTUtil jwtUtil;
 
 
@@ -49,7 +53,7 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
     accessToken = accessToken.substring(7);
-    log.debug("Extracted JWT Token: {}", accessToken);
+    log.info("Extracted JWT Token: {}", accessToken);
     try {
       if (jwtUtil.isExpired(accessToken)) {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -89,18 +93,22 @@ public class JWTFilter extends OncePerRequestFilter {
       log.error("JWT 만료 예외 발생. 요청 URI: {}, 사용자 IP: {}, 에러 메시지: {}", request.getRequestURI(), request.getRemoteAddr(), e.getMessage());
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.getWriter().print("Access token expired");
+      return;
     } catch (UsernameNotFoundException e) {
       log.error("사용자를 찾을 수 없음. 요청 URI: {}, 에러 메시지: {}", request.getRequestURI(), e.getMessage());
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.getWriter().print("Unauthorized: User not found");
+      return;
     } catch (JwtException e) {
       log.error("JWT 처리 중 예외 발생. 요청 URI: {}, 에러 메시지: {}", request.getRequestURI(), e.getMessage());
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.getWriter().print("Invalid JWT token");
+      return;
     } catch (Exception e) {
       log.error("예상치 못한 에러 발생. 요청 URI: {}, 에러 메시지: {}", request.getRequestURI(), e.getMessage(), e);
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       response.getWriter().print("Internal Server Error");
+      return;
     }
 
     filterChain.doFilter(request, response);
@@ -116,15 +124,15 @@ public class JWTFilter extends OncePerRequestFilter {
       throw new UsernameNotFoundException("Owner not found with id: null");
     }
 
-    User owner = userRepository.findByUserId(ownerId)
+    Owner owner = ownerRepository.findById(ownerId)
         .orElseThrow(() -> new UsernameNotFoundException("Owner not found with id: " + ownerId));
 
-    CustomUserDetails customUserDetails = new CustomUserDetails(owner);
+    CustomOwnerDetails customOwnerDetails = new CustomOwnerDetails(owner);
     Authentication authToken = new UsernamePasswordAuthenticationToken(
-        customUserDetails, null, customUserDetails.getAuthorities());
+        customOwnerDetails, null, customOwnerDetails.getAuthorities());
     SecurityContextHolder.getContext().setAuthentication(authToken);
 
-    logAuthenticatedUser(customUserDetails);
+    log.debug("Authenticated Owner: {}", customOwnerDetails.getUsername());
   }
 
   /**

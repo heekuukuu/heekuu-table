@@ -6,6 +6,7 @@ import heekuu.table.jwt.filter.CustomLogoutFilter;
 import heekuu.table.jwt.filter.JWTFilter;
 import heekuu.table.jwt.filter.LoginFilter;
 import heekuu.table.jwt.util.JWTUtil;
+import heekuu.table.owner.repository.OwnerRepository;
 import heekuu.table.token.repository.RefreshTokenRepository;
 import heekuu.table.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,8 @@ public class SecurityConfig {
   private final UserRepository userRepository;
   private final CustomOauth2UserServiceImpl customOAuth2UserService;
   private final CustomOauth2SuccessHandler customOauth2SuccessHandler;
+  private final OwnerRepository ownerRepository;
+
 
 
   @Bean
@@ -123,7 +126,7 @@ public class SecurityConfig {
         UsernamePasswordAuthenticationFilter.class);
 
     // JWT 필터 및 커스텀 로그아웃 필터 추가
-    http.addFilterBefore(new JWTFilter(userRepository, jwtUtil),
+    http.addFilterBefore(new JWTFilter(userRepository, ownerRepository, jwtUtil),
         UsernamePasswordAuthenticationFilter.class);
 
 
