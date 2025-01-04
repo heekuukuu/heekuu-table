@@ -90,7 +90,9 @@ public class AnswerServiceImpl implements AnswerService {
 
   @Override
   @Transactional
-  public AnswerDTO updateAnswer(Long id, AnswerDTO answerDTO) {
+  public AnswerDTO updateAnswer(Long id, AnswerDTO answerDTO, MultipartFile image)
+      throws IOException {
+
 
     // 검열 로직 추가
     forbiddenService.validateContent(answerDTO.getContent());
@@ -100,13 +102,30 @@ public class AnswerServiceImpl implements AnswerService {
 
     // 'content' 필드 업데이트
     answer.updateContent(answerDTO.getContent());
-    // 필요한 경우 다른 필드 업데이트
-    // answer.updateImage(answerDTO.getImage()); // 이미지 업데이트용 메서드 추가 시
+    // 새로운 이미지가 존재하는 경우에만 처리
+    if (image != null && !image.isEmpty()) {
+      // 기존 이미지 삭제
+      if (answer.getImage() != null && !answer.getImage().isEmpty()) {
+        try {
+          s3Uploader.delete(s3Uploader.extractFileNameFromUrl(answer.getImage()));
+        } catch (Exception e) {
+          throw new RuntimeException("기존 이미지를 삭제하는 중 오류가 발생했습니다.", e);
+        }
+      }
 
+      // 새로운 이미지 업로드 및 URL 업데이트
+      String imageUrl = s3Uploader.upload(image, "answers");
+      answer.updateImage(imageUrl);
+    }
+    // 답변 저장
     Answer updatedAnswer = answerRepository.save(answer);
+
+    // 저장된 엔티티를 DTO로 변환하여 반환
     return convertToDTO(updatedAnswer);
   }
-  //기존 답변을 수정
+
+
+
 
   @Override
   @Transactional(readOnly = true)
@@ -147,6 +166,7 @@ public class AnswerServiceImpl implements AnswerService {
   @Transactional
   @Override
   public void likeAnswer(Long answerId) {
+    // todo: 답변좋아요는 질문한개당 1개만 누룰수있다
     // 답변 조회
     Answer answer = answerRepository.findById(answerId)
         .orElseThrow(() -> new EntityNotFoundException("Answer not found with id: " + answerId));

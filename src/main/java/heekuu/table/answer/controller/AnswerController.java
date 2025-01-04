@@ -44,6 +44,19 @@ public class AnswerController {
     }
 
 
+
+
+
+  @PutMapping("/{answerId}")
+  public ResponseEntity<AnswerDTO> updateAnswer(
+      @PathVariable("answerId") Long id,
+      @ModelAttribute AnswerDTO answerDTO,
+      @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
+
+    AnswerDTO updatedAnswer = answerService.updateAnswer(id, answerDTO, image);
+    return ResponseEntity.ok(updatedAnswer);
+  }
+
   // 특정 ID로 답변 조회 (모든사용자)
   @GetMapping("/{answerId}")
   public ResponseEntity<AnswerDTO> getAnswer(@PathVariable("answerId") Long id) {
@@ -51,20 +64,11 @@ public class AnswerController {
     return ResponseEntity.ok(answerDTO);
   }
 
-
-  // 답변 수정
-  @PutMapping("/{answerId}")
-  public ResponseEntity<AnswerDTO> updateAnswer(@PathVariable("answerId") Long id,
-      @RequestBody AnswerDTO answerDTO) {
-    AnswerDTO updatedAnswer = answerService.updateAnswer(id, answerDTO);
-    return ResponseEntity.ok(updatedAnswer);
-  }
-
   // 답변 삭제
   @DeleteMapping("/{answerId}")
   public ResponseEntity<Void> deleteAnswer(@PathVariable("answerId") Long id) {
     answerService.deleteAnswer(id);
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok().build();
   }
 
   // 답변 좋아요

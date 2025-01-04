@@ -4,17 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import heekuu.table.answer.entity.Answer;
 import heekuu.table.common.entity.BaseEntity;
 import heekuu.table.user.entity.User;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,22 +29,25 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
 
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL,
+        orphanRemoval = true,fetch = FetchType.EAGER)
     @JsonIgnoreProperties("parentComment")
     private List<Comment> replies = new ArrayList<>();
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    // 기본 생성자 (JPA용)
-    protected Comment() {
-    }
+    @Column(name = "depth", nullable = false)
+    private int depth; // 댓글 깊이 (0: 댓글, 1: 대댓글)
 
-    public Comment(Answer answer, User user, String content, Comment parentComment) {
+    protected Comment() {}
+
+    public Comment(Answer answer, User user, String content, Comment parentComment, int depth) {
         this.answer = answer;
         this.user = user;
         this.content = content;
         this.parentComment = parentComment;
+        this.depth = depth;
     }
 
     public Long getCommentId() {
@@ -81,16 +74,11 @@ public class Comment extends BaseEntity {
         return content;
     }
 
-    // 비즈니스 로직을 통한 content 업데이트
-    public void updateContent(String content) {
-        this.content = content;
+    public int getDepth() {
+        return depth;
     }
 
-    // 부모 댓글을 설정하는 메서드
-    public void setParentComment(Comment parentComment) {
-        this.parentComment = parentComment;
-        if (parentComment != null) {
-            parentComment.getReplies().add(this);
-        }
+    public void updateContent(String content) {
+        this.content = content;
     }
 }

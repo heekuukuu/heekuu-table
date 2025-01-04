@@ -8,7 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 public interface AnswerService {
     AnswerDTO createAnswer(AnswerDTO answerDTO, MultipartFile image) throws IOException;
     AnswerDTO getAnswerById(Long id);
-    AnswerDTO updateAnswer(Long id, AnswerDTO answerDTO);
+    public AnswerDTO updateAnswer(Long id, AnswerDTO answerDTO, MultipartFile image)
+        throws IOException;
     void deleteAnswer(Long id);
     void likeAnswer(Long answerId);
     void unlikeAnswer(Long answerId);
