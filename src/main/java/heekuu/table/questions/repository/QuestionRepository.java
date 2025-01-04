@@ -16,7 +16,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     Page<Question> findAllByCategory(Category category, Pageable pageable);
   
     // 해결 상태에 따른 질문 조회
-    Page<Question> findByUser_UserIdAndIsSolved(Long userId, Boolean isSolved, Pageable pageable);
+  //  Page<Question> getQuestionsBySolvedStatus(Long userId, Boolean isSolved, Pageable pageable);
 
     // 해결 상태에 따른 질문 개수
     int countByUser_UserIdAndIsSolvedTrue(Long userId);

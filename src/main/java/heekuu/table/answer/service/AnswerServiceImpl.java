@@ -4,19 +4,27 @@ import heekuu.table.answer.dto.AnswerDTO;
 import heekuu.table.answer.entity.Answer;
 import heekuu.table.answer.repository.AnswerRepository;
 import heekuu.table.comment.dto.CommentDTO;
+import heekuu.table.common.util.S3Uploader;
 import heekuu.table.forbidden.service.ForbiddenService;
 import heekuu.table.questions.entity.Question;
 import heekuu.table.questions.repository.QuestionRepository;
 import heekuu.table.rewards.service.QuestionRewardService;
+import heekuu.table.user.dto.CustomUserDetails;
 import heekuu.table.user.entity.User;
 import heekuu.table.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+@RequiredArgsConstructor
 @Service
 public class AnswerServiceImpl implements AnswerService {
 
@@ -25,43 +33,49 @@ public class AnswerServiceImpl implements AnswerService {
   private final UserRepository userRepository;
   private final ForbiddenService forbiddenService;
   private final QuestionRewardService questionRewardService;
+  private final S3Uploader s3Uploader;
 
-  @Autowired
-  public AnswerServiceImpl(AnswerRepository answerRepository,
-      QuestionRepository questionRepository,
-      UserRepository userRepository,
-      ForbiddenService forbiddenService,
-      QuestionRewardService questionRewardService) {
-    this.answerRepository = answerRepository;
-    this.questionRepository = questionRepository;
-    this.userRepository = userRepository;
-    this.forbiddenService = forbiddenService;
-    this.questionRewardService = questionRewardService;
+  //로그인된 사용자의 userId를 반환
+  private Long getCurrentUserId() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    return userDetails.getUserId();
   }
 
   @Override
   @Transactional
-  public AnswerDTO createAnswer(AnswerDTO answerDTO) {
+  public AnswerDTO createAnswer(AnswerDTO answerDTO, MultipartFile image) throws IOException {
+
+    // 현재 로그인된 사용자 ID 가져오기
+    Long userId = getCurrentUserId();
+
+    // User 객체 찾기
+    User user = userRepository.findById(userId)
+        .orElseThrow(
+            () -> new RuntimeException("User not found with id: " + userId));
 
     // 검열 로직 추가
     forbiddenService.validateContent(answerDTO.getContent());
 
-    // Question 객체 찾기 (questionId로)
+    // Question 객체 찾기 \
     Question question = questionRepository.findById(answerDTO.getQuestionId())
         .orElseThrow(
             () -> new RuntimeException("Question not found with id: " + answerDTO.getQuestionId()));
 
-    // User 객체 찾기 (userId로)
-    User user = userRepository.findById(answerDTO.getUserId())
-        .orElseThrow(
-            () -> new RuntimeException("User not found with id: " + answerDTO.getUserId()));
+
+    // S3 업로드 및 URL 생성
+    String imageUrl = null;
+    if (answerDTO.getImage() != null && !answerDTO.getImage().isEmpty()) {
+      imageUrl = s3Uploader.upload(answerDTO.getImage(), "answers");
+    }
+
 
     // Answer 엔티티 생성 및 값 설정 (빌더 패턴 사용)
     Answer answer = Answer.builder()
         .question(question)
         .user(user)
         .content(answerDTO.getContent())
-        .image(answerDTO.getImage())
+        .image(imageUrl)  // S3 URL 저장
         .likes(answerDTO.getLikes() != null ? answerDTO.getLikes() : 0)
         .isSelected(answerDTO.isSelected())
         .build();
@@ -166,11 +180,9 @@ public class AnswerServiceImpl implements AnswerService {
       throw new IllegalStateException("A selected answer already exists for this question.");
     }
 
-
     // 답변 채택 및 질문 상태 변경
     answer.selectAnswer();
     question.markAsSolved();
-
 
     //답변 채택 포인트 발생
     questionRewardService.rewardForAcceptedAnswer(answer.getUser().getUserId());

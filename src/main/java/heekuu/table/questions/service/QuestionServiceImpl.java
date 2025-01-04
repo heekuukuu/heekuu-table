@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class QuestionServiceImpl implements QuestionService {
+
   private final S3Uploader s3Uploader;
   private final QuestionRepository questionRepository;
   private final UserRepository userRepository;
@@ -36,6 +37,14 @@ public class QuestionServiceImpl implements QuestionService {
   private final ImageUtil imageUtil;
   private final PermissionValidator permissionValidator;
   private final ForbiddenService forbiddenService;
+
+  // 사용자본인검증
+  public void validateDeletePermission(Question question) {
+    Long currentUserId = securityUtil.getCurrentUserId();
+    if (!question.getUser().getUserId().equals(currentUserId)) {
+      throw new AccessDeniedException("해당 질문을 삭제할 권한이 없습니다.");
+    }
+  }
 
   //카테고리이름검증
   public static boolean isValidCategory(String categoryName) {
@@ -46,6 +55,7 @@ public class QuestionServiceImpl implements QuestionService {
       return false;
     }
   }
+
   /**
    * 새로운 질문을 저장합니다.
    *
@@ -111,18 +121,12 @@ public class QuestionServiceImpl implements QuestionService {
   }
 
 
-  @Override
-  public Page<GetQuestionResponseDto> getQuestionsBySolvedStatus(Long userId, Boolean isSolved,
-      Pageable pageable) {
-    return null;
-  }
-
   /**
    * 로그인된 사용자가 선택한 과목별 질문 목록을 조회합니다.
    *
-   * @param userId       조회할 사용자 ID
+   * @param userId   조회할 사용자 ID
    * @param category 사용자가 선택한 과목 이름
-   * @param pageable     페이지네이션 정보
+   * @param pageable 페이지네이션 정보
    * @return 조회한 과목별 질문 목록을 반환합니다.
    */
   @Override
@@ -151,7 +155,7 @@ public class QuestionServiceImpl implements QuestionService {
    * 모든 사용자가 선택한 과목의 전체 질문 목록을 조회합니다.
    *
    * @param category 과목명
-   * @param pageable     페이지네이션 정보
+   * @param pageable 페이지네이션 정보
    * @return 조회한 과목별 질문 목록을 반환합니다.
    */
   public Page<GetQuestionResponseDto> getAllQuestionsByCategory(
@@ -225,14 +229,25 @@ public class QuestionServiceImpl implements QuestionService {
 
   /**
    * 질문을 삭제하는 메서드
+   *
    * @param questionId 작성된 질문의 고유값
    */
   @Transactional
   public void deleteQuestion(Long questionId) {
+    // 질문 조회
     Question question = questionRepository.findById(questionId)
         .orElseThrow(() -> new EntityNotFoundException("질문을 찾을 수 없습니다."));
 
+    // 권한 검증
     permissionValidator.validateDeletePermission(question);
-    questionRepository.delete(question);
+
+    // 질문 삭제
+    try {
+      questionRepository.delete(question);
+      log.info("Question with ID {} successfully deleted.", questionId);
+    } catch (Exception e) {
+      log.error("Error deleting question with ID {}.", questionId, e);
+      throw new RuntimeException("질문 삭제 중 오류가 발생했습니다.", e);
+    }
   }
 }

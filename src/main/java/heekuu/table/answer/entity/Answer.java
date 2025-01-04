@@ -45,7 +45,7 @@ public class Answer extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_answer_id")
     @JsonIgnoreProperties
-    private Answer parentAnswerId;
+    private Answer parentAnswerId; // 대댓글
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

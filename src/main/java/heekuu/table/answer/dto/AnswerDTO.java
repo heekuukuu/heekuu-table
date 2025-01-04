@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -13,9 +14,8 @@ public class AnswerDTO {
     private Long answerId;
     private Long questionId;
     private Long parentAnswerId;
-    private Long userId;
     private String content;
-    private String image;
+    private MultipartFile image;
     private Integer likes;
     private boolean isSelected;
     private LocalDateTime createdAt;

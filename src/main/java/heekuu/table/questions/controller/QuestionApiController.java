@@ -26,6 +26,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +49,7 @@ public class QuestionApiController {
   private final QuestionRewardService questionRewardService;
   private final QuestionServiceImpl questionServiceImpl;
 
-  /**
+  /** O
    * 모든 사용자가 접근 가능한 전체 문제를 조회합니다.
    *
    * @param pageable 페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
@@ -63,13 +64,14 @@ public class QuestionApiController {
     return ResponseEntity.ok(questions);
   }
 
-  /**
+  /** O
    * 인증된 사용자가 등록한 전체 문제를 조회합니다.
    *
    * @param pageable 페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
    *                 DESC)
    * @return 페이징된 문제목록 반환
    */
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/user")
   public ResponseEntity<Page<GetQuestionResponseDto>> getUserQuestions(
           @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
@@ -80,7 +82,7 @@ public class QuestionApiController {
     return ResponseEntity.ok(questions);
   }
 
-  /**
+  /** O
    * 모든 사용자가 과목별로 조회 가능한 문제를 조회합니다.
    *
    * @param categoryParam    과목
@@ -94,8 +96,7 @@ public class QuestionApiController {
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
     try {
-      // 현재 사용자 ID (필요 시 사용)
-      Long userId = securityUtil.getCurrentUserId();
+
 
       // Category Enum 변환
       Category category = Category.valueOf(categoryParam.toUpperCase());
@@ -110,11 +111,11 @@ public class QuestionApiController {
       throw new CustomException(ErrorCode.INVALID_CATEGORY);
     }}
 
-  /**
+  /** O
    * @param categoryName
    * @param pageable       페이징 정보 - page : 페이지 번호 - size : 페이지당 항목 수 - sort : 정렬 기준 (기본값: createdAt,
    *                       DESC)
-   * @return 카테고리이름 조회한 문제 목록 반환
+   * @return 카테고리 별 사용자 질문조회
    */
   @GetMapping("/user/category/{category}")
   public ResponseEntity<Page<GetQuestionResponseDto>> getUserQuestionByCategory(
@@ -132,7 +133,7 @@ public class QuestionApiController {
       throw new CustomException(ErrorCode.INVALID_CATEGORY);
     }
   }
-
+ // 질문수정 O
   @PutMapping("/{questionId}")
   public ResponseEntity<UpdateQuestionResponse> updateQuestion(
           @PathVariable(name = "questionId") Long questionId,
@@ -141,7 +142,7 @@ public class QuestionApiController {
     UpdateQuestionResponse response = questionService.updateQuestion(questionId, request);
     return ResponseEntity.ok(response);
   }
-  //질문등록
+  //질문등록 O
   @PostMapping
   public ResponseEntity<AddQuestionResponseDto> addQuestion(
           @ModelAttribute @Valid QuestionRequest addQuestionRequest, Authentication authentication)
@@ -159,34 +160,12 @@ public class QuestionApiController {
             .body(responseDto);
   }
 
-  /**
-   * 질문의 해결 상태에 따라 필터링하여 조회합니다.
-   *
-   * @param isSolved       해결 상태 (true: 해결된 질문, false: 해결되지 않은 질문)
-   * @param pageable       페이징 정보
-   * @return 해결 상태에 따라 필터링된 질문 목록 반환
-   */
-  @GetMapping("/filter")
-  public ResponseEntity<Page<GetQuestionResponseDto>> getQuestionsBySolvedStatus(
-          @RequestParam(required = false) Boolean isSolved,
-          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-    Long userId = securityUtil.getCurrentUserId();
-
-    Page<GetQuestionResponseDto> questions;
-    if (isSolved == null) {
-      questions = questionService.getQuestionList(userId, pageable);
-    } else {
-      questions = questionService.getQuestionsBySolvedStatus(userId, isSolved, pageable);
-    }
-
-    return ResponseEntity.ok(questions);
-  }
-
+ // 삭제 O
   @DeleteMapping("/{questionId}")
-  public ResponseEntity<Void> deleteQuestion(@PathVariable Long questionId){
+  public ResponseEntity<Void> deleteQuestion(@PathVariable(name = "questionId") Long questionId){
     questionService.deleteQuestion(questionId);
 
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok().build();
   }
 }

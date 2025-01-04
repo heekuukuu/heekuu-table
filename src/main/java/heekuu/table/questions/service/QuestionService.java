@@ -16,9 +16,9 @@ public interface QuestionService {
   UpdateQuestionResponse updateQuestion(Long questionId, UpdateQuestionRequest request);
   void deleteQuestion(Long questionId);
   Page<GetQuestionResponseDto> getQuestionList(Long userId, Pageable pageable);
-  //Page<GetQuestionResponseDto> getAllQuestionsBySubject(Long userId, Category category, Pageable pageable);
-  Page<GetQuestionResponseDto> getQuestionsBySolvedStatus(Long userId, Boolean isSolved, Pageable pageable);
+
+  //Page<GetQuestionResponseDto> getQuestionsBySolvedStatus(Long userId, Boolean isSolved, Pageable pageable);
   Page<GetQuestionResponseDto> getAllQuestions(Pageable pageable);
   Page<GetQuestionResponseDto> getAllQuestionsByCategory(Category category, Pageable pageable);
-  Page<GetQuestionResponseDto> getUserQuestionsByCategory(Long userId, Category subject, Pageable pageable);
+  Page<GetQuestionResponseDto> getUserQuestionsByCategory(Long userId, Category category, Pageable pageable);
 }
