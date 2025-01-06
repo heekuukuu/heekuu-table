@@ -8,7 +8,7 @@ import java.util.List;
 public interface OrderItemService {
 
   //생성
-  OrderItemDto createOrderItem(Long reservationId, OrderItemDto orderItemDto);
+  List<OrderItem> saveOrderItems(List<OrderItemDto> orderItems, Reservation reservation);
   //조회
  // List<OrderItemDto> getOrderItemsByReservation(Long reservationId);
 

@@ -3,6 +3,7 @@ package heekuu.table.reservation.service;
 import heekuu.table.menu.entity.Menu;
 import heekuu.table.menu.repository.MenuRepository;
 import heekuu.table.orderitem.dto.OrderItemDto;
+import heekuu.table.orderitem.service.OrderItemService;
 import heekuu.table.reservation.dto.ReservationRequest;
 import heekuu.table.orderitem.entity.OrderItem;
 import heekuu.table.reservation.dto.ReservationResponse;
@@ -32,8 +33,9 @@ public class UserReservationService implements ReservationService {
   private final StoreRepository storeRepository;
   private final ReservationRepository reservationRepository;
   private final MenuRepository menuRepository;
-  private final OrderItemRepository orderItemRepository;
+
   private final UserRepository userRepository;
+  private final OrderItemService orderItemService;
 
   /**
    * 유저 예약 생성
@@ -67,7 +69,7 @@ public class UserReservationService implements ReservationService {
 
 
     // 주문 항목 저장 및 리스트 반환
-    List<OrderItem> savedOrderItems = saveOrderItems(request.getOrderItems(), reservation);
+    List<OrderItem> savedOrderItems = orderItemService.saveOrderItems(request.getOrderItems(), reservation);
 
     log.info("유저 ID: {} 예약 생성 완료, 예약 ID: {}", userId, reservation.getReservationId());
     return new ReservationResponse(reservation, savedOrderItems);
@@ -115,24 +117,7 @@ public class UserReservationService implements ReservationService {
     return reservationRepository.save(reservation);
   }
 
-  private List<OrderItem> saveOrderItems(List<OrderItemDto> orderItems, Reservation reservation) {
-    List<OrderItem> savedOrderItems = new ArrayList<>();
-    for (OrderItemDto orderItemDto : orderItems) {
-      Menu menu = menuRepository.findById(orderItemDto.getMenuId())
-          .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 메뉴 ID입니다."));
 
-      OrderItem orderItem = OrderItem.builder()
-          .reservation(reservation)
-          .menu(menu)
-          .menuName(menu.getName())
-          .quantity(orderItemDto.getQuantity())
-          .user(reservation.getUser())
-          .build();
-
-      savedOrderItems.add(orderItemRepository.save(orderItem));
-    }
-    return savedOrderItems;
-  }
 
 
 
