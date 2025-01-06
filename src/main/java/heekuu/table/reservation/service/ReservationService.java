@@ -2,21 +2,21 @@ package heekuu.table.reservation.service;
 
 
 import heekuu.table.reservation.dto.ReservationRequest;
-import heekuu.table.reservation.entity.Reservation;
-import java.util.List;
-import lombok.AllArgsConstructor;
-import org.springframework.data.jpa.repository.JpaRepository;
+import heekuu.table.reservation.dto.ReservationResponse;
+import org.springframework.transaction.annotation.Transactional;
 
 
 public interface ReservationService {
 
   // 예약 조회
-  List<Reservation> getUserReservations(Long userId);
 
 
-  // 예약 생성 (유저만 사용)
-  Reservation createReservation(ReservationRequest reservationRequest, Long userId);
+  ReservationResponse createReservation(ReservationRequest request, Long userId);
 
-  // 예약 취소
+  //List<ReservationResponse> getUserReservations(Long userId);
+
+  @Transactional(readOnly = true)
+  ReservationResponse getReservation(Long reservationId);
+
   void cancelReservation(Long reservationId, Long userId) throws IllegalAccessException;
-};
+}

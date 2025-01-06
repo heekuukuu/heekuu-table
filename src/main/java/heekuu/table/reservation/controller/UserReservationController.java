@@ -1,6 +1,7 @@
 package heekuu.table.reservation.controller;
 
 import heekuu.table.reservation.dto.ReservationRequest;
+import heekuu.table.reservation.dto.ReservationResponse;
 import heekuu.table.reservation.entity.Reservation;
 import heekuu.table.reservation.service.UserReservationService;
 import java.util.List;
@@ -22,22 +23,20 @@ public class UserReservationController {
 
   private final UserReservationService userReservationService;
 
-  @GetMapping
-  public List<Reservation> getUserReservations(@RequestParam Long userId) {
-    return userReservationService.getUserReservations(userId);
-  }
+
 
 
   /**
    * 예약 생성 (주문 필수)
    */
+
   @PostMapping
-  public ResponseEntity<Reservation> createReservation(
-      @RequestBody ReservationRequest reservationRequest,
-      @RequestParam Long userId) {
-    // 예약 생성 서비스 호출
-    Reservation reservation = userReservationService.createReservation(reservationRequest, userId);
-    return ResponseEntity.ok(reservation);
+  public ResponseEntity<ReservationResponse> createReservation(
+      @RequestBody ReservationRequest request,
+      @RequestParam(name = "userId") Long userId
+  ) {
+    ReservationResponse response = userReservationService.createReservation(request, userId);
+    return ResponseEntity.ok(response);
   }
 
   @DeleteMapping("/{reservationId}")

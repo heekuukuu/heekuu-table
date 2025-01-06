@@ -2,6 +2,7 @@ package heekuu.table.orderitem.entity;
 
 import heekuu.table.menu.entity.Menu;
 import heekuu.table.reservation.entity.Reservation;
+import heekuu.table.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -37,5 +38,12 @@ public class OrderItem {
   @JoinColumn(name = "menu_id", nullable = false)
   private Menu menu; // 어떤 메뉴인지
 
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = true)
+  private User user;
+
+
   private Integer quantity; // 수량
+
 }

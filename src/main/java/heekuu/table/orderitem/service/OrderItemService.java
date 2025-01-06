@@ -9,7 +9,7 @@ public interface OrderItemService {
   //생성
   OrderItemDto createOrderItem(Long reservationId, OrderItemDto orderItemDto);
   //조회
-  List<OrderItem> getOrderItemsByReservation(Long reservationId);
+  List<OrderItemDto> getOrderItemsByReservation(Long reservationId);
   //삭제
   void deleteOrderItem(Long orderItemId);
 }

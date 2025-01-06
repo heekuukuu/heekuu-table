@@ -3,6 +3,8 @@ package heekuu.table.reservation.repository;
 
 import heekuu.table.reservation.entity.Reservation;
 import java.util.List;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,8 +18,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
   List<Reservation> findAllByStoreOwnerOwnerId(Long ownerId);
 
   // 특정 예약을 조회
-  Reservation findByReservationId(Long reservationId);
+  @EntityGraph(attributePaths = {"orderItems", "orderItems.menu"})
+  Optional<Reservation> findByReservationId(Long reservationId);
 
   // 특정 가게의 예약 내역
   List<Reservation> findAllByStoreStoreId(Long storeId);
+
+
+
 }

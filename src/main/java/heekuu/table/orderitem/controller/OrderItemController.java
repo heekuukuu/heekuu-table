@@ -25,7 +25,7 @@ public class OrderItemController {
    */
   @PostMapping
   public ResponseEntity<OrderItemDto> createOrderItem(
-      @RequestParam Long reservationId,
+      @RequestParam("reservationId") Long reservationId,
       @RequestBody OrderItemDto orderItemDto) {
     OrderItemDto createdOrderItem= orderItemService.createOrderItem(reservationId,orderItemDto);
     return ResponseEntity.ok(createdOrderItem);

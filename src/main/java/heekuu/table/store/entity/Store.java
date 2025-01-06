@@ -22,6 +22,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.minidev.json.annotate.JsonIgnore;
 
 @Entity
 @Getter
@@ -47,9 +48,10 @@ public class Store {
   @JoinColumn(name = "owner_id", nullable = false, unique = true)
   private Owner owner;
   // 예약리스트
+  @JsonIgnore
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Reservation> reservations = new ArrayList<>();
-
+ @JsonIgnore
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Menu> menus = new ArrayList<>(); // 가게 메뉴
 

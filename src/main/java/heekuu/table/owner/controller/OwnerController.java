@@ -2,6 +2,7 @@ package heekuu.table.owner.controller;
 
 import heekuu.table.owner.dto.OwnerJoinRequest;
 import heekuu.table.owner.dto.OwnerLoginRequest;
+import heekuu.table.owner.dto.OwnerResponse;
 import heekuu.table.owner.entity.Owner;
 import heekuu.table.owner.service.OwnerService;
 import jakarta.validation.Valid;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -25,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class OwnerController {
 
   private final OwnerService ownerService;
+
 
   @PostMapping("/register")
   public void registerOwner(@Valid @RequestBody OwnerJoinRequest ownerJoinRequest) {
