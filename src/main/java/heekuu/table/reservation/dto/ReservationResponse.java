@@ -1,9 +1,11 @@
 package heekuu.table.reservation.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import heekuu.table.orderitem.dto.OrderItemDto;
 import heekuu.table.orderitem.entity.OrderItem;
 import heekuu.table.reservation.entity.Reservation;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,7 +15,9 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,7 +35,8 @@ public class ReservationResponse {
   private Long ownerId; // 오너 ID
   private List<OrderItemDto> orderItems; // 주문 항목 리스트
   private String status; // 예약 상태 (예: PENDING, CONFIRMED)
-  private String totalPrice; // 총 금액
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String totalPrice;
 
   // Reservation 엔티티를 기반으로 Response 생성
   public ReservationResponse(Reservation reservation) {
@@ -54,9 +59,15 @@ public class ReservationResponse {
         .map(OrderItemDto::fromEntity)
         .collect(Collectors.toList())
         : new ArrayList<>();
+    this.totalPrice = reservation.getTotalPrice() != null
+        ? reservation.getTotalPrice().setScale(0, RoundingMode.DOWN) + "원"
+        : "0원";
+    //log.info("Reservation ID: {}, Total Price during Response Creation: {}", reservation.getReservationId(), reservation.getTotalPrice());
+
   }
 
   public ReservationResponse(Reservation reservation, List<OrderItem> savedOrderItems) {
+
 
     this.reservationId = reservation.getReservationId();
     this.reservationTime = reservation.getReservationTime();
@@ -78,16 +89,20 @@ public class ReservationResponse {
         .collect(Collectors.toList())
         : new ArrayList<>();
 
-    // 총 금액 계산 (원 단위)
-    BigDecimal total = savedOrderItems != null
-        ? savedOrderItems.stream()
-        .map(orderItem -> orderItem.getMenu().getPrice()
-            .multiply(BigDecimal.valueOf(orderItem.getQuantity())))
-        .reduce(BigDecimal.ZERO, BigDecimal::add)
-        : BigDecimal.ZERO;
-
-    // "원" 단위로 변환해 클라이언트에 반환
-    this.totalPrice = reservation.getTotalPrice().setScale(0, BigDecimal.ROUND_DOWN) + "원";
+    // 총 금액 계산
+    if (reservation.getTotalPrice() != null) {
+      // Reservation 엔터티에 저장된 totalPrice 사용
+      this.totalPrice = reservation.getTotalPrice().setScale(0, RoundingMode.DOWN) + "원";
+    } else {
+      // OrderItems를 통해 계산
+      BigDecimal total = savedOrderItems != null
+          ? savedOrderItems.stream()
+          .map(orderItem -> orderItem.getMenu().getPrice()
+              .multiply(BigDecimal.valueOf(orderItem.getQuantity())))
+          .reduce(BigDecimal.ZERO, BigDecimal::add)
+          : BigDecimal.ZERO;
+      this.totalPrice = total.setScale(0, RoundingMode.DOWN) + "원";
+    }
   }
-  }
 
+}

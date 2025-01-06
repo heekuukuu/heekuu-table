@@ -98,7 +98,7 @@ public class UserReservationService implements ReservationService {
         })
         .reduce(BigDecimal.ZERO, BigDecimal::add); // 정확한 합산
 
-
+    log.info("Calculated total price: {}", totalPrice);
     Reservation reservation = Reservation.builder()
         .reservationTime(request.getReservationTime())
         .numberOfPeople(request.getNumberOfPeople())

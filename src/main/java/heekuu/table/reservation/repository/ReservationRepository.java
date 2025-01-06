@@ -18,10 +18,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
   List<Reservation> findAllByStoreOwnerOwnerId(Long ownerId);
 
   // 특정 예약을 조회
-  @EntityGraph(attributePaths = {"orderItems", "orderItems.menu"})
+  @EntityGraph(attributePaths = {"totalPrice", "orderItems", "orderItems.menu"})
   Optional<Reservation> findByReservationId(Long reservationId);
 
+
   // 특정 가게의 예약 내역
+  @EntityGraph(attributePaths = {"totalPrice", "orderItems", "orderItems.menu"})
   List<Reservation> findAllByStoreStoreId(Long storeId);
 
 
