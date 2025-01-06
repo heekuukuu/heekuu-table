@@ -33,6 +33,7 @@ public class ReservationResponse {
   private Long storeId; // 가게 ID
   private String storeName; // 가게 이름
   private Long ownerId; // 오너 ID
+  private Long userId;
   private List<OrderItemDto> orderItems; // 주문 항목 리스트
   private String status; // 예약 상태 (예: PENDING, CONFIRMED)
   @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -43,6 +44,7 @@ public class ReservationResponse {
     this.reservationId = reservation.getReservationId();
     this.reservationTime = reservation.getReservationTime();
     this.numberOfPeople = reservation.getNumberOfPeople();
+    this.userId = reservation.getUser() != null ? reservation.getUser().getUserId() : null;
     this.note = reservation.getNote();
     this.ownerId = reservation.getStore().getOwner() != null
         ? reservation.getStore().getOwner().getOwnerId()
@@ -77,6 +79,7 @@ public class ReservationResponse {
         ? reservation.getStore().getOwner().getOwnerId()
         : null;
     this.isTakeout = reservation.getIsTakeout();
+    this.userId = reservation.getUser() != null ? reservation.getUser().getUserId() : null;
     this.paymentStatus = reservation.getPaymentStatus();
     this.storeId = reservation.getStore().getStoreId();
     this.storeName = reservation.getStore().getName();
