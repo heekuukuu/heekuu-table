@@ -3,9 +3,12 @@ package heekuu.table.reservation.dto;
 import heekuu.table.orderitem.dto.OrderItemDto;
 import heekuu.table.orderitem.entity.OrderItem;
 import heekuu.table.reservation.entity.Reservation;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +31,7 @@ public class ReservationResponse {
   private Long ownerId; // 오너 ID
   private List<OrderItemDto> orderItems; // 주문 항목 리스트
   private String status; // 예약 상태 (예: PENDING, CONFIRMED)
+  private String totalPrice; // 총 금액
 
   // Reservation 엔티티를 기반으로 Response 생성
   public ReservationResponse(Reservation reservation) {
@@ -73,6 +77,17 @@ public class ReservationResponse {
         .map(OrderItemDto::fromEntity)
         .collect(Collectors.toList())
         : new ArrayList<>();
+
+    // 총 금액 계산 (원 단위)
+    BigDecimal total = savedOrderItems != null
+        ? savedOrderItems.stream()
+        .map(orderItem -> orderItem.getMenu().getPrice()
+            .multiply(BigDecimal.valueOf(orderItem.getQuantity())))
+        .reduce(BigDecimal.ZERO, BigDecimal::add)
+        : BigDecimal.ZERO;
+
+    // "원" 단위로 변환해 클라이언트에 반환
+    this.totalPrice = reservation.getTotalPrice().setScale(0, BigDecimal.ROUND_DOWN) + "원";
   }
-}
+  }
 

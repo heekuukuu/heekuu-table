@@ -38,6 +38,7 @@ public class OrderItemDto {
         .menu(menu)
         .reservation(reservation)
         .quantity(this.quantity)
+        .menuName(menu.getName())
         .build();
   }
 

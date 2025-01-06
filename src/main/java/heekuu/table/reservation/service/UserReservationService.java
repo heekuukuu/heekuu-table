@@ -16,6 +16,7 @@ import heekuu.table.store.repository.StoreRepository;
 import heekuu.table.user.entity.User;
 import heekuu.table.user.repository.UserRepository;
 import jakarta.validation.ValidationException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,8 @@ public class UserReservationService implements ReservationService {
     validateOrderItems(request.getOrderItems());
 
     // 예약 생성
-    Reservation reservation = saveReservation(request, user, store);
+    Reservation reservation = saveReservation(request, user, store, request.getOrderItems());
+
     // 저장된 Reservation 객체 확인
     log.info("Reservation 생성 결과: {}", reservation);
 
@@ -71,6 +73,7 @@ public class UserReservationService implements ReservationService {
     return new ReservationResponse(reservation, savedOrderItems);
   }
 
+  //검증
   private void validateOrderItems(List<OrderItemDto> orderItems) {
     if (orderItems == null || orderItems.isEmpty()) {
       throw new IllegalArgumentException("주문 항목은 비어 있을 수 없습니다.");
@@ -83,7 +86,19 @@ public class UserReservationService implements ReservationService {
     }
   }
 
-  private Reservation saveReservation(ReservationRequest request, User user, Store store) {
+  private Reservation saveReservation(ReservationRequest request, User user, Store store, List<OrderItemDto> orderItems) {
+
+
+    // 총 금액 계산 (BigDecimal 사용)
+    BigDecimal totalPrice = orderItems.stream()
+        .map(orderItem -> {
+          Menu menu = menuRepository.findById(orderItem.getMenuId())
+              .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 메뉴 ID입니다."));
+          return menu.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity()));
+        })
+        .reduce(BigDecimal.ZERO, BigDecimal::add); // 정확한 합산
+
+
     Reservation reservation = Reservation.builder()
         .reservationTime(request.getReservationTime())
         .numberOfPeople(request.getNumberOfPeople())
@@ -94,6 +109,7 @@ public class UserReservationService implements ReservationService {
         .store(store)
         .owner(store.getOwner())
         .user(user)
+        .totalPrice(totalPrice)
         .build();
 
     return reservationRepository.save(reservation);
@@ -108,7 +124,9 @@ public class UserReservationService implements ReservationService {
       OrderItem orderItem = OrderItem.builder()
           .reservation(reservation)
           .menu(menu)
+          .menuName(menu.getName())
           .quantity(orderItemDto.getQuantity())
+          .user(reservation.getUser())
           .build();
 
       savedOrderItems.add(orderItemRepository.save(orderItem));
@@ -126,11 +144,16 @@ public class UserReservationService implements ReservationService {
    */
   @Override
   @Transactional(readOnly = true)
-  public ReservationResponse getReservation(Long reservationId) {
-    log.info("예약 ID: {} 조회 중", reservationId);
+  public ReservationResponse getUserReservation(Long reservationId, Long userId) {
+    log.info("유저 ID: {}가 예약 ID: {}를 조회 요청", userId, reservationId);
 
     Reservation reservation = reservationRepository.findByReservationId(reservationId)
         .orElseThrow(() -> new ResourceNotFoundException("예약을 찾을 수 없습니다."));
+
+    // 예약한 유저인지 검증
+    if (!reservation.getUser().getUserId().equals(userId)) {
+      throw new IllegalArgumentException("해당 예약을 조회할 권한이 없습니다.");
+    }
 
     return new ReservationResponse(reservation);
   }
@@ -139,16 +162,30 @@ public class UserReservationService implements ReservationService {
 
 
 
-  @Override
+  /**
+   * 예약 취소 신청
+   */
   @Transactional
-  public void cancelReservation(Long reservationId, Long userId) {
+  public ReservationResponse requestCancelReservation(Long reservationId, Long userId) {
     Reservation reservation = reservationRepository.findById(reservationId)
-        .orElseThrow(() -> new ResourceNotFoundException("예약을 찾을 수 없습니다."));
+        .orElseThrow(() -> new IllegalArgumentException("예약을 찾을 수 없습니다."));
+
+    // 유저 권한 확인
     if (!reservation.getUser().getUserId().equals(userId)) {
-      throw new ResourceNotFoundException("해당 예약을 취소할 권한이 없습니다.");
+      throw new IllegalArgumentException("해당 예약을 취소할 권한이 없습니다.");
     }
 
-    reservation.setStatus(ReservationStatus.CANCELLED);
-    reservationRepository.save(reservation);
+    // 상태가 PENDING인지 확인
+    if (!reservation.getStatus().equals(ReservationStatus.PENDING)) {
+      throw new IllegalArgumentException("취소 요청은 'PENDING' 상태에서만 가능합니다.");
+    }
+
+    // 상태를 CANCEL_REQUESTED로 변경
+    reservation.setStatus(ReservationStatus.CANCEL_REQUESTED);
+
+    // 상태 업데이트 저장
+    Reservation updatedReservation = reservationRepository.save(reservation);
+
+    return new ReservationResponse(updatedReservation);
   }
 }

@@ -45,5 +45,6 @@ public class OrderItem {
 
 
   private Integer quantity; // 수량
-
+  @Column(name = "menu_name", nullable = false)
+  private String menuName;
 }

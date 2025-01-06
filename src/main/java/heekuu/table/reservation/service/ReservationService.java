@@ -13,10 +13,9 @@ public interface ReservationService {
 
   ReservationResponse createReservation(ReservationRequest request, Long userId);
 
-  //List<ReservationResponse> getUserReservations(Long userId);
 
   @Transactional(readOnly = true)
-  ReservationResponse getReservation(Long reservationId);
+  ReservationResponse getUserReservation(Long reservationId, Long userId);
 
-  void cancelReservation(Long reservationId, Long userId) throws IllegalAccessException;
+  ReservationResponse requestCancelReservation(Long reservationId, Long userId);
 }

@@ -8,6 +8,8 @@ import heekuu.table.orderitem.entity.OrderItem;
 import heekuu.table.orderitem.repository.OrderItemRepository;
 import heekuu.table.reservation.entity.Reservation;
 import heekuu.table.reservation.repository.ReservationRepository;
+import heekuu.table.user.entity.User;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -50,27 +52,23 @@ public class OrderItemServiceImpl implements OrderItemService {
     return OrderItemDto.fromEntity(savedOrderItem);
   }
 
-  private void saveOrderItems(List<OrderItemDto> orderItems, Reservation reservation) {
+  private List<OrderItem> saveOrderItems(List<OrderItemDto> orderItems, Reservation reservation, User user) {
+    List<OrderItem> savedOrderItems = new ArrayList<>();
     for (OrderItemDto orderItemDto : orderItems) {
       Menu menu = menuRepository.findById(orderItemDto.getMenuId())
-          .orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다."));
+          .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 메뉴 ID입니다."));
 
+      // 주문 항목 생성
       OrderItem orderItem = OrderItem.builder()
           .reservation(reservation)
           .menu(menu)
           .quantity(orderItemDto.getQuantity())
+          .user(user) // 유저 정보 저장
           .build();
 
-      orderItemRepository.save(orderItem); // 저장
+      // 저장 및 리스트에 추가
+      savedOrderItems.add(orderItemRepository.save(orderItem));
     }
-  }
-  @Override
-  public List<OrderItemDto> getOrderItemsByReservation(Long reservationId) {
-    return List.of();
-  }
-
-  @Override
-  public void deleteOrderItem(Long orderItemId) {
-
+    return savedOrderItems;
   }
 }

@@ -20,6 +20,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,7 @@ public class Reservation extends BaseEntity {
 
 
   @Enumerated(EnumType.STRING)
+  @Column(name = "status", nullable = false)
   private ReservationStatus status;// 예약상태
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -72,4 +74,7 @@ public class Reservation extends BaseEntity {
 
   @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<OrderItem> orderItems = new ArrayList<>(); // 예약에 포함된 주문 항목들
+
+  @Column(name = "total_price", nullable = false, precision = 15, scale = 2)
+  private BigDecimal totalPrice; // 총 금액 (소수점까지 저장)
 }
