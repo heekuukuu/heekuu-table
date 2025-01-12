@@ -10,7 +10,7 @@ public interface OrderItemService {
   //생성
   List<OrderItem> saveOrderItems(List<OrderItemDto> orderItems, Reservation reservation);
 
-  //OrderItemDto createOrderItem(Long reservationId, OrderItemDto orderItemDto);
+  //OrderItemDto createOrderItem(Long , OrderItemDto );
   //조회
  // List<OrderItemDto> getOrderItemsByReservation(Long reservationId);
 

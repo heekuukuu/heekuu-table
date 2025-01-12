@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,13 +23,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/owners")
 public class OwnerController {
 
   private final OwnerService ownerService;
-
+  @PostMapping("/login")
+  public ResponseEntity<Map<String, String>> login(@Valid @RequestBody OwnerLoginRequest ownerLoginRequest) {
+    Map<String, String> tokens = ownerService.login(ownerLoginRequest);
+    log.info("로그인호출확인");
+    return ResponseEntity.ok(tokens);
+  }
 
   @PostMapping("/register")
   public void registerOwner(@Valid @RequestBody OwnerJoinRequest ownerJoinRequest) {
@@ -37,16 +44,11 @@ public class OwnerController {
 
   @PostMapping("/business")
   public void submitBusinessRegistration(
-      @RequestParam("ownerId") Long ownerId,
       @RequestParam("businessFile") MultipartFile businessFile) throws Exception {
-    ownerService.submitBusinessRegistration(ownerId, businessFile);
+    ownerService.submitBusinessRegistration(businessFile);
   }
 
-  @PostMapping("/login")
-  public ResponseEntity<Map<String, String>> login(@Valid @RequestBody OwnerLoginRequest ownerLoginRequest) {
-    Map<String, String> tokens = ownerService.login(ownerLoginRequest);
-    return ResponseEntity.ok(tokens);
-  }
+
 
   @PostMapping("/refresh")
   public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestBody Map<String, String> request) {

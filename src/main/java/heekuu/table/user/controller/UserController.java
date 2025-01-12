@@ -7,6 +7,7 @@ import heekuu.table.user.dto.UserResponseDTO;
 import heekuu.table.user.dto.UserUpdateDTO;
 import heekuu.table.user.service.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserController {
 
@@ -27,10 +29,7 @@ public class UserController {
   private final RewardService rewardService;
 
 
-  public UserController(UserService userService, RewardService rewardService) {
-    this.userService = userService;
-    this.rewardService = rewardService;
-  }
+
 
   /**
    * 로그인된 사용자의 정보를 반환합니다.

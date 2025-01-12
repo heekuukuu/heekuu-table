@@ -1,0 +1,104 @@
+/* 🌸 전체 초기화 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 🌸 전체 배경 */
+body {
+  font-family: 'Pretendard', sans-serif;
+  background-color: #fff0f6; /* 부드러운 핑크 */
+  color: #333;
+  overflow-x: hidden;
+}
+
+/* 🌸 사이드바 전체 스타일 */
+.sidebar {
+  width: 280px;
+  background-color: #ffe6f2; /* 연한 핑크 */
+  height: calc(100vh - 60px); /* 네비게이션 바 높이만큼 빼기 */
+  position: fixed;
+  top: 60px;
+  left: 0;
+  padding: 30px 20px;
+  border-top-right-radius: 30px;
+  border-bottom-right-radius: 30px;
+  box-shadow: 4px 0 20px rgba(255, 105, 180, 0.2);
+  z-index: 100;
+  border-right: 3px solid #ff80ab;
+  overflow-y: auto;
+}
+
+
+
+/* 🌸 프로필 박스 */
+.profile-box {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(255, 64, 129, 0.2);
+  margin-bottom: 30px;
+}
+
+.profile-box h5 {
+  font-size: 22px;
+  color: #ff4081;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.profile-box p {
+  font-size: 14px;
+  color: #777;
+}
+
+/* 🌸 섹션 제목 */
+.menu-section h5 {
+  font-size: 18px;
+  color: #ff4081;
+  font-weight: bold;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #ff80ab;
+}
+
+/* 🌸 메뉴 리스트 */
+.menu-section ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.menu-section ul li {
+  margin-bottom: 15px;
+}
+
+/* 🌸 메뉴 링크 */
+.menu-section ul li a {
+  text-decoration: none;
+  color: #ff4d88; /* 진한 핑크 */
+  font-weight: bold;
+  padding: 12px 15px;
+  display: block;
+  border-radius: 12px;
+  background-color: #ffe6f2;
+  box-shadow: 0 2px 8px rgba(255, 64, 129, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-align: center;
+}
+
+/* 🌸 메뉴 호버 효과 */
+.menu-section ul li a:hover {
+  background-color: #ff80ab;
+  color: white;
+  transform: translateX(5px);
+  box-shadow: 3px 3px 15px rgba(255, 64, 129, 0.3);
+}
+
+/* 🌸 구분선 */
+.sidebar hr {
+  border: none;
+  border-top: 1px dashed #ff80ab;
+  margin: 20px 0;
+}

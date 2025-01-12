@@ -1,0 +1,79 @@
+/* ✅ 폼 전체 박스 */
+.form-container {
+  max-width: 600px;
+  width: 100%;
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border-radius: 15px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  border: 2px solid #f8a5c2;
+}
+
+/* ✅ 폼 제목 */
+.form-title {
+  background-color: #f8a5c2;
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  text-align: center;
+  font-weight: bold;
+  box-shadow: 0 3px 6px rgba(248, 165, 194, 0.5);
+}
+
+/* ✅ 입력 필드 */
+.form-control {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px 15px;
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+/* ✅ 입력 필드 Hover 및 Focus */
+.form-control:hover,
+.form-control:focus {
+  border-color: #f8a5c2;
+  box-shadow: 0 0 8px rgba(248, 165, 194, 0.5);
+  outline: none;
+}
+
+/* ✅ 시간 입력 필드 */
+.time-input {
+  width: 180px;
+  text-align: center;
+  padding: 8px 10px;
+}
+
+/* ✅ 버튼 스타일 */
+.btn-pink {
+  background-color: #f8a5c2;
+  color: white;
+  font-weight: bold;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.btn-pink:hover {
+  background-color: #f48fb1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ Placeholder */
+::placeholder {
+  color: #bbb;
+  font-style: italic;
+}
+
+/* ✅ 가격 입력 필드 */
+.price-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}

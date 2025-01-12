@@ -1,0 +1,92 @@
+/* ✅ 공통 스타일 (common.css) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Pretendard', sans-serif;
+  background-color: #ffe4ec; /* 부드러운 핑크 배경 */
+  color: #333;
+  overflow-x: hidden;
+}
+
+.content {
+  margin-left: 270px;
+  padding: 20px;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+@media (max-width: 768px) {
+  .content {
+    margin-left: 0;
+  }
+
+  .content.active {
+    margin-left: 250px;
+  }
+}
+
+/* ✅ 버튼 공통 스타일 */
+.btn-primary {
+  background-color: #f06292;
+  border-color: #f06292;
+}
+
+.btn-primary:hover {
+  background-color: #e91e63;
+  border-color: #e91e63;
+}
+
+/* ✅ 링크 공통 스타일 */
+a {
+  text-decoration: none;
+  font-weight: bold;
+}
+
+a:hover {
+  color: #ff4081;
+}
+
+/* ✅ 프로필 공통 스타일 */
+.profile-section {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.profile-section img {
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  border: 3px solid #ff80ab;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-section h5 {
+  margin-top: 10px;
+  font-size: 20px;
+  color: #ff4081;
+  font-weight: bold;
+}
+
+.profile-section p {
+  color: #777;
+  font-size: 14px;
+}
+/* ✅ 전체 스타일 초기화 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ✅ 전체 페이지 배경 및 스크롤 */
+html, body {
+  height: 100%;
+  font-family: 'Pretendard', sans-serif;
+  background-color: #ffe4ec; /* 부드러운 핑크 배경 */
+  color: #333;
+  overflow-x: hidden;
+  overflow-y: auto; /* 전체 페이지 스크롤 */
+}

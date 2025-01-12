@@ -4,6 +4,7 @@ package heekuu.table.store.service;
 import heekuu.table.owner.entity.Owner;
 import heekuu.table.owner.repository.OwnerRepository;
 import heekuu.table.owner.service.OwnerService;
+import heekuu.table.owner.type.OwnerStatus;
 import heekuu.table.store.dto.StoreDto;
 import heekuu.table.store.dto.StoreUpdateRequest;
 import heekuu.table.store.entity.Store;
@@ -34,6 +35,10 @@ public class StoreService {
 
     ownerService.validateOwnerStatus(owner.getOwnerId());
 
+    // 🔑 소유주 상태 검증 (APPROVED 상태만 등록 가능)
+    if (owner.getOwnerStatus() != OwnerStatus.APPROVED) {
+      throw new IllegalAccessException("가게 등록은 승인된 소유주만 가능합니다.");
+    }
     // 2) 중복검증 (Optional 활용)
     // findByNameAndAddress -> Optional<Store> 반환하도록 Repository 정의
     storeRepository.findByNameAndAddress(storeDto.getName(), storeDto.getAddress())

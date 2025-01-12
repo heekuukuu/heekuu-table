@@ -1,0 +1,23 @@
+.navbar {
+  width: 100%;
+  height: 60px;
+  background-color: #ff80ab; /* 진한 핑크 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 200;
+}
+
+.navbar a {
+  color: black;
+  font-size: 18px;
+}
+
+.navbar a:hover {
+  color: #ff4081;
+}

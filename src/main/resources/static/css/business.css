@@ -1,0 +1,22 @@
+/* 전체 배경 및 여백 초기화 */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #fce4ec; /* 연핑크 배경 */
+  font-family: 'Noto Sans KR', sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 폼 전체 레이아웃 */
+.form-container {
+  width: 500px;
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 2px solid #f8a5c2; /* 테두리 색상 */
+  text-align: center;
+}

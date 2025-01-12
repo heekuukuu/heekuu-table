@@ -1,0 +1,129 @@
+body {
+  margin: 0;
+  height: auto;
+  background-color: #fce4ec;
+  display: flex; /* 사이드바와 콘텐츠를 가로로 배치 */
+  flex-direction: row;
+  background-color: #fce4ec;
+}
+
+.sidebar {
+  background-color: #fff3f3;
+  width: auto; /* 고정된 너비 */
+  height: auto; /* 화면 높이 채우기 */
+  top: 0;
+  padding: 20px;
+}
+  .form-title {
+    background-color: #f8a5c2;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .content {
+    flex-grow: 1; /* 남은 공간 채우기 */
+    display: flex;
+    justify-content: left; /* 폼을 중앙에 위치 */
+    align-items: center; /* 폼을 수직 중앙에 위치 */
+    padding: 20px;
+  }
+
+
+.form-container {
+  max-width: 600px; /* 최대 너비 제한 */
+  width: 100%; /* 기본 너비 */
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+/* 가격 필드 부모 컨테이너 */
+.price-container {
+  display: flex;
+  align-items: left; /* 세로 가운데 정렬 */
+  gap: 10px; /* 가격 라벨과 입력 필드 간격 */
+}
+
+/* 가격 필드 */
+#menuPrice {
+  width: 150px;
+  text-align: left; /* 왼쪽 정렬 */
+  margin-left: 5px;
+}
+/* 제목 스타일 */
+h3.text-center {
+  background-color: #f8a5c2;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* 라벨 스타일 */
+.form-label {
+  font-weight: bold;
+  color: #555;
+}
+
+/* 입력 필드 스타일 */
+.form-control {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 1rem;
+}
+
+/* 입력 필드 Hover 및 Focus 스타일 */
+.form-control:hover,
+.form-control:focus {
+  border-color: #f8a5c2;
+  box-shadow: 0 0 5px rgba(248, 165, 194, 0.5);
+  outline: none;
+}
+
+/* 버튼 스타일 */
+.btn-pink {
+  background-color: #f8a5c2;
+  color: white;
+  font-weight: bold;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-pink:hover {
+  background-color: #f48fb1;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-pink:disabled {
+  background-color: #f8a5c2;
+  color: #ddd;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* 이미지 업로드 라벨 */
+#menuImage {
+  border: 1px solid #ddd;
+  padding: 8px;
+  font-size: 1rem;
+}
+
+
+/* Placeholder 텍스트 스타일 */
+::placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+
+/* 폼 내부의 Flex 정렬 */
+.mb-3 {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}

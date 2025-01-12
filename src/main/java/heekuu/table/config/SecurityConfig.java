@@ -10,6 +10,7 @@ import heekuu.table.owner.repository.OwnerRepository;
 import heekuu.table.token.repository.RefreshTokenRepository;
 import heekuu.table.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +18,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -38,7 +40,6 @@ public class SecurityConfig {
   private final OwnerRepository ownerRepository;
 
 
-
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
       throws Exception {
@@ -51,12 +52,18 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
+//  @Bean
+//  public WebSecurityCustomizer webSecurityCustomizer() {
+//    return (web) -> web.ignoring()
+//        .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+//        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/static/**");
+//  }
+
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
     // CSRF 및 CORS 설정
-
     http.csrf().disable();
+
     http.cors().disable();
 
     // 세션 관리 설정
@@ -66,7 +73,11 @@ public class SecurityConfig {
     // 권한 설정
     http.authorizeHttpRequests(auth -> auth
         .requestMatchers(
+            "/css/**", "/js/**", "/images/**",
             "/",
+            "/favicon.ico",
+            "/api/owners/logout",
+            "/error",
             "/users/check-email",
             "/users/social-logout",
             "/users/logout",
@@ -88,7 +99,14 @@ public class SecurityConfig {
             "/api/owners/**",
             "/api/stores/**",
             "/api/stores",
-            "/api/menus/**"
+            "/api/menus/**",
+            "/custom-login",
+            "/login",
+            "/api/owners/login",
+            "/dashboard",
+            "/user-login", "/user-signup",
+            "/owner/**",
+            "/owner/main"
         ).permitAll()
         .requestMatchers("/api/order-items/**").authenticated()
         .requestMatchers("/api/owners/reservations/**").authenticated()
@@ -106,16 +124,16 @@ public class SecurityConfig {
 
     // 폼 로그인 설정
     http.formLogin(form -> form
-        .loginPage("/login") // 커스텀 로그인 페이지 경로
-        .loginProcessingUrl("/login") // 로그인 처리 경로 (폼의 action과 일치해야 함)
+        .loginPage("/custom-login") // 커스텀 로그인 페이지 경로
+        //.loginProcessingUrl("/api/owners/login") // 로그인 처리 경로 (폼의 action과 일치해야 함)
+        .failureUrl("/custom-login?error=true") // 로그인 실패 후 이동할 경로
         .defaultSuccessUrl("/dashboard") // 로그인 성공 후 이동할 경로
         .permitAll()
     );
 
-
-
     // OAuth2 로그인 설정
     http.oauth2Login(oauth2 -> oauth2
+        .loginPage("/oauth-login")
         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
         .successHandler(customOauth2SuccessHandler)
     );
@@ -128,7 +146,6 @@ public class SecurityConfig {
     // JWT 필터 및 커스텀 로그아웃 필터 추가
     http.addFilterBefore(new JWTFilter(userRepository, ownerRepository, jwtUtil),
         UsernamePasswordAuthenticationFilter.class);
-
 
     http.addFilterBefore(new CustomLogoutFilter(refreshTokenRepository, jwtUtil),
         LogoutFilter.class);

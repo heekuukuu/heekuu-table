@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/common}">
+<head>
+  <meta charset="UTF-8">
+  <title>메뉴 등록</title>
+</head>
+
+<body>
+
+<!-- ✅ 메뉴 등록 폼 삽입 -->
+<div layout:fragment="content">
+  <h3 class="text-center bg-pink text-white p-2 rounded">🍕 메뉴 등록</h3>
+  <div class="form-container" style="border: 2px solid #f8a5c2; padding: 20px; border-radius: 10px;">
+    <form id="menuForm" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="menuName" class="form-label fw-bold">메뉴명</label>
+        <input type="text" class="form-control" id="menuName" name="name" placeholder="페퍼로니 피자" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="menuPrice" class="form-label fw-bold">가격</label>
+        <div class="d-flex align-items-center">
+          <input type="number" class="form-control price-input me-2" id="menuPrice" name="price" placeholder="5200" required>
+          <span class="ms-2 fw-bold">원</span>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="menuDesc" class="form-label fw-bold">메뉴 설명</label>
+        <textarea class="form-control" id="menuDesc" name="description" rows="3" placeholder="메뉴에 대한 설명을 입력하세요." required></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="menuImage" class="form-label fw-bold">메뉴 사진 (선택)</label>
+        <input type="file" class="form-control" id="menuImage" name="file" accept="image/*">
+      </div>
+
+      <button type="submit" id="submitMenuBtn" class="btn btn-pink w-100 mt-3" style="background-color: #f8a5c2; color: white;">
+        등록하기
+      </button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

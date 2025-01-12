@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/common}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>메뉴 수정</title>
+</head>
+
+<body>
+<link th:href="@{/css/store.css}" rel="stylesheet">
+<!-- ✅ 메뉴 수정 폼 -->
+<div layout:fragment="content">
+  <h3 class="text-center bg-warning text-white p-2 rounded">🍕 메뉴 수정</h3>
+  <div class="form-container" style="border: 2px solid #fbc02d; padding: 20px; border-radius: 10px;">
+    <form id="menuUpdateForm" th:action="@{/owner/menu-update/{id}(id=${menu.id})}" th:object="${menu}" method="post" enctype="multipart/form-data">
+
+      <!-- 메뉴 ID (숨김) -->
+      <input type="hidden" id="menuId" th:value="${menu.id}">
+      <div class="mb-3">
+
+        <!-- 메뉴명 -->
+        <label for="menuName" class="form-label fw-bold">메뉴명</label>
+        <input type="text" class="form-control" id="menuName" th:field="*{name}" placeholder="페퍼로니 피자" required>
+      </div>
+
+      <!-- 가격 -->
+      <div class="mb-3">
+        <label for="menuPrice" class="form-label fw-bold">가격</label>
+        <div class="d-flex align-items-center">
+          <input type="number" class="form-control price-input me-2" id="menuPrice" th:field="*{price}" placeholder="5200" required>
+          <span class="ms-2 fw-bold">원</span>
+        </div>
+      </div>
+
+      <!-- 메뉴 설명 -->
+      <div class="mb-3">
+        <label for="menuDesc" class="form-label fw-bold">메뉴 설명</label>
+        <textarea class="form-control" id="menuDesc" th:field="*{description}" rows="3" placeholder="메뉴에 대한 설명을 입력하세요." required></textarea>
+      </div>
+
+      <!-- 이미지 파일 업로드 -->
+      <div class="mb-3">
+        <label for="menuImage" class="form-label fw-bold">메뉴 사진 (선택)</label>
+        <input type="file" class="form-control" id="menuImage" name="file" accept="image/*">
+        <small class="text-muted">기존 이미지가 유지됩니다. 변경하려면 새 파일을 선택하세요.</small>
+      </div>
+
+      <button type="submit" class="btn btn-warning w-100 mt-3" style="background-color: #ffb74d; color: white;">
+        수정하기
+      </button>
+    </form>
+  </div>
+
+  <!-- ✅ JavaScript 연결 -->
+  <script src="/js/menu-update.js"></script>
+</div>
+
+</body>
+</html>

@@ -16,6 +16,8 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -146,10 +148,22 @@ public class OwnerService {
 
   // 사업자 등록증 제출
   @Transactional
-  public void submitBusinessRegistration(Long ownerId, MultipartFile businessRegistrationFile)
+  public void submitBusinessRegistration(MultipartFile businessRegistrationFile)
       throws IOException {
-    Owner owner = ownerRepository.findById(ownerId)
+    // 로그인된 사용자 정보 가져오기
+    // 로그인된 사용자 정보 가져오기
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new IllegalStateException("인증되지 않은 사용자입니다.");
+    }
+
+    String email = authentication.getName(); // 인증된 사용자의 이메일 반환
+
+
+    // 이메일을 기준으로 Owner 조회
+    Owner owner = ownerRepository.findByEmail(email)
         .orElseThrow(() -> new IllegalStateException("해당 사업자를 찾을 수 없습니다."));
+
 
     String path = s3Uploader.upload(businessRegistrationFile, "restaurant-owner-approvals");
     owner.setBusinessRegistrationPath(path);

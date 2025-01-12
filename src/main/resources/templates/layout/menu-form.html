@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+<div th:fragment="menu-form">
+  <h3 class="text-center bg-pink text-white p-2 rounded">메뉴 등록</h3>
+  <div class="form-container" style="border: 2px solid #f8a5c2; padding: 20px; border-radius: 10px;">
+    <form id="menuForm">
+      <div class="mb-3">
+        <label for="menuName" class="form-label fw-bold">메뉴명</label>
+        <input type="text" class="form-control" id="menuName" name="name" placeholder="페퍼로니 피자" required>
+      </div>
+      <div class="mb-3 d-flex align-items-left">
+        <label for="menuPrice" class="form-label fw-bold me-3">가격</label>
+        <div class="d-flex align-items-center">
+        <input type="text" class="form-control price-input me-2" id="menuPrice" name="price" placeholder="5200" required>
+        <span class="ms-2 fw-bold">원</span>
+      </div>
+      <div class="mb-3">
+        <label for="menuDesc" class="form-label fw-bold">메뉴 설명</label>
+        <textarea class="form-control" id="menuDesc" name="description" rows="3" placeholder="메뉴에 대한 설명을 입력하세요." required></textarea>
+      </div>
+      <div class="mb-3">
+        <label for="menuImage" class="form-label fw-bold">메뉴 사진 (선택)</label>
+        <input type="file" class="form-control" id="menuImage" name="file" accept="image/*">
+      </div>
+      <div class="mb-3">
+      <button type="button" id="submitMenuBtn" class="btn btn-pink w-100 mt-3" style="background-color: #f8a5c2; color: white;">
+        확인
+      </button>
+      </div>
+  </div>
+</div>
+</body>
+</html>

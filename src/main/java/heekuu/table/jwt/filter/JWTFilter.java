@@ -40,7 +40,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
     String requestURI = request.getRequestURI();
 
-    if (requestURI.equals("/users/login") || requestURI.equals("/users/join") || requestURI.equals("/token/reissue")) {
+    if (requestURI.equals("/users/login") || requestURI.equals("/users/join") ||
+        requestURI.equals("/api/owners/login") || requestURI.equals("/token/reissue")) {
       filterChain.doFilter(request, response);
       return;
 

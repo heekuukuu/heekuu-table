@@ -20,15 +20,7 @@ public class OrderItemController {
 
   private final OrderItemService orderItemService;
 
-  /**
-   * 주문 항목 생성
-   */
-//  @PostMapping
-//  public ResponseEntity<OrderItemDto> createOrderItem(
-//      @RequestParam("reservationId") Long reservationId,
-//      @RequestBody OrderItemDto orderItemDto) {
-//    OrderItemDto createdOrderItem= orderItemService.createOrderItem(reservationId,orderItemDto);
-//    return ResponseEntity.ok(createdOrderItem);
-//  }
+
+
 
 }
