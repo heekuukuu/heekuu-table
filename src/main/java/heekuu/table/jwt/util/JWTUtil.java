@@ -9,12 +9,19 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.security.Key;
 import java.util.Date;
+
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -153,5 +160,41 @@ public class JWTUtil {
     } catch (ExpiredJwtException e) {
       return 0; // 토큰이 이미 만료된 경우 남은 시간이 0
     }
+
+
+  }
+  public String extractTokenFromCookie(HttpServletRequest request, String cookieName) {
+    if (request.getCookies() != null) {
+      for (Cookie cookie : request.getCookies()) {
+        if (cookieName.equals(cookie.getName())) {
+          return cookie.getValue();  // ✅ 쿠키에서 토큰 반환
+        }
+      }
+    }
+    return null;  // ✅ 쿠키가 없거나 찾지 못했을 때 null 반환
+  }
+
+  public void clearTokenCookies(HttpServletResponse response) {
+    // Access Token 쿠키 삭제
+    ResponseCookie accessCookie = ResponseCookie.from("access_token", "")
+        .httpOnly(true)
+        .secure(true)
+        .path("/")
+        .sameSite("Strict")
+        .maxAge(0)  // 즉시 만료
+        .build();
+
+    // Refresh Token 쿠키 삭제
+    ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", "")
+        .httpOnly(true)
+        .secure(true)
+        .path("/")
+        .sameSite("Strict")
+        .maxAge(0)
+        .build();
+
+    // 쿠키를 응답 헤더에 추가
+    response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+    response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
   }
 }

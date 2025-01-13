@@ -9,6 +9,7 @@ import heekuu.table.owner.dto.OwnerLoginRequest;
 import heekuu.table.owner.entity.Owner;
 import heekuu.table.owner.repository.OwnerRepository;
 import heekuu.table.owner.type.OwnerStatus;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Duration;
@@ -136,38 +137,51 @@ public class OwnerService {
     response.put("access_token", newAccessToken);
     return response;
   }
-  // 사업자 로그아웃
 
-  public void logout(String accessToken, String refreshToken) {
-    // 검증 로직 추가
+  /**
+   * ✅ 로그아웃 처리
+   * - Access Token → 블랙리스트 등록
+   * - Refresh Token → Redis에서 삭제
+   * - 쿠키 삭제
+   */
+  public void logout(HttpServletRequest request, HttpServletResponse response) {
+    // ✅ 1. 쿠키에서 Access Token, Refresh Token 추출
+    String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
+    String refreshToken = jwtUtil.extractTokenFromCookie(request, "refresh_token");
+
+    // ✅ 2. 토큰 유효성 검사
     if (accessToken == null || accessToken.isEmpty()) {
-      throw new IllegalArgumentException("Access Token cannot be null or empty.");
+      throw new IllegalArgumentException("Access Token이 존재하지 않습니다.");
     }
     if (refreshToken == null || refreshToken.isEmpty()) {
-      throw new IllegalArgumentException("Refresh Token cannot be null or empty.");
+      throw new IllegalArgumentException("Refresh Token이 존재하지 않습니다.");
     }
-    // Refresh Token 삭제
-    String refreshTokenKey = "OWNER_REFRESH_TOKEN:" + jwtUtil.getOwnerId(refreshToken); // 키 변경
+
+    // ✅ 3. Refresh Token 삭제 (Redis)
+    String refreshTokenKey = "OWNER_REFRESH_TOKEN:" + jwtUtil.getOwnerId(refreshToken);
     boolean isDeleted = redisTemplate.delete(refreshTokenKey);
     if (!isDeleted) {
       throw new IllegalStateException("Refresh Token이 이미 삭제되었거나 존재하지 않습니다.");
     }
 
-    // Access Token 블랙리스트에 추가
+    // ✅ 4. Access Token 블랙리스트 추가
     try {
       long expiration = jwtUtil.getRemainingExpiration(accessToken);
       if (expiration > 0) {
         redisTemplate.opsForValue().set(
-            "BLACKLIST:" + accessToken,
-            "logout",
-            expiration,
+            "BLACKLIST:" + accessToken,  // 블랙리스트 키
+            "logout",                    // 상태값
+            expiration,                  // 만료 시간
             TimeUnit.MILLISECONDS
         );
-        System.out.println("Access Token이 블랙리스트에 추가되었습니다.");
+        System.out.println("✅ Access Token이 블랙리스트에 추가되었습니다.");
       }
     } catch (Exception e) {
       throw new IllegalStateException("유효하지 않은 Access Token입니다.", e);
     }
+
+    // ✅ 5. 쿠키 삭제 (Access/Refresh Token)
+    jwtUtil.clearTokenCookies(response);
   }
 
 
