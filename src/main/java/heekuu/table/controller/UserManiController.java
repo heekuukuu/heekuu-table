@@ -12,7 +12,7 @@ public class UserManiController {
   @GetMapping("/user-login")
   public String customLoginPage() {
     //log.info("유저경로 체크");
-    return "user-login"; // custom-login.html 파일 반환
+    return "user/user-login"; // custom-login.html 파일 반환
   }
   // 회원가입 페이지
   @GetMapping("/user-signup")

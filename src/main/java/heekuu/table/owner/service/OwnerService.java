@@ -246,7 +246,6 @@ public class OwnerService {
     // ✅ 4. 상태 및 파일 경로 반환
     Map<String, String> response = new HashMap<>();
     response.put("status", owner.getOwnerStatus().name());  // 상태 반환 (PENDING, APPROVED, REJECTED)
-    response.put("filePath", owner.getBusinessRegistrationPath());  // 파일 경로 반환
 
     return response;
   }

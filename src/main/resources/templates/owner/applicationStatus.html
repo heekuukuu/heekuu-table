@@ -8,21 +8,21 @@
   <title>사업자 신청 현황</title>
   <link rel="stylesheet" href="/css/applicationStatus.css">
 </head>
-
+<body>
 <!-- ✅ 공통 레이아웃 적용 -->
-<body layout:decorate="~{layout/common}">
+
 <div layout:fragment="content">
   <h2 class="text-center my-4">📄 사업자 신청 현황</h2>
 
   <div id="statusContainer" class="card p-4 shadow-sm">
-    <h4>사업자 상태: <span id="ownerStatus" class="status-pending">조회 중...</span></h4>
-    <p>사업자 등록증 파일: <a href="#" id="businessFileLink" target="_blank">조회 중...</a></p>
-    <button class="btn btn-primary mt-3" id="refreshBtn">🔄 새로고침</button>
+    <h4>사업자 상태: <span id="ownerStatus" class="status-pending">조회 중</span></h4>
+    <button class="btn btn-primary mt-3" id="refreshBtn" onclick="loadApplicationStatus()">🔄 새로고침</button>
   </div>
+  <!-- ✅ 분리된 JS 파일 연결 -->
+  <script src="/js/applicationStatus.js"></script>
 </div>
 
-<!-- ✅ 분리된 JS 파일 연결 -->
-<script src="/js/applicationStatus.js"></script>
+
 
 </body>
 </html>

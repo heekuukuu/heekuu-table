@@ -4,13 +4,12 @@ import heekuu.table.jwt.util.JWTUtil;
 import heekuu.table.store.dto.StoreDto;
 import heekuu.table.store.dto.StoreUpdateRequest;
 import heekuu.table.store.service.StoreService;
-import heekuu.table.user.dto.CustomUserDetails;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,20 +35,31 @@ public class StoreController {
    * @return 생성된 가게 정보
    */
   @PostMapping
-  public ResponseEntity<StoreDto> registerStore(
-      @Valid @RequestBody StoreDto storeDto,
-      @RequestHeader("Authorization") String token
-  )
-      throws IllegalAccessException {
+  public ResponseEntity<?> registerStore(
+      @RequestBody StoreDto storeDto,
+      HttpServletRequest request
+  ){
+    try {
+      // ✅ 1. 쿠키에서 Access Token 추출
+      String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
 
+      if (accessToken == null || jwtUtil.isExpired(accessToken)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("❌ 유효하지 않은 토큰입니다.");
+      }
 
-    Long ownerId = jwtUtil.getOwnerId(token.replace("Bearer ", ""));
+      // ✅ 2. Owner ID 추출 및 가게 등록
+      Long ownerId = jwtUtil.getOwnerId(accessToken);
+      StoreDto createdStore = storeService.registerStore(storeDto, ownerId);
 
-    StoreDto createdStore = storeService.registerStore(storeDto, ownerId);
+      // ✅ 3. 등록한 가게 정보를 반환
+      return ResponseEntity.status(HttpStatus.CREATED).body(createdStore);
 
-    // 4) 200 OK + 생성된 스토어 정보
-    return ResponseEntity.ok(createdStore);
-  }
+    } catch (IllegalArgumentException | IllegalStateException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());  // 서비스에서 던진 에러 메시지 반환
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("❌ 가게 등록 중 서버 오류가 발생했습니다.");
+    }}
   /**
    * 가게 수정
    *
