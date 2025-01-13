@@ -1,11 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/common :: layout}">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/common}">
 <head>
   <title>사업자 등록</title>
-  <link href="/css/business.css" rel="stylesheet"> <!-- 페이지 전용 스타일 -->
+<link href="/css/business.css" rel="stylesheet"> <!-- 페이지 전용 스타일 -->
 </head>
+
 <body>
 <!-- 콘텐츠 영역 -->
+
+<div layout:fragment="content">
 <div class="form-container">
   <h3 class="form-title">사업자 등록</h3>
   <form id="businessForm" enctype="multipart/form-data">
@@ -16,7 +21,7 @@
     <button type="button" id="submitBusinessBtn" class="btn btn-primary w-100">등록</button>
   </form>
 </div>
-
+</div>
 <!-- 페이지 전용 스크립트 -->
 <script src="/js/business.js"></script>
 </body>

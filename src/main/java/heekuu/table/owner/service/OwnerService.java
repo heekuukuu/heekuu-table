@@ -9,18 +9,23 @@ import heekuu.table.owner.dto.OwnerLoginRequest;
 import heekuu.table.owner.entity.Owner;
 import heekuu.table.owner.repository.OwnerRepository;
 import heekuu.table.owner.type.OwnerStatus;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -55,8 +60,8 @@ public class OwnerService {
   }
 
   // 사업자 로그인
-
-  public Map<String, String> login(OwnerLoginRequest ownerLoginRequest) {
+  public ResponseEntity<String> login(@RequestBody OwnerLoginRequest ownerLoginRequest
+  , HttpServletResponse response) {
 
     String email = ownerLoginRequest.getEmail();
     String password = ownerLoginRequest.getPassword();
@@ -78,12 +83,32 @@ public class OwnerService {
         tokenConfig.getRefreshTokenExpiration(), //7일
         TimeUnit.MILLISECONDS
     );
-    Map<String, String> tokens = new HashMap<>();
-    tokens.put("access_token", accessToken);
-    tokens.put("refresh_token", refreshToken);
 
-    return tokens; // 클라이언트에 반환
+    // ✅ Access Token 쿠키로 저장 (HTTP-Only, Secure)
+    ResponseCookie accessCookie = ResponseCookie.from("access_token", accessToken)
+        .httpOnly(true)      // JavaScript 접근 불가 (XSS 방어)
+        .secure(true)        // HTTPS 환경에서만 사용
+        .path("/")
+        .sameSite("Strict")  // CSRF 방어
+        .maxAge(Duration.ofMinutes(30))  // Access Token 유효기간
+        .build();
+
+    // ✅ Refresh Token 쿠키로 저장
+    ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", refreshToken)
+        .httpOnly(true)
+        .secure(true)
+        .path("/")
+        .sameSite("Strict")
+        .maxAge(Duration.ofDays(7))  // Refresh Token 유효기간
+        .build();
+
+    // ✅ 쿠키를 응답 헤더에 추가
+    response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+    response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+    return ResponseEntity.ok("로그인 성공");
   }
+
   //갱신
   @Transactional
   public Map<String, String> refreshAccessToken(String refreshToken) {
@@ -150,7 +175,7 @@ public class OwnerService {
   @Transactional
   public void submitBusinessRegistration(MultipartFile businessRegistrationFile)
       throws IOException {
-    // 로그인된 사용자 정보 가져오기
+
     // 로그인된 사용자 정보 가져오기
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || !authentication.isAuthenticated()) {

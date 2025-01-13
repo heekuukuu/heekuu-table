@@ -5,6 +5,7 @@ import heekuu.table.owner.dto.OwnerLoginRequest;
 import heekuu.table.owner.dto.OwnerResponse;
 import heekuu.table.owner.entity.Owner;
 import heekuu.table.owner.service.OwnerService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.Map;
@@ -30,15 +31,21 @@ import org.springframework.web.multipart.MultipartFile;
 public class OwnerController {
 
   private final OwnerService ownerService;
+
   @PostMapping("/login")
-  public ResponseEntity<Map<String, String>> login(@Valid @RequestBody OwnerLoginRequest ownerLoginRequest) {
-    Map<String, String> tokens = ownerService.login(ownerLoginRequest);
-    log.info("로그인호출확인");
-    return ResponseEntity.ok(tokens);
+  public ResponseEntity<String> login(@Valid @RequestBody OwnerLoginRequest ownerLoginRequest,
+      HttpServletResponse response) {
+    try {
+      ownerService.login(ownerLoginRequest, response);
+      return ResponseEntity.ok("로그인 성공");
+    } catch (IllegalStateException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
   }
 
   @PostMapping("/register")
   public void registerOwner(@Valid @RequestBody OwnerJoinRequest ownerJoinRequest) {
+    log.info("사업자 회원가입");
     ownerService.registerOwner(ownerJoinRequest);
   }
 
@@ -49,9 +56,9 @@ public class OwnerController {
   }
 
 
-
   @PostMapping("/refresh")
-  public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestBody Map<String, String> request) {
+  public ResponseEntity<Map<String, String>> refreshAccessToken(
+      @RequestBody Map<String, String> request) {
     String refreshToken = request.get("refresh_token");
     if (refreshToken == null || refreshToken.isEmpty()) {
       return ResponseEntity.badRequest().body(Map.of("error", "Refresh Token이 필요합니다."));
@@ -60,6 +67,7 @@ public class OwnerController {
     Map<String, String> newTokens = ownerService.refreshAccessToken(refreshToken);
     return ResponseEntity.ok(newTokens);
   }
+
   @DeleteMapping("/logout")
   public ResponseEntity<String> logout(@RequestBody Map<String, String> tokens) {
     String accessToken = tokens.get("access_token");

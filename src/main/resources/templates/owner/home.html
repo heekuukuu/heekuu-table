@@ -1,125 +1,125 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>heekuuTable 홈</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #fff7f7; /* 부드러운 핑크톤 배경 */
-            font-family: 'Arial', sans-serif;
-            color: #333;
-        }
+<!--<!DOCTYPE html>-->
+<!--<html lang="ko">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>heekuuTable 홈</title>-->
+<!--    &lt;!&ndash; Bootstrap CSS &ndash;&gt;-->
+<!--    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">-->
+<!--    <style>-->
+<!--        body {-->
+<!--            background-color: #fff7f7; /* 부드러운 핑크톤 배경 */-->
+<!--            font-family: 'Arial', sans-serif;-->
+<!--            color: #333;-->
+<!--        }-->
 
-        .header {
-            text-align: center;
-            margin: 30px 0;
-        }
+<!--        .header {-->
+<!--            text-align: center;-->
+<!--            margin: 30px 0;-->
+<!--        }-->
 
-        .header h1 {
-            font-size: 36px;
-            color: #000; /* 메인 핑크 컬러 */
-            font-weight: bold;
-        }
+<!--        .header h1 {-->
+<!--            font-size: 36px;-->
+<!--            color: #000; /* 메인 핑크 컬러 */-->
+<!--            font-weight: bold;-->
+<!--        }-->
 
-        .center-container {
-            display: flex;
-            justify-content: center;
-            gap: 50px;
-            flex-wrap: wrap;
-            margin-top: 50px;
-        }
+<!--        .center-container {-->
+<!--            display: flex;-->
+<!--            justify-content: center;-->
+<!--            gap: 50px;-->
+<!--            flex-wrap: wrap;-->
+<!--            margin-top: 50px;-->
+<!--        }-->
 
-        .section {
-            border: 3px solid; /* 태두리 색상은 각 섹션에서 지정 */
-            border-radius: 20px;
-            padding: 30px;
-            width: 250px;
-            text-align: center;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
+<!--        .section {-->
+<!--            border: 3px solid; /* 태두리 색상은 각 섹션에서 지정 */-->
+<!--            border-radius: 20px;-->
+<!--            padding: 30px;-->
+<!--            width: 250px;-->
+<!--            text-align: center;-->
+<!--            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);-->
+<!--            transition: transform 0.2s, box-shadow 0.2s;-->
+<!--        }-->
 
-        .section:hover {
-            transform: translateY(-5px);
-            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
-        }
+<!--        .section:hover {-->
+<!--            transform: translateY(-5px);-->
+<!--            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);-->
+<!--        }-->
 
-        .section h2 {
-            font-size: 20px;
-            margin-bottom: 25px;
-            font-weight: bold;
-        }
+<!--        .section h2 {-->
+<!--            font-size: 20px;-->
+<!--            margin-bottom: 25px;-->
+<!--            font-weight: bold;-->
+<!--        }-->
 
-        .section a {
-            display: block;
-            margin: 15px 0;
-            padding: 15px;
-            border-radius: 15px;
-            text-decoration: none;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            transition: background-color 0.2s;
-        }
+<!--        .section a {-->
+<!--            display: block;-->
+<!--            margin: 15px 0;-->
+<!--            padding: 15px;-->
+<!--            border-radius: 15px;-->
+<!--            text-decoration: none;-->
+<!--            color: white;-->
+<!--            font-size: 16px;-->
+<!--            font-weight: bold;-->
+<!--            transition: background-color 0.2s;-->
+<!--        }-->
 
-        /* 사장님 섹션 */
-        .owner-section {
-            border-color: #ff99cc; /* 핑크 태두리 */
-            background-color: #ffe0eb; /* 연한 핑크 배경 */
-        }
+<!--        /* 사장님 섹션 */-->
+<!--        .owner-section {-->
+<!--            border-color: #ff99cc; /* 핑크 태두리 */-->
+<!--            background-color: #ffe0eb; /* 연한 핑크 배경 */-->
+<!--        }-->
 
-        .owner-section h2 {
-            color: #ff5c8a; /* 진한 핑크 텍스트 */
-        }
+<!--        .owner-section h2 {-->
+<!--            color: #ff5c8a; /* 진한 핑크 텍스트 */-->
+<!--        }-->
 
-        .owner-section a {
-            background-color: #ffb3d9; /* 버튼 - 연한 핑크 */
-        }
+<!--        .owner-section a {-->
+<!--            background-color: #ffb3d9; /* 버튼 - 연한 핑크 */-->
+<!--        }-->
 
-        .owner-section a:hover {
-            background-color: #ff80bf; /* 버튼 - 진한 핑크 */
-        }
+<!--        .owner-section a:hover {-->
+<!--            background-color: #ff80bf; /* 버튼 - 진한 핑크 */-->
+<!--        }-->
 
-        /* 고객님 섹션 */
-        .customer-section {
-            border-color: #ffd633; /* 노란 태두리 */
-            background-color: #fff9e6; /* 연한 노란 배경 */
-        }
+<!--        /* 고객님 섹션 */-->
+<!--        .customer-section {-->
+<!--            border-color: #ffd633; /* 노란 태두리 */-->
+<!--            background-color: #fff9e6; /* 연한 노란 배경 */-->
+<!--        }-->
 
-        .customer-section h2 {
-            color: #ffaf1a; /* 진한 노란 텍스트 */
-        }
+<!--        .customer-section h2 {-->
+<!--            color: #ffaf1a; /* 진한 노란 텍스트 */-->
+<!--        }-->
 
-        .customer-section a {
-            background-color: #ffe34d; /* 버튼 - 연한 노랑 */
-            color: #333; /* 버튼 텍스트 색상 */
-        }
+<!--        .customer-section a {-->
+<!--            background-color: #ffe34d; /* 버튼 - 연한 노랑 */-->
+<!--            color: #333; /* 버튼 텍스트 색상 */-->
+<!--        }-->
 
-        .customer-section a:hover {
-            background-color: #ffd633; /* 버튼 - 진한 노랑 */
-        }
-    </style>
-</head>
-<body>
-<div class="header">
-    <h1 onclick="window.location.href='/'">🍳 heekuuTable</h1>
-</div>
-<div class="center-container">
-    <!-- 사장님 섹션 -->
-    <div class="section owner-section">
-        <h2>사장님 고객센터</h2>
-        <a href="/api/owners/register">사장님 회원가입</a>
-        <a href="/custom-login">사장님 로그인</a>
-    </div>
-    <!-- 고객님 섹션 -->
-    <div class="section customer-section">
-        <h2>고객님 고객센터</h2>
-        <a href="/user-signup">고객님 회원가입</a>
-        <a href="/user-login">고객님 로그인</a>
-    </div>
-</div>
-</body>
-</html>
+<!--        .customer-section a:hover {-->
+<!--            background-color: #ffd633; /* 버튼 - 진한 노랑 */-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div class="header">-->
+<!--    <h1 onclick="window.location.href='/'">🍳 heekuuTable</h1>-->
+<!--</div>-->
+<!--<div class="center-container">-->
+<!--    &lt;!&ndash; 사장님 섹션 &ndash;&gt;-->
+<!--    <div class="section owner-section">-->
+<!--        <h2>사장님 고객센터</h2>-->
+<!--        <a href="/owner/owner-signup">사장님 회원가입</a>-->
+<!--        <a href="/custom-login">사장님 로그인</a>-->
+<!--    </div>-->
+<!--    &lt;!&ndash; 고객님 섹션 &ndash;&gt;-->
+<!--    <div class="section customer-section">-->
+<!--        <h2>고객님 고객센터</h2>-->
+<!--        <a href="/user-signup">고객님 회원가입</a>-->
+<!--        <a href="/user-login">고객님 로그인</a>-->
+<!--    </div>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->

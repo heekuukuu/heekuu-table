@@ -18,14 +18,14 @@ public class OwnerMainController {
   // 폼 로그인 페이지
   @GetMapping("/custom-login")
   public String customLoginPage() {
-    log.info("커스텀경로 체크");
+    log.info("폼로그인경로 체크");
     return "custom-login"; // custom-login.html 파일 반환
   }
 
   // 메뉴등록
   @GetMapping("/owner/menuRegister")
   public String menuRegister() {
-    //log.info("메인페이지 체크");
+    log.info("메인페이지 체크");
     return "/owner/menu-register";
 
   }
@@ -37,7 +37,7 @@ public class OwnerMainController {
     return "/owner/menu-update";
 
   }
-  // 메뉴수정
+  // 비지니스등록
   @GetMapping("/owner/business-register")
   public String business() {
     //log.info("메인페이지 체크");
@@ -60,10 +60,10 @@ public class OwnerMainController {
 
 
   // 회원가입 페이지
-  @GetMapping("/api/owners/register")
+  @GetMapping("/owner/owner-signup")
   public String signupPage() {
-    //log.info("회원가입 체크");
-    return "owner-signup"; // signup.html 반환
+    log.info("회원가입 체크");
+    return "owner/owner-signup"; // signup.html 반환
   }
 
   // 대시보드 페이지

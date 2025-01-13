@@ -24,6 +24,8 @@ repositories {
     mavenCentral()
 }
 
+
+
 dependencies {
 
 
@@ -48,7 +50,15 @@ dependencies {
     // JSP 및 Tomcat 설정
     implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
     implementation 'javax.servlet:jstl:1.2'
-
+    implementation 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.3'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+    //jsp설정
+    implementation 'org.hibernate:hibernate-jcache:6.5.3.Final' // Hibernate JCache 지원
+    implementation 'javax.cache:cache-api:1.1.1' // JCache API
+    compileOnly 'javax.servlet:javax.servlet-api:4.0.1' // 'provided' 대체
+    implementation 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.3'
+    implementation 'io.github.cdimascio:dotenv-java:2.2.4'
     // Lombok 설정
     compileOnly 'org.projectlombok:lombok:1.18.28'
     annotationProcessor 'org.projectlombok:lombok'
@@ -74,7 +84,9 @@ dependencies {
     // 레디스 설정
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-tasks.named('test') {
+
+
+    tasks.named('test') {
     useJUnitPlatform()
 }
 
