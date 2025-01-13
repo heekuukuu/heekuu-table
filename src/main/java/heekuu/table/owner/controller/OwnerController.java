@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -87,6 +88,18 @@ public class OwnerController {
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body("❌ 로그아웃 중 오류 발생");
+    }
+  }
+    /*
+     * ✅ Owner 상태 조회 API
+     */
+  @GetMapping("/status")
+  public ResponseEntity<?> getOwnerStatus(HttpServletRequest request) {
+    try {
+      Map<String, String> statusData = ownerService.getOwnerStatus(request);
+      return ResponseEntity.ok(statusData);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body("❌ 상태 조회 실패: " + e.getMessage());
     }
   }
 }

@@ -55,7 +55,11 @@ public class OwnerMainController {
 
   }
 
-
+  //  신청 현황 페이지 연결
+  @GetMapping("/application-status")
+  public String applicationStatusPage() {
+    return "owner/applicationStatus";  // 📄 신청 현황 페이지
+  }
 
 
 

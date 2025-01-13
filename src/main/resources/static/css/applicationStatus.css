@@ -1,0 +1,75 @@
+/* ✅ 전체 페이지 배경 */
+body {
+  background-color: #fce4ec;
+  font-family: 'Noto Sans KR', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* ✅ 컨테이너 */
+.status-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border: 2px solid #f8a5c2;
+}
+
+/* ✅ 상태 제목 */
+.status-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #e91e63;
+  margin-bottom: 20px;
+}
+
+/* ✅ 상태별 색상 */
+.status-pending {
+  color: #ffc107;
+  font-weight: bold;
+}
+
+.status-approved {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.status-rejected {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+/* ✅ 파일 링크 */
+#businessFileLink {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #f8a5c2;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+}
+
+#businessFileLink:hover {
+  background-color: #e91e63;
+}
+
+/* ✅ 새로고침 버튼 */
+#refreshBtn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #f06292;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#refreshBtn:hover {
+  background-color: #e91e63;
+}

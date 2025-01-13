@@ -222,6 +222,33 @@ public class OwnerService {
       throw new IllegalAccessException("스토어 등록/삭제 권한이 없습니다. 승인된 사업자만 가능합니다.");
     }
   }
+  /**
+   * ✅ Owner 상태 조회 서비스
+   * - Access Token을 기반으로 Owner 정보를 조회
+   * - Owner의 상태와 사업자 등록 파일 경로 반환
+   */
+  public Map<String, String> getOwnerStatus(HttpServletRequest request) {
+    // ✅ 1. 쿠키에서 Access Token 추출
+    String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
 
+    if (accessToken == null || accessToken.isEmpty()) {
+      throw new IllegalStateException("❌ Access Token이 존재하지 않습니다.");
+    }
+
+    // ✅ 2. Access Token에서 Owner ID 추출
+    Long ownerId = jwtUtil.getOwnerId(accessToken);
+    log.info("🔍 추출된 Owner ID: {}", ownerId);
+
+    // ✅ 3. Owner 조회
+    Owner owner = ownerRepository.findById(ownerId)
+        .orElseThrow(() -> new IllegalStateException("❌ 해당 사업자를 찾을 수 없습니다."));
+
+    // ✅ 4. 상태 및 파일 경로 반환
+    Map<String, String> response = new HashMap<>();
+    response.put("status", owner.getOwnerStatus().name());  // 상태 반환 (PENDING, APPROVED, REJECTED)
+    response.put("filePath", owner.getBusinessRegistrationPath());  // 파일 경로 반환
+
+    return response;
+  }
 
   }
