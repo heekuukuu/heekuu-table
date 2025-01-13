@@ -1,7 +1,7 @@
 document.getElementById("logoutBtn").addEventListener("click", async () => {
     try {
         const response = await fetch("/api/owners/logout", {
-            method: "POST",
+            method: "DELETE",
             credentials: "include"  // ✅ 쿠키 자동 전송
         });
 

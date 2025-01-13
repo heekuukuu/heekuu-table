@@ -50,9 +50,17 @@ public class OwnerController {
   }
 
   @PostMapping("/business")
-  public void submitBusinessRegistration(
-      @RequestParam("businessFile") MultipartFile businessFile) throws Exception {
-    ownerService.submitBusinessRegistration(businessFile);
+  public ResponseEntity<String> submitBusinessRegistration(
+      @RequestParam("businessFile") MultipartFile businessFile,
+      HttpServletRequest request) {
+    try {
+      ownerService.submitBusinessRegistration(businessFile, request);
+      return ResponseEntity.ok("✅ 사업자 등록이 완료되었습니다.");
+    } catch (IllegalStateException e) {
+      return ResponseEntity.badRequest().body("❌ 오류: " + e.getMessage());
+    } catch (IOException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("❌ 파일 업로드 중 오류 발생");
+    }
   }
 
 

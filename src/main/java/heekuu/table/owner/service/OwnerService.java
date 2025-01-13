@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -28,7 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OwnerService {
@@ -187,27 +188,29 @@ public class OwnerService {
 
   // 사업자 등록증 제출
   @Transactional
-  public void submitBusinessRegistration(MultipartFile businessRegistrationFile)
-      throws IOException {
+  public void submitBusinessRegistration(MultipartFile businessRegistrationFile, HttpServletRequest request) throws IOException {
+    // ✅ 1. 쿠키에서 Access Token 추출
+    String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
 
-    // 로그인된 사용자 정보 가져오기
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication == null || !authentication.isAuthenticated()) {
-      throw new IllegalStateException("인증되지 않은 사용자입니다.");
+    if (accessToken == null || accessToken.isEmpty()) {
+      throw new IllegalStateException("❌ Access Token이 존재하지 않습니다.");
     }
 
-    String email = authentication.getName(); // 인증된 사용자의 이메일 반환
+    // ✅ 2. Access Token에서 Owner ID 추출
+    Long ownerId = jwtUtil.getOwnerId(accessToken);
+    log.info("🔍 추출된 Owner ID: {}", ownerId);
 
+    // ✅ 3. Owner 조회
+    Owner owner = ownerRepository.findById(ownerId)
+        .orElseThrow(() -> new IllegalStateException("❌ 해당 사업자를 찾을 수 없습니다. Owner ID: " + ownerId));
 
-    // 이메일을 기준으로 Owner 조회
-    Owner owner = ownerRepository.findByEmail(email)
-        .orElseThrow(() -> new IllegalStateException("해당 사업자를 찾을 수 없습니다."));
-
-
+    // ✅ 4. 사업자 등록증 파일 S3 업로드 및 상태 변경
     String path = s3Uploader.upload(businessRegistrationFile, "restaurant-owner-approvals");
     owner.setBusinessRegistrationPath(path);
     owner.setOwnerStatus(OwnerStatus.PENDING); // 상태를 대기 중으로 변경
     ownerRepository.save(owner);
+
+    log.info("✅ 사업자 등록 완료 - Owner ID: {}", owner.getOwnerId());
   }
 
   // 오너 상태 검증 메서드
