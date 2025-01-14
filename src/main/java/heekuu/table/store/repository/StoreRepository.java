@@ -9,9 +9,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StoreRepository extends JpaRepository<Store, Long> {
+
   // 소유주의 모든 가게 조회
   List<Store> findAllByOwnerOwnerId(Long ownerId);
 
+  // 🔍 Owner ID로 가게 전체 조회
+  Optional<Store> findByOwner_OwnerId(Long ownerId);
 
   //주소랑이름으로 중복확인
   Optional<Store> findByNameAndAddress(String name, String address);

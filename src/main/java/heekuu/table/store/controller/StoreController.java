@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/stores")
 @RequiredArgsConstructor
@@ -111,4 +113,29 @@ public class StoreController {
     return ResponseEntity.ok(stores);  // 가게가 있으면 200 OK와 함께 반환
   }
 
+  //내가게조회
+  @GetMapping("/my-store")
+  public ResponseEntity<?> getMyStore(HttpServletRequest request) {
+
+    log.info("내가게조회 체크");
+    try {
+      // ✅ 1. 쿠키에서 Access Token 추출
+      String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
+
+      if (accessToken == null || jwtUtil.isExpired(accessToken)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("❌ 유효하지 않은 토큰입니다.");
+      }
+
+      // ✅ 2. Owner ID 추출 및 가게 조회
+      Long ownerId = jwtUtil.getOwnerId(accessToken);
+      StoreDto myStore = storeService.getMyStore(ownerId);
+
+      // ✅ 3. 결과 반환
+      return ResponseEntity.ok(myStore);
+
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("❌ 가게 조회 중 오류가 발생했습니다.");
+    }
+  }
 }

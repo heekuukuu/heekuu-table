@@ -249,5 +249,24 @@ public class OwnerService {
 
     return response;
   }
+  /**
+   * ✅ Owner 정보 전체 조회
+   * - Access Token을 기반으로 Owner 정보를 조회
+   */
+  public Owner getOwnerInfo(HttpServletRequest request) {
+    // ✅ 1. 쿠키에서 Access Token 추출
+    String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
 
+    if (accessToken == null || accessToken.isEmpty()) {
+      throw new IllegalStateException("❌ Access Token이 존재하지 않습니다.");
+    }
+
+    // ✅ 2. Access Token에서 Owner ID 추출
+    Long ownerId = jwtUtil.getOwnerId(accessToken);
+    log.info("🔍 Owner ID: {}", ownerId);
+
+    // ✅ 3. Owner 조회
+    return ownerRepository.findById(ownerId)
+        .orElseThrow(() -> new IllegalStateException("❌ 해당 사업자를 찾을 수 없습니다."));
+  }
   }

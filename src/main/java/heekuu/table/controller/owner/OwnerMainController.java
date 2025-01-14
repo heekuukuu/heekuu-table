@@ -71,10 +71,10 @@ public class OwnerMainController {
   }
 
   // 대시보드 페이지
-  @GetMapping("/dashboard")
+  @GetMapping("/owner/mypage")
   public String dashboardPage() {
     //log.info("대시보드 체크");
-    return "dashboard"; // dashboard.html 파일 반환
+    return "owner/mypage";
   }
 
   // 로그인 페이지

@@ -3,12 +3,14 @@ package heekuu.table.owner.controller;
 import heekuu.table.owner.dto.OwnerJoinRequest;
 import heekuu.table.owner.dto.OwnerLoginRequest;
 
+import heekuu.table.owner.entity.Owner;
 import heekuu.table.owner.service.OwnerService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -100,6 +102,29 @@ public class OwnerController {
       return ResponseEntity.ok(statusData);
     } catch (Exception e) {
       return ResponseEntity.badRequest().body("❌ 상태 조회 실패: " + e.getMessage());
+    }
+
+  }// ✅ Owner 전체 정보 조회 API
+  @GetMapping("/my-info")
+  public ResponseEntity<?> getMyInfo(HttpServletRequest request) {
+    try {
+      // ✅ Owner 정보 조회
+      Owner owner = ownerService.getOwnerInfo(request);
+
+      // ✅ 필요한 정보만 응답 (민감 정보 제외)
+      Map<String, Object> ownerInfo = new HashMap<>();
+      ownerInfo.put("email", owner.getEmail());
+      ownerInfo.put("businessName", owner.getBusinessName());
+      ownerInfo.put("contact", owner.getContact());
+      ownerInfo.put("status", owner.getOwnerStatus().name());
+      ownerInfo.put("createdAt", owner.getCreatedAt());
+
+      return ResponseEntity.ok(ownerInfo);
+
+    } catch (IllegalStateException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("❌ 사업자 정보 조회 중 오류가 발생했습니다.");
     }
   }
 }

@@ -9,7 +9,7 @@ import heekuu.table.store.dto.StoreDto;
 import heekuu.table.store.dto.StoreUpdateRequest;
 import heekuu.table.store.entity.Store;
 import heekuu.table.store.repository.StoreRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -134,7 +134,14 @@ public class StoreService {
     }
   }
 
+  // 내가게조회
+  @Transactional(readOnly = true)
+  public StoreDto getMyStore(Long ownerId) {
+    Store store = storeRepository.findByOwner_OwnerId(ownerId)
+        .orElseThrow(() -> new IllegalStateException("❌ 등록된 가게가 없습니다."));
 
+    return StoreDto.fromEntity(store);
+  }
 
   /**
    * 소유주 조회 메서드
