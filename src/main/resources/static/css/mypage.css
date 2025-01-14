@@ -1,20 +1,77 @@
-/* ✅ 가게 카드 */
-.card {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 15px;
-  transition: transform 0.2s;
+/* ✅ 마이페이지 전체 레이아웃 */
+.mypage-container {
+  max-width: 1000px;
+  margin: 50px auto;
+  padding: 20px;
+  display: flex;
+  gap: 20px; /* 오너 정보와 가게 정보 간의 간격 */
 }
 
-.card:hover {
-  transform: scale(1.02);
+/* ✅ 오너 정보 및 가게 정보 구역 */
+.owner-info, .store-info {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #ddd;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.btn-success {
-  background-color: #28a745;
-  color: #fff;
-  border: none;
+/* ✅ 오너 정보 색상 강조 */
+.owner-info {
+  border-left: 5px solid #007BFF;  /* 파란색 강조선 */
+}
+
+/* ✅ 가게 정보 색상 강조 */
+.store-info {
+  border-left: 5px solid #28A745;  /* 초록색 강조선 */
+}
+
+/* ✅ 카드 제목 */
+.owner-info h4, .store-info h4 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+/* ✅ 정보 항목 스타일 */
+.owner-info p, .store-info p {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+/* ✅ 강조 표시 */
+.owner-info p strong, .store-info p strong {
+  color: #222;
+  font-weight: bold;
+}
+
+/* ✅ 상태에 따른 색상 스타일 */
+.status-approved {
+  color: #28a745;  /* 초록색 */
+  font-weight: bold;
+}
+
+.status-pending {
+  color: #ffc107;  /* 노란색 */
+  font-weight: bold;
+}
+
+.status-rejected {
+  color: #dc3545;  /* 빨간색 */
+  font-weight: bold;
+}
+
+/* ✅ 반응형 디자인 */
+@media (max-width: 768px) {
+  .mypage-container {
+    flex-direction: column; /* 모바일에서는 세로 배치 */
+  }
+
+  .owner-info, .store-info {
+    width: 100%;
+  }
 }

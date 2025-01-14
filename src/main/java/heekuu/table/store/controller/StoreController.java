@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -69,16 +70,38 @@ public class StoreController {
    * @param storeUpdateRequest 수정할 내용
    * @return 수정된 가게 정보
    */
-  @PutMapping("/{storeId}")
-  public ResponseEntity<StoreDto> updateStore(
+  @PatchMapping("/{storeId}")
+  public ResponseEntity<?> updateStoreInfo(
       @PathVariable(name = "storeId") Long storeId,
-      @Valid @RequestBody StoreUpdateRequest storeUpdateRequest,
-      @RequestHeader("Authorization") String token
-  ) throws IllegalAccessException {
-    Long ownerId = jwtUtil.getOwnerId(token.replace("Bearer ", ""));
-    return ResponseEntity.ok(storeService.updateStore(storeId, storeUpdateRequest, ownerId));
-  }
+      @RequestBody StoreUpdateRequest storeUpdateRequest,
+      HttpServletRequest request
+  ) {
+    try {
+      // ✅ Access Token에서 Owner ID 추출
+      String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
+      log.info("🔍 Access Token 추출: {}", accessToken);
 
+      if (accessToken == null || jwtUtil.isExpired(accessToken)) {
+        log.warn("❌ 유효하지 않은 토큰입니다.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("❌ 유효하지 않은 토큰입니다.");
+      }
+
+      // ✅ 2. Owner ID 추출 및 가게 수정
+      Long ownerId = jwtUtil.getOwnerId(accessToken);
+      log.info("🔍 Owner ID 추출 성공: {}", ownerId);
+
+      StoreDto updatedStore = storeService.updateStore(storeId, storeUpdateRequest, ownerId);
+
+      return ResponseEntity.ok(updatedStore);
+
+    } catch (IllegalArgumentException | IllegalStateException e) {
+      log.error("🚨 잘못된 요청: {}", e.getMessage());
+      return ResponseEntity.badRequest().body(e.getMessage());
+    } catch (Exception e) {
+      log.error("🚨 서버 오류 발생: {}", e.getMessage(), e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("❌ 가게 정보 수정 중 서버 오류가 발생했습니다.");
+    }}
 
   /**
    * 가게 삭제

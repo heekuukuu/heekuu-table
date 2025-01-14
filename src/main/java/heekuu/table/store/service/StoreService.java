@@ -74,12 +74,23 @@ public class StoreService {
     validateOwner(authenticatedOwnerId, existingStore.getOwner().getOwnerId());
     ownerService.validateOwnerStatus(authenticatedOwnerId);
 
-    // 값 업데이트
-    existingStore.setName(storeUpdateRequest.getName());
-    existingStore.setAddress(storeUpdateRequest.getAddress());
-    existingStore.setStoreNumber(storeUpdateRequest.getStoreNumber());
-    existingStore.setOpenTime(storeUpdateRequest.getOpenTime());
-    existingStore.setCloseTime(storeUpdateRequest.getCloseTime());
+    // ✅ 전달된 값이 있을 때만 업데이트
+    if (storeUpdateRequest.getName() != null) {
+      existingStore.setName(storeUpdateRequest.getName());
+    }
+    if (storeUpdateRequest.getAddress() != null) {
+      existingStore.setAddress(storeUpdateRequest.getAddress());
+    }
+    if (storeUpdateRequest.getStoreNumber() != null) {
+      existingStore.setStoreNumber(storeUpdateRequest.getStoreNumber());
+    }
+    if (storeUpdateRequest.getOpenTime() != null) {
+      existingStore.setOpenTime(storeUpdateRequest.getOpenTime());
+    }
+    if (storeUpdateRequest.getCloseTime() != null) {
+      existingStore.setCloseTime(storeUpdateRequest.getCloseTime());
+    }
+
 
     // 저장 및 반환
     return StoreDto.fromEntity(storeRepository.save(existingStore));

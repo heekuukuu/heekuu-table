@@ -7,19 +7,19 @@
   <meta charset="UTF-8">
   <title>메인 페이지</title>
   <link href="/css/mypage.css" rel="stylesheet">
-
+👉🏻
 </head>
 <body>
 <!-- ✅ 콘텐츠 영역 -->
 <div layout:fragment="content">
   <div class="mypage-container">
-    <h2 class="text-center">👤 마이페이지</h2>
+    <h2 class="text-center">마이페이지👉🏻 </h2>
+    <br>
 
-    <!-- ✅ 사용자 정보 -->
-    <div class="storeInfo">
-      <h4>내 정보</h4>
-      <p><strong>이메일:</strong> <span id="ownerEmail">불러오는 중...</span></p>
-      <p><strong>가입일:</strong> <span id="ownerCreatedAt">불러오는 중...</span></p>
+
+    <!-- ✅ 오너 정보 출력 영역 -->
+    <div id="ownerInfo" class="owner-info">
+      <!-- 여기에 오너 정보가 동적으로 삽입됩니다 -->
     </div>
     <div id="storeInfo" class="store-info mt-3">
       <!-- 가게 정보가 여기에 표시됩니다 -->
@@ -27,7 +27,7 @@
     </div>
   <script src="/js/mypage.js"></script>
   </div>
-</div>
+
 
 </body>
 </html>
