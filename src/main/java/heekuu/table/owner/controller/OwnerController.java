@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.Request;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -35,21 +36,18 @@ public class OwnerController {
 
   private final OwnerService ownerService;
 
-  @PostMapping("/login")
-  public ResponseEntity<String> login(@Valid @RequestBody OwnerLoginRequest ownerLoginRequest,
-      HttpServletResponse response) {
-    try {
-      ownerService.login(ownerLoginRequest, response);
-      return ResponseEntity.ok("로그인 성공");
-    } catch (IllegalStateException e) {
-      return ResponseEntity.badRequest().body(e.getMessage());
-    }
-  }
 
   @PostMapping("/register")
   public void registerOwner(@Valid @RequestBody OwnerJoinRequest ownerJoinRequest) {
     log.info("사업자 회원가입");
     ownerService.registerOwner(ownerJoinRequest);
+  }
+
+  @PostMapping("/login")
+  public ResponseEntity<String> login(@RequestBody OwnerLoginRequest ownerLoginRequest,
+      HttpServletResponse response) {
+    log.info("🔑 로그인 시도 - 이메일: {}", ownerLoginRequest.getEmail());
+    return ownerService.login(ownerLoginRequest, response);
   }
 
   @PostMapping("/business")
@@ -68,15 +66,9 @@ public class OwnerController {
 
 
   @PostMapping("/refresh")
-  public ResponseEntity<Map<String, String>> refreshAccessToken(
-      @RequestBody Map<String, String> request) {
-    String refreshToken = request.get("refresh_token");
-    if (refreshToken == null || refreshToken.isEmpty()) {
-      return ResponseEntity.badRequest().body(Map.of("error", "Refresh Token이 필요합니다."));
-    }
-
-    Map<String, String> newTokens = ownerService.refreshAccessToken(refreshToken);
-    return ResponseEntity.ok(newTokens);
+  public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
+    Map<String, String> tokens = ownerService.refreshAccessToken(request);
+    return ResponseEntity.ok(tokens);
   }
 
   // ✅ 로그아웃 API
@@ -92,9 +84,10 @@ public class OwnerController {
           .body("❌ 로그아웃 중 오류 발생");
     }
   }
-    /*
-     * ✅ Owner 상태 조회 API
-     */
+
+  /*
+   * ✅ Owner 상태 조회 API
+   */
   @GetMapping("/status")
   public ResponseEntity<?> getOwnerStatus(HttpServletRequest request) {
     try {
@@ -105,6 +98,7 @@ public class OwnerController {
     }
 
   }// ✅ Owner 전체 정보 조회 API
+
   @GetMapping("/my-info")
   public ResponseEntity<?> getMyInfo(HttpServletRequest request) {
     try {
@@ -124,7 +118,8 @@ public class OwnerController {
     } catch (IllegalStateException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("❌ 사업자 정보 조회 중 오류가 발생했습니다.");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("❌ 사업자 정보 조회 중 오류가 발생했습니다.");
     }
   }
 }

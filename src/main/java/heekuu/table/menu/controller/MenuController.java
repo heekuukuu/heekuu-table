@@ -4,7 +4,12 @@ import heekuu.table.jwt.util.JWTUtil;
 import heekuu.table.menu.dto.MenuDto;
 import heekuu.table.menu.dto.MenuUpdateRequest;
 import heekuu.table.menu.service.MenuService;
+import heekuu.table.owner.entity.Owner;
 import heekuu.table.owner.service.CustomOwnerDetails;
+import heekuu.table.owner.service.OwnerService;
+import heekuu.table.store.entity.Store;
+import heekuu.table.store.repository.StoreRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -15,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/menus")
@@ -35,6 +42,8 @@ public class MenuController {
 
   private final JWTUtil jwtUtil;
   private final MenuService menuService;
+  private final OwnerService ownerService;
+  private final StoreRepository storeRepository;
 
 
   @PostMapping("/{storeId}")
@@ -44,14 +53,24 @@ public class MenuController {
       @RequestParam("price") BigDecimal price,
       @RequestParam("description") String description,
       @RequestParam(value = "file", required = false) MultipartFile file,
-      @RequestParam("authenticatedOwnerId") Long authenticatedOwnerId
+      HttpServletRequest request // 요청에서 엑세스토큰 추출
   ) throws IllegalAccessException, IOException {
+    // 쿠키에서 오너정보조회
+    Owner owner = ownerService.getOwnerInfo(request);
+    // ✅ 가게 조회 및 오너 검증
+    Store store = storeRepository.findById(storeId)
+        .orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
+
+    if (!store.getOwner().getOwnerId().equals(owner.getOwnerId())) {
+      throw new IllegalAccessException("본인의 가게에만 메뉴를 추가할 수 있습니다.");
+    }
+
     MenuDto menuDto = new MenuDto();
     menuDto.setName(name);
     menuDto.setPrice(price);
     menuDto.setDescription(description);
 
-    MenuDto createdMenu = menuService.createMenu(storeId, menuDto, file, authenticatedOwnerId);
+    MenuDto createdMenu = menuService.createMenu(storeId, menuDto, file,owner.getOwnerId());
     return ResponseEntity.ok(createdMenu);
   }
 
@@ -76,19 +95,23 @@ public class MenuController {
         .available(available)
         .build();
 
-    log.info("Request Parameters -테스트 name: {}, price: {}, description: {}, available: {}, imageFile: {}",
-        name, price, description, available, imageFile != null ? imageFile.getOriginalFilename() : "null");
+    log.info(
+        "Request Parameters -테스트 name: {}, price: {}, description: {}, available: {}, imageFile: {}",
+        name, price, description, available,
+        imageFile != null ? imageFile.getOriginalFilename() : "null");
 
     MenuDto updatedMenu = menuService.updateMenu(menuId, request, authenticatedOwnerId, imageFile);
     return ResponseEntity.ok(updatedMenu);
   }
+
   /**
    * 메뉴 삭제
    */
   @DeleteMapping("/{menuId}")
   public ResponseEntity<Void> deleteMenu(
       @PathVariable(name = "menuId") Long menuId,
-      @RequestParam(name = "authenticatedOwnerId") Long authenticatedOwnerId) throws IllegalAccessException {
+      @RequestParam(name = "authenticatedOwnerId") Long authenticatedOwnerId)
+      throws IllegalAccessException {
     menuService.deleteMenu(menuId, authenticatedOwnerId);
     return ResponseEntity.ok().build();
   }

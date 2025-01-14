@@ -38,6 +38,12 @@ public class MenuService {
   @Transactional
   public MenuDto createMenu(Long storeId, MenuDto menuDto, MultipartFile file, Long authenticatedOwnerId)
       throws IllegalAccessException, IOException {
+    // 로그인된 오너가 가게를 소유하고 있는지 확인
+    boolean hasStore = storeRepository.existsByOwner_OwnerId(authenticatedOwnerId);
+
+    if (!hasStore) {
+      throw new IllegalAccessException("가게가 존재하지 않습니다. 가게 등록 후 메뉴를 추가할 수 있습니다.");
+    }
     // 가게 확인
     Store store = storeRepository.findById(storeId)
         .orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
@@ -67,6 +73,7 @@ public class MenuService {
     menu = menuRepository.save(menu);
     return MenuDto.fromEntity(menu);
   }
+
 
 
 

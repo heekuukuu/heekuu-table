@@ -22,6 +22,14 @@ public class OwnerStoreController  {
     return "owner/store-register";
   }
 
+  /**
+   * ✅ 스토어등록 리스트 페이지 이동
+   */
+  @GetMapping("/store-edit")
+  public String menuEditPage(Model model) {
+    log.info("스토어등록 페이지 요청");
+    return "owner/store-edit";
+  }
 
 
 

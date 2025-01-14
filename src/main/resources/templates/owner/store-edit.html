@@ -5,53 +5,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>가게 등록</title>
-  <link href="/css/store-edit.css" rel="stylesheet">
+  <title>가게 정보 수정</title>
+  <link href="/css/store-edit.css" rel="stylesheet"> <!-- ✅ 전용 CSS 연결 -->
 </head>
 <body>
 
 <!-- ✅ 콘텐츠 영역 -->
 <div layout:fragment="content">
   <div class="form-container">
-    <h3 class="form-title">🍕 가게 등록</h3>
+    <h3 class="form-title">🍕 가게 정보 수정</h3>
 
-    <form id="storeRegisterForm">
+    <form id="storeEditForm">
       <!-- ✅ 가게 이름 -->
       <div class="mb-3">
         <label for="storeName" class="form-label">가게 이름</label>
-        <input type="text" class="form-control" id="storeName" name="name" placeholder="예: 히쿠피자" required>
+        <input type="text" class="form-control" id="storeName" name="name" placeholder="가게 이름 입력">
       </div>
 
       <!-- ✅ 가게 주소 -->
       <div class="mb-3">
         <label for="storeAddress" class="form-label">가게 주소</label>
-        <input type="text" class="form-control" id="storeAddress" name="address" placeholder="예: 서울시 강남구 테헤란로 123" required>
+        <input type="text" class="form-control" id="storeAddress" name="address" placeholder="가게 주소 입력">
       </div>
 
       <!-- ✅ 가게 전화번호 -->
       <div class="mb-3">
         <label for="storeNumber" class="form-label">전화번호</label>
-        <input type="text" class="form-control" id="storeNumber" name="storeNumber" placeholder="예: 010-1234-5678" required>
+        <input type="text" class="form-control" id="storeNumber" name="storeNumber" placeholder="전화번호 입력">
       </div>
 
       <!-- ✅ 운영 시간 -->
-      <div class="price-container">
+      <div class="time-container">
         <div class="mb-3">
           <label for="openTime" class="form-label">오픈 시간</label>
-          <input type="time" class="form-control time-input" id="openTime" name="openTime" required>
+          <input type="time" class="form-control" id="openTime" name="openTime">
         </div>
         <div class="mb-3">
           <label for="closeTime" class="form-label">마감 시간</label>
-          <input type="time" class="form-control time-input" id="closeTime" name="closeTime" required>
+          <input type="time" class="form-control" id="closeTime" name="closeTime">
         </div>
       </div>
 
-      <!-- ✅ 가게 등록 버튼 -->
-      <button type="button" id="registerStoreBtn" class="btn btn-pink w-100">가게 등록</button>
+      <!-- ✅ 수정 버튼 -->
+      <button type="button" id="updateStoreBtn" class="btn btn-success w-100">수정하기</button>
     </form>
-    <!-- ✅ 공통 JS + 가게 등록 JS -->
-    <script th:src="@{/js/store.js}"></script>
   </div>
+  <!-- ✅ 전용 JS -->
+  <script src="/js/store-edit.js"></script>
 </div>
 
 

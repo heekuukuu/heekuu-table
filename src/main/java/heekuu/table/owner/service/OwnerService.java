@@ -29,11 +29,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class OwnerService {
-
+  //ㅅ
 
   private final OwnerRepository ownerRepository;
   private final PasswordEncoder passwordEncoder;
@@ -42,7 +43,44 @@ public class OwnerService {
   private final JWTUtil jwtUtil;
   private final TokenConfig tokenConfig;
 
-  // 사업자 회원가입
+  /**
+   * ✅ 토큰 발급 및 Redis, 쿠키에 저장
+   */
+  private void issueTokensAndSave(Owner owner, HttpServletResponse response) {
+    // Access Token, Refresh Token 발급
+    String accessToken = jwtUtil.createOwnerJwt("access", owner, "OWNER");
+    String refreshToken = jwtUtil.createOwnerJwt("refresh", owner, "OWNER");
+
+    // Redis에 Refresh Token 저장 (덮어쓰기)
+    redisTemplate.opsForValue().set(
+        "OWNER_REFRESH_TOKEN:" + owner.getOwnerId(),
+        refreshToken,
+        jwtUtil.getRefreshTokenExpiration(),
+        TimeUnit.MILLISECONDS
+    );
+
+    // Access/Refresh Token 쿠키 저장
+    saveTokenToCookie(response, "access_token", accessToken, jwtUtil.getAccessTokenExpiration());
+    saveTokenToCookie(response, "refresh_token", refreshToken, jwtUtil.getRefreshTokenExpiration());
+  }
+
+  /**
+   * ✅ 쿠키에 토큰 저장 (공통화)
+   */
+  private void saveTokenToCookie(HttpServletResponse response, String cookieName, String token,
+      long expiration) {
+    ResponseCookie cookie = ResponseCookie.from(cookieName, token)
+        .httpOnly(true)
+        .secure(true)
+        .path("/")
+        .sameSite("Strict")
+        .maxAge(Duration.ofMillis(expiration))
+        .build();
+    response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+  }
+
+
+  // ✅사업자 회원가입
   @Transactional
   public void registerOwner(OwnerJoinRequest ownerJoinRequest) {
     if (ownerRepository.findByEmail(ownerJoinRequest.getEmail()).isPresent()) {
@@ -61,134 +99,105 @@ public class OwnerService {
     ownerRepository.save(owner);
   }
 
-  // 사업자 로그인
-  public ResponseEntity<String> login(@RequestBody OwnerLoginRequest ownerLoginRequest
-  , HttpServletResponse response) {
+  /**
+   * ✅ 오너 로그인 - Access Token, Refresh Token 발급 - Redis에 Refresh Token 저장 (덮어쓰기) - 쿠키에 Access/Refresh
+   * Token 저장
+   */
+  @Transactional
+  public ResponseEntity<String> login(OwnerLoginRequest ownerLoginRequest,
+      HttpServletResponse response) {
+    Owner owner = validateOwnerCredentials(ownerLoginRequest.getEmail(),
+        ownerLoginRequest.getPassword());
+    issueTokensAndSave(owner, response);
 
-    String email = ownerLoginRequest.getEmail();
-    String password = ownerLoginRequest.getPassword();
-
-    Owner owner = ownerRepository.findByEmail(ownerLoginRequest.getEmail())
-        .orElseThrow(() -> new IllegalStateException("등록되지 않은 이메일입니다."));
-
-    if (!passwordEncoder.matches(ownerLoginRequest.getPassword(), owner.getPassword())) {
-      throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
-    }
-
-    String accessToken = jwtUtil.createOwnerJwt("access", owner, "OWNER");
-    String refreshToken = jwtUtil.createOwnerJwt("refresh", owner, "OWNER");
-
-    // Refresh Token을 Redis에 저장 (덮어쓰기)
-    redisTemplate.opsForValue().set(
-        "OWNER_REFRESH_TOKEN:" + owner.getOwnerId(), // Redis 키에 Owner ID 포함
-        refreshToken,
-        tokenConfig.getRefreshTokenExpiration(), //7일
-        TimeUnit.MILLISECONDS
-    );
-
-    // ✅ Access Token 쿠키로 저장 (HTTP-Only, Secure)
-    ResponseCookie accessCookie = ResponseCookie.from("access_token", accessToken)
-        .httpOnly(true)      // JavaScript 접근 불가 (XSS 방어)
-        .secure(true)        // HTTPS 환경에서만 사용
-        .path("/")
-        .sameSite("Strict")  // CSRF 방어
-        .maxAge(Duration.ofMinutes(30))  // Access Token 유효기간
-        .build();
-
-    // ✅ Refresh Token 쿠키로 저장
-    ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", refreshToken)
-        .httpOnly(true)
-        .secure(true)
-        .path("/")
-        .sameSite("Strict")
-        .maxAge(Duration.ofDays(7))  // Refresh Token 유효기간
-        .build();
-
-    // ✅ 쿠키를 응답 헤더에 추가
-    response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
-    response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-
+    log.info("🔐 로그인 성공 - Owner ID: {}", owner.getOwnerId());
     return ResponseEntity.ok("로그인 성공");
   }
 
-  //갱신
+  /**
+   * ✅ 이메일 및 비밀번호 검증
+   */
+  private Owner validateOwnerCredentials(String email, String password) {
+    Owner owner = ownerRepository.findByEmail(email)
+        .orElseThrow(() -> new IllegalStateException("등록되지 않은 이메일입니다."));
+
+    if (!passwordEncoder.matches(password, owner.getPassword())) {
+      throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
+    }
+
+    return owner;
+  }
+
+
+  // ✅ Access Token 갱신
+
   @Transactional
-  public Map<String, String> refreshAccessToken(String refreshToken) {
-    // 1. Refresh Token 유효성 확인
-    if (jwtUtil.isExpired(refreshToken)) {
+  public Map<String, String> refreshAccessToken(HttpServletRequest request) {
+    String refreshToken = jwtUtil.extractTokenFromCookie(request, "refresh_token");
+
+    if (refreshToken == null || jwtUtil.isExpired(refreshToken)) {
       throw new IllegalStateException("유효하지 않은 Refresh Token입니다.");
     }
 
-    // 2. Redis에서 Refresh Token 확인
     Long ownerId = jwtUtil.getOwnerId(refreshToken);
-    String redisKey = "OWNER_REFRESH_TOKEN:" + ownerId;
-    String storedRefreshToken = (String) redisTemplate.opsForValue().get(redisKey);
-
-    if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-      throw new IllegalStateException("Refresh Token이 일치하지 않습니다.");
-    }
-
-    // 3. Access Token 생성
     Owner owner = ownerRepository.findById(ownerId)
         .orElseThrow(() -> new IllegalStateException("해당 Owner를 찾을 수 없습니다."));
+
     String newAccessToken = jwtUtil.createOwnerJwt("access", owner, "OWNER");
 
-    // 4. 응답 반환
     Map<String, String> response = new HashMap<>();
     response.put("access_token", newAccessToken);
     return response;
   }
-
   /**
-   * ✅ 로그아웃 처리
-   * - Access Token → 블랙리스트 등록
-   * - Refresh Token → Redis에서 삭제
-   * - 쿠키 삭제
+   * ✅ 로그아웃
    */
   public void logout(HttpServletRequest request, HttpServletResponse response) {
-    // ✅ 1. 쿠키에서 Access Token, Refresh Token 추출
     String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
     String refreshToken = jwtUtil.extractTokenFromCookie(request, "refresh_token");
 
-    // ✅ 2. 토큰 유효성 검사
-    if (accessToken == null || accessToken.isEmpty()) {
-      throw new IllegalArgumentException("Access Token이 존재하지 않습니다.");
-    }
-    if (refreshToken == null || refreshToken.isEmpty()) {
-      throw new IllegalArgumentException("Refresh Token이 존재하지 않습니다.");
+    if (accessToken == null || refreshToken == null) {
+      throw new IllegalArgumentException("Access Token 또는 Refresh Token이 존재하지 않습니다.");
     }
 
-    // ✅ 3. Refresh Token 삭제 (Redis)
-    String refreshTokenKey = "OWNER_REFRESH_TOKEN:" + jwtUtil.getOwnerId(refreshToken);
-    boolean isDeleted = redisTemplate.delete(refreshTokenKey);
-    if (!isDeleted) {
-      throw new IllegalStateException("Refresh Token이 이미 삭제되었거나 존재하지 않습니다.");
-    }
-
-    // ✅ 4. Access Token 블랙리스트 추가
-    try {
-      long expiration = jwtUtil.getRemainingExpiration(accessToken);
-      if (expiration > 0) {
-        redisTemplate.opsForValue().set(
-            "BLACKLIST:" + accessToken,  // 블랙리스트 키
-            "logout",                    // 상태값
-            expiration,                  // 만료 시간
-            TimeUnit.MILLISECONDS
-        );
-        System.out.println("✅ Access Token이 블랙리스트에 추가되었습니다.");
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException("유효하지 않은 Access Token입니다.", e);
-    }
-
-    // ✅ 5. 쿠키 삭제 (Access/Refresh Token)
+    invalidateTokens(accessToken, refreshToken);
     jwtUtil.clearTokenCookies(response);
+
+    log.info("🔒 로그아웃 성공");
   }
 
+  /**
+   * ✅ 토큰 무효화 (Redis 삭제 및 블랙리스트 등록)
+   */
+  private void invalidateTokens(String accessToken, String refreshToken) {
+    redisTemplate.delete("OWNER_REFRESH_TOKEN:" + jwtUtil.getOwnerId(refreshToken));
+
+    if (!jwtUtil.isExpired(accessToken)) {
+      long expiration = jwtUtil.getRemainingExpiration(accessToken);
+      redisTemplate.opsForValue().set(
+          "BLACKLIST:" + accessToken,
+          "logout",
+          expiration,
+          TimeUnit.MILLISECONDS
+      );
+    }
+  }
+
+  // ✅ Access Token 유효성 검사 공통 메서드
+  private Long validateAccessToken(HttpServletRequest request) {
+    String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
+
+    if (accessToken == null || jwtUtil.isExpired(accessToken)) {
+      throw new IllegalStateException("유효하지 않은 Access Token입니다.");
+    }
+
+    return jwtUtil.getOwnerId(accessToken);
+  }
 
   // 사업자 등록증 제출
   @Transactional
-  public void submitBusinessRegistration(MultipartFile businessRegistrationFile, HttpServletRequest request) throws IOException {
+  public void submitBusinessRegistration(MultipartFile businessRegistrationFile,
+      HttpServletRequest request) throws IOException {
     // ✅ 1. 쿠키에서 Access Token 추출
     String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
 
@@ -222,36 +231,28 @@ public class OwnerService {
       throw new IllegalAccessException("스토어 등록/삭제 권한이 없습니다. 승인된 사업자만 가능합니다.");
     }
   }
+
   /**
-   * ✅ Owner 상태 조회 서비스
-   * - Access Token을 기반으로 Owner 정보를 조회
-   * - Owner의 상태와 사업자 등록 파일 경로 반환
+   * ✅ 오너 상태 조회
    */
   public Map<String, String> getOwnerStatus(HttpServletRequest request) {
-    // ✅ 1. 쿠키에서 Access Token 추출
     String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
 
-    if (accessToken == null || accessToken.isEmpty()) {
-      throw new IllegalStateException("❌ Access Token이 존재하지 않습니다.");
+    if (accessToken == null || jwtUtil.isExpired(accessToken)) {
+      throw new IllegalStateException("Access Token이 유효하지 않습니다.");
     }
 
-    // ✅ 2. Access Token에서 Owner ID 추출
     Long ownerId = jwtUtil.getOwnerId(accessToken);
-    log.info("🔍 추출된 Owner ID: {}", ownerId);
-
-    // ✅ 3. Owner 조회
     Owner owner = ownerRepository.findById(ownerId)
-        .orElseThrow(() -> new IllegalStateException("❌ 해당 사업자를 찾을 수 없습니다."));
+        .orElseThrow(() -> new IllegalStateException("해당 Owner를 찾을 수 없습니다."));
 
-    // ✅ 4. 상태 및 파일 경로 반환
     Map<String, String> response = new HashMap<>();
-    response.put("status", owner.getOwnerStatus().name());  // 상태 반환 (PENDING, APPROVED, REJECTED)
-
+    response.put("status", owner.getOwnerStatus().name());
     return response;
   }
+
   /**
-   * ✅ Owner 정보 전체 조회
-   * - Access Token을 기반으로 Owner 정보를 조회
+   * ✅ Owner 정보 전체 조회 - Access Token을 기반으로 Owner 정보를 조회
    */
   public Owner getOwnerInfo(HttpServletRequest request) {
     // ✅ 1. 쿠키에서 Access Token 추출
@@ -269,4 +270,4 @@ public class OwnerService {
     return ownerRepository.findById(ownerId)
         .orElseThrow(() -> new IllegalStateException("❌ 해당 사업자를 찾을 수 없습니다."));
   }
-  }
+}

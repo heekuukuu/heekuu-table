@@ -18,4 +18,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
   //주소랑이름으로 중복확인
   Optional<Store> findByNameAndAddress(String name, String address);
+
+  //로그인된 오너가 가게의 소유여부
+  boolean existsByOwner_OwnerId(Long authenticatedOwnerId);
 }

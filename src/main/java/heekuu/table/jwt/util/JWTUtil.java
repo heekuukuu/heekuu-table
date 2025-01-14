@@ -103,9 +103,10 @@ public class JWTUtil {
 
   }
 
-  // 유저타입토큰 생성
+  // User 토큰 생성
   public String createJwt(String tokenType, User user, String role) {
-    long expiredMs = tokenType.equals("access") ? tokenConfig.getAccessTokenExpiration()
+    long expiredMs = tokenType.equals("access")
+        ? tokenConfig.getAccessTokenExpiration()
         : tokenConfig.getRefreshTokenExpiration();
     Date now = new Date();
     Date expiration = new Date(now.getTime() + expiredMs);
@@ -121,7 +122,7 @@ public class JWTUtil {
   }
 
 
-  // 토큰 생성 (Owner용)
+  // Owner 토큰 생성
   public String createOwnerJwt(String tokenType, Owner owner, String role) {
     long expiredMs = tokenType.equals("access")
         ? tokenConfig.getAccessTokenExpiration()
