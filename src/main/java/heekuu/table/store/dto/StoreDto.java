@@ -1,5 +1,6 @@
 package heekuu.table.store.dto;
 
+import heekuu.table.store.category.StoreCategory;
 import heekuu.table.store.entity.Store;
 import java.time.LocalTime;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,8 @@ public class StoreDto {
   private String storeNumber;
   private LocalTime openTime;
   private LocalTime closeTime;
-  private Long ownerId; // 소유주의 ID
+  private Long ownerId;
+  private StoreCategory category;
 
   // 엔티티 -> DTO 변환
   public static StoreDto fromEntity(Store store) {
@@ -34,6 +36,7 @@ public class StoreDto {
         .openTime(store.getOpenTime())
         .closeTime(store.getCloseTime())
         .ownerId(store.getOwner() != null ? store.getOwner().getOwnerId() : null)
+        .category(store.getCategory())
         .build();
   }
 
@@ -47,6 +50,7 @@ public class StoreDto {
         .storeNumber(storeDto.getStoreNumber())
         .openTime(storeDto.getOpenTime())
         .closeTime(storeDto.getCloseTime())
+        .category(storeDto.getCategory())
         .build();
   }
 }

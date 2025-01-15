@@ -1,5 +1,6 @@
 package heekuu.table.store.dto;
 
+import heekuu.table.store.category.StoreCategory;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -11,19 +12,15 @@ import lombok.Setter;
 @Setter
 public class StoreUpdateRequest {
 
-
   private String name;
-
-
 
   private String address;
 
-
   private String storeNumber;
-
 
   private LocalTime openTime;
 
-
   private LocalTime closeTime;
+
+  private StoreCategory category;
 }

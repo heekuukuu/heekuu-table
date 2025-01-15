@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("storeNumber").value = data.storeNumber || "";
     document.getElementById("openTime").value = data.openTime || "";
     document.getElementById("closeTime").value = data.closeTime || "";
+    document.getElementById("storeCategory").value = data.category || "";  // ✅ 카테고리 값 반영
 
   } catch (error) {
     console.error("🚨 에러 발생:", error);
@@ -41,8 +42,15 @@ document.getElementById("updateStoreBtn").addEventListener("click", async () => 
     address: document.getElementById("storeAddress").value,
     storeNumber: document.getElementById("storeNumber").value,
     openTime: document.getElementById("openTime").value,
-    closeTime: document.getElementById("closeTime").value
+    closeTime: document.getElementById("closeTime").value,
+    category: document.getElementById("storeCategory").value  // ✅ 쉼표 추가 및 카테고리 반영
   };
+
+  // ✅ 유효성 검사 (카테고리 포함)
+  if (!storeData.name || !storeData.address || !storeData.storeNumber || !storeData.openTime || !storeData.closeTime || !storeData.category) {
+    alert("❗ 모든 정보를 입력해주세요.");
+    return;
+  }
 
   try {
     const response = await fetch(`/api/stores/${storeId}`, {
@@ -58,7 +66,8 @@ document.getElementById("updateStoreBtn").addEventListener("click", async () => 
       alert("✅ 가게 정보가 성공적으로 수정되었습니다.");
       location.reload();  // ✅ 수정 후 새로고침
     } else {
-      throw new Error("❌ 가게 정보 수정 실패");
+      const errorData = await response.text();
+      throw new Error(`❌ 가게 정보 수정 실패: ${errorData}`);
     }
 
   } catch (error) {

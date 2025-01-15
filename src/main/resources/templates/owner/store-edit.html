@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>가게 정보 수정</title>
-  <link href="/css/store-edit.css" rel="stylesheet"> <!-- ✅ 전용 CSS 연결 -->
+  <link href="/css/sidebar-form.css" rel="stylesheet"> <!-- ✅ 전용 CSS 연결 -->
 </head>
 <body>
 
@@ -33,7 +33,16 @@
         <label for="storeNumber" class="form-label">전화번호</label>
         <input type="text" class="form-control" id="storeNumber" name="storeNumber" placeholder="전화번호 입력">
       </div>
-
+      <!-- ✅ 카테고리 선택 -->
+      <div class="mb-3">
+        <label for="storeCategory" class="form-label">카테고리</label>
+        <select id="storeCategory" name="category" class="form-control" required>
+          <option value="" disabled selected>카테고리를 선택하세요</option>
+          <th:block th:each="category : ${T(heekuu.table.store.category.StoreCategory).values()}">
+            <option th:value="${category.name()}" th:text="${category.description}"></option>
+          </th:block>
+        </select>
+      </div>
       <!-- ✅ 운영 시간 -->
       <div class="time-container">
         <div class="mb-3">

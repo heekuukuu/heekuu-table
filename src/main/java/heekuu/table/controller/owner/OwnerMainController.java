@@ -22,21 +22,9 @@ public class OwnerMainController {
     return "custom-login"; // custom-login.html 파일 반환
   }
 
-  // 메뉴등록
-  @GetMapping("/owner/menuRegister")
-  public String menuRegister() {
-    log.info("메인페이지 체크");
-    return "/owner/menu-register";
 
-  }
 
-  // 메뉴수정
-  @GetMapping("/owner/menu-update")
-  public String menuUpdate() {
-    //log.info("메인페이지 체크");
-    return "/owner/menu-update";
 
-  }
   // 비지니스등록
   @GetMapping("/owner/business-register")
   public String business() {
