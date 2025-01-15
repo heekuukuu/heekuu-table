@@ -3,7 +3,7 @@ package heekuu.table.store.entity;
 import heekuu.table.menu.entity.Menu;
 import heekuu.table.owner.entity.Owner;
 import heekuu.table.reservation.entity.Reservation;
-import heekuu.table.store.category.StoreCategory;
+import heekuu.table.store.type.StoreCategory;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

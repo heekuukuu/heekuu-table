@@ -1,4 +1,4 @@
-package heekuu.table.store.category;
+package heekuu.table.store.type;
 
 import lombok.Getter;
 

@@ -33,10 +33,11 @@ public class MenuService {
   private final StoreRepository storeRepository;
   private final S3Uploader s3Uploader;
 
-
+//todo: 메뉴리스트 검색 (메뉴명)
 
   @Transactional
-  public MenuDto createMenu(Long storeId, MenuDto menuDto, MultipartFile file, Long authenticatedOwnerId)
+  public MenuDto createMenu(Long storeId, MenuDto menuDto, MultipartFile file,
+      Long authenticatedOwnerId)
       throws IllegalAccessException, IOException {
     // 로그인된 오너가 가게를 소유하고 있는지 확인
     boolean hasStore = storeRepository.existsByOwner_OwnerId(authenticatedOwnerId);
@@ -75,13 +76,9 @@ public class MenuService {
   }
 
 
-
-
-
-
-
   @Transactional
-  public MenuDto updateMenu(Long menuId, MenuUpdateRequest request, Long authenticatedOwnerId, MultipartFile imageFile)
+  public MenuDto updateMenu(Long menuId, MenuUpdateRequest request, Long authenticatedOwnerId,
+      MultipartFile imageFile)
       throws IllegalAccessException, IOException {
     // 메뉴 조회
     Menu menu = menuRepository.findById(menuId)
@@ -118,6 +115,7 @@ public class MenuService {
     // DTO로 변환하여 반환
     return MenuDto.fromEntity(updatedMenu);
   }
+
   /**
    * 메뉴 삭제
    */
@@ -143,7 +141,7 @@ public class MenuService {
   }
 
   /**
-   * 특정 가게의 모든 메뉴 조회
+   * 특정 가게의 모든 메뉴 조회 : 유저같이사용
    */
   @Transactional
   public List<MenuDto> getMenusByStore(Long storeId) {
@@ -153,6 +151,28 @@ public class MenuService {
 
     // 메뉴 리스트 조회 및 변환
     return menuRepository.findAllByStore(store).stream()
+        .map(MenuDto::fromEntity)
+        .collect(Collectors.toList());
+  }
+
+
+  /**
+   * 로그인한 오너의 가게 메뉴 전체 조회
+   */
+  @Transactional
+  public List<MenuDto> getMyStoreMenus(Long ownerId) {
+    // 오너의 가게 조회
+    Store store = storeRepository.findByOwner_OwnerId(ownerId)
+        .orElseThrow(() -> new IllegalArgumentException("❌ 등록된 가게가 없습니다."));
+    // 메뉴 리스트 조회
+    List<Menu> menuList = menuRepository.findAllByStore(store);
+
+    // 메뉴가 없으면 null 반환
+    if (menuList.isEmpty()) {
+      return null;
+    }
+    // 해당 가게의 메뉴 리스트 조회
+    return menuList.stream()
         .map(MenuDto::fromEntity)
         .collect(Collectors.toList());
   }

@@ -156,9 +156,13 @@ public class StoreController {
       // ✅ 3. 결과 반환
       return ResponseEntity.ok(myStore);
 
+    } catch (IllegalStateException e) {
+      log.error("❌ 가게 없음: {}", e.getMessage());
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ 등록된 가게가 없습니다.");
     } catch (Exception e) {
+      log.error("❌ 가게 조회 오류: {}", e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("❌ 가게 조회 중 오류가 발생했습니다.");
+          .body("❌ 가게 조회 중 서버 오류가 발생했습니다.");
     }
   }
 }

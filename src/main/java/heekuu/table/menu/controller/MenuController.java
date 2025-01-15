@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -75,7 +76,7 @@ public class MenuController {
   }
 
   /**
-   * 메뉴 수정
+   * 메뉴 수정 -수정해야함 (어떤메뉴를 수정할껀지 )
    */
   @PutMapping(value = "/{menuId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MenuDto> updateMenu(
@@ -124,4 +125,35 @@ public class MenuController {
       @PathVariable(name = "storeId") Long storeId) {
     return ResponseEntity.ok(menuService.getMenusByStore(storeId));
   }
-}
+
+
+  /**
+   * ✅ 로그인한 오너의 가게 메뉴 조회 (메뉴가 없으면 null 반환)
+   */
+  @GetMapping("/my-store")
+  public ResponseEntity<?> getMyStoreMenus(HttpServletRequest request) {
+    try {
+      // 1️⃣ Access Token 추출
+      String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
+      if (accessToken == null || jwtUtil.isExpired(accessToken)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("❌ 유효하지 않은 토큰입니다.");
+      }
+
+      // 2️⃣ Owner ID 추출
+      Long ownerId = jwtUtil.getOwnerId(accessToken);
+
+      // 3️⃣ 오너의 가게 메뉴 조회
+      List<MenuDto> menuList = menuService.getMyStoreMenus(ownerId);
+
+      // 메뉴가 없으면 null 반환
+      if (menuList == null) {
+        return ResponseEntity.ok(null);  // 메뉴가 없으면 null 반환
+      }
+
+      return ResponseEntity.ok(menuList);
+
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("❌ 메뉴 조회 중 오류가 발생했습니다.");
+    }
+  }}

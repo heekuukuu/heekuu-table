@@ -1,6 +1,6 @@
 package heekuu.table.store.dto;
 
-import heekuu.table.store.category.StoreCategory;
+import heekuu.table.store.type.StoreCategory;
 import heekuu.table.store.entity.Store;
 import java.time.LocalTime;
 import lombok.AllArgsConstructor;

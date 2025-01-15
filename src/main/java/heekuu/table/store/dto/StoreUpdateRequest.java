@@ -1,9 +1,6 @@
 package heekuu.table.store.dto;
 
-import heekuu.table.store.category.StoreCategory;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import heekuu.table.store.type.StoreCategory;
 import java.time.LocalTime;
 import lombok.Getter;
 import lombok.Setter;
