@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -167,9 +168,9 @@ public class MenuService {
     // 메뉴 리스트 조회
     List<Menu> menuList = menuRepository.findAllByStore(store);
 
-    // 메뉴가 없으면 null 반환
+    // 메뉴가 없으면 빈리스트 반환
     if (menuList.isEmpty()) {
-      return null;
+      return Collections.emptyList();
     }
     // 해당 가게의 메뉴 리스트 조회
     return menuList.stream()

@@ -1,0 +1,124 @@
+/* ✅ 전체 페이지 스타일 */
+body {
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+  background-color: #f9f9f9;
+  margin: 0;
+  padding: 0;
+}
+
+/* ✅ 컨테이너 스타일 */
+.container {
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* ✅ 테이블 스타일 */
+#reservationTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+#reservationTable th,
+#reservationTable td {
+  padding: 15px 20px;
+  text-align: center;
+}
+
+#reservationTable thead th {
+  background-color: #ff80ab;
+  color: #fff;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+#reservationTable tbody tr:nth-child(even) {
+  background-color: #fce4ec;
+}
+
+#reservationTable tbody tr:hover {
+  background-color: #ffe6f2;
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* ✅ 버튼 스타일 */
+.btn-info {
+  background-color: #ff80ab;
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-info:hover {
+  background-color: #ff4d88;
+  box-shadow: 0 4px 10px rgba(255, 77, 136, 0.3);
+  transform: translateY(-2px);
+}
+
+/* ✅ 빈 데이터 메시지 */
+#emptyMessage {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #fff3f3;
+  color: #ff4d88;
+  border: 1px dashed #ff80ab;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* ✅ 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  background-color: #fff;
+  border: 1px solid #ff80ab;
+  color: #ff80ab;
+  padding: 8px 16px;
+  margin: 0 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.pagination button:hover {
+  background-color: #ff80ab;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.pagination button.active {
+  background-color: #ff4d88;
+  color: #fff;
+  font-weight: bold;
+  border-color: #ff4d88;
+}
+
+/* ✅ 페이드인 애니메이션 */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

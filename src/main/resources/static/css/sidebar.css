@@ -29,8 +29,43 @@ body {
   border-right: 3px solid #ff80ab;
   overflow-y: auto;
 }
+/* 🌸 사이드바 열기 상태 */
+.sidebar.active {
+  left: 0; /* 사이드바 보이기 */
+}
 
+/* 🌸 메뉴 토글 버튼 */
+.menu-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: #ff80ab;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 5px;
+  z-index: 1100;
+  transition: background-color 0.3s;
+}
 
+.menu-toggle:hover {
+  background-color: #ff4d88;
+}
+/* 🌸 반응형 (모바일 화면) */
+@media (max-width: 768px) {
+  .sidebar {
+    left: 0px; /* ✅ 모바일에서 기본으로 닫힘 */
+  }
+
+  .sidebar.active {
+    left: 0; /* ✅ 버튼 클릭 시 열림 */
+  }
+    .menu-toggle {
+      display: block; /* 토글 버튼 표시 */
+    }
+  }
 
 /* 🌸 프로필 박스 */
 .profile-box {

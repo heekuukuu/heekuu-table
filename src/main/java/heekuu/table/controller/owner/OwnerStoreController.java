@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/owner")
 @Slf4j
-public class OwnerStoreController  {
- // todo: 오더-> 스토어 컨트롤러 제작 .css랑 html만들어둠
+public class OwnerStoreController {
+  // todo: 오더-> 스토어 컨트롤러 제작 .css랑 html만들어둠
   // 사이드바에 추가 or  네비바-> 마이페이지에 제ㅏㅔ
 
   /**
@@ -19,7 +19,7 @@ public class OwnerStoreController  {
   @GetMapping("/store-register")
   public String menuListPage(Model model) {
     log.info("스토어등록 페이지 요청");
-    return "owner/store-register";
+    return "/owner/store-register";
   }
 
   /**
@@ -27,11 +27,18 @@ public class OwnerStoreController  {
    */
   @GetMapping("/store-edit")
   public String menuEditPage(Model model) {
-    log.info("스토어등록 페이지 요청");
-    return "owner/store-edit";
+    log.info("스토어수정 페이지 요청");
+    return "/owner/store-edit";
   }
 
-
+  /**
+   * ✅ 스토어 예약 리스트 페이지 이동
+   */
+  @GetMapping("/reservation-list")
+  public String storeReservation(Model model) {
+    log.info("예약내역 페이지 요청");
+    return "/owner/reservation-list";
+  }
 
 
 }

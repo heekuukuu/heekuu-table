@@ -1,3 +1,5 @@
+
+
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     // ✅ 1. 로그인한 사장님의 가게 ID 조회

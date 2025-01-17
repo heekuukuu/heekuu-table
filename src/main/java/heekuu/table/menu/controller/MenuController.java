@@ -71,7 +71,7 @@ public class MenuController {
     menuDto.setPrice(price);
     menuDto.setDescription(description);
 
-    MenuDto createdMenu = menuService.createMenu(storeId, menuDto, file,owner.getOwnerId());
+    MenuDto createdMenu = menuService.createMenu(storeId, menuDto, file, owner.getOwnerId());
     return ResponseEntity.ok(createdMenu);
   }
 
@@ -145,15 +145,12 @@ public class MenuController {
       // 3️⃣ 오너의 가게 메뉴 조회
       List<MenuDto> menuList = menuService.getMyStoreMenus(ownerId);
 
-      // 메뉴가 없으면 null 반환
-      if (menuList == null) {
-        return ResponseEntity.ok(null);  // 메뉴가 없으면 null 반환
-      }
-
-      return ResponseEntity.ok(menuList);
-
+      return ResponseEntity.ok(menuList != null ? menuList : List.of());
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body("❌ 메뉴 조회 중 오류가 발생했습니다.");
     }
-  }}
+  }
+}

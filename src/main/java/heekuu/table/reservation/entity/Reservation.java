@@ -54,7 +54,6 @@ public class Reservation extends BaseEntity {
   private String paymentStatus = "매장결제";
 
 
-
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false)
   private ReservationStatus status;// 예약상태
@@ -77,4 +76,9 @@ public class Reservation extends BaseEntity {
 
   @Column(name = "total_price", precision = 10, scale = 2)
   private BigDecimal totalPrice;
+
+  // 상태반환
+  public ReservationStatus getStatus() {
+    return this.status;
+  }
 }

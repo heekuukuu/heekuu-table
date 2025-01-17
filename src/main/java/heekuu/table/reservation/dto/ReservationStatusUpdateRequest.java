@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class ReservationStatusUpdateRequest {
+
   private ReservationStatus status; // 변경할 예약 상태
-  private Long ownerId;             // 오너 ID
+
 }
