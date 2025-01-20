@@ -1,11 +1,9 @@
-
-
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     // ✅ 1. 로그인한 사장님의 가게 ID 조회
     const storeResponse = await fetch("/api/stores/my-store", {
       method: "GET",
-      credentials: "include"  // 쿠키 자동 전송
+      credentials: "include"
     });
 
     if (!storeResponse.ok) {
@@ -13,44 +11,73 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const storeData = await storeResponse.json();
-    const storeId = storeData.storeId;  // ✅ 사장님의 가게 ID
+    const storeId = storeData.storeId;
     console.log("불러온 가게 ID:", storeId);
 
     // ✅ 2. 메뉴 등록 이벤트 연결
     document.getElementById("menuForm").addEventListener("submit", async (e) => {
-      e.preventDefault();  // 기본 제출 방지
+      e.preventDefault();
 
-      // ✅ FormData 생성
+      // ✅ 카테고리 체크
+      const category = document.getElementById("category").value;
+      if (!category) {
+        alert("카테고리를 선택하세요!");
+        return;
+      }
+
       const formData = new FormData();
       formData.append("name", document.getElementById("menuName").value);
       formData.append("price", document.getElementById("menuPrice").value);
       formData.append("description", document.getElementById("menuDesc").value);
+      formData.append("category", category);
 
       const fileInput = document.getElementById("menuImage");
       if (fileInput.files.length > 0) {
-        formData.append("file", fileInput.files[0]);  // ✅ 이미지 추가
+        formData.append("file", fileInput.files[0]);
       }
 
-      // ✅ 3. 메뉴 등록 API 호출
+      // ✅ 로딩 상태 설정
+      const submitButton = document.getElementById("submitMenuBtn");
+      submitButton.disabled = true;
+      submitButton.textContent = "등록 중...";
+
+      // ✅ 메뉴 등록 API 호출
       try {
         const response = await fetch(`/api/menus/${storeId}`, {
           method: "POST",
-          credentials: "include",  // ✅ 쿠키 자동 전송
+          credentials: "include",
           body: formData
         });
 
         if (!response.ok) {
-          throw new Error("❌ 메뉴 등록 실패");
+          const errorMessage = await response.text();
+          throw new Error(`❌ 메뉴 등록 실패: ${errorMessage}`);
         }
 
         const result = await response.json();
         console.log("✅ 등록된 메뉴:", result);
         alert("🍽️ 메뉴가 성공적으로 등록되었습니다.");
-        document.getElementById("menuForm").reset();  // 폼 초기화
+        document.getElementById("menuForm").reset();
+
+        // ✅ 메뉴 목록 갱신
+        const menuContainer = document.getElementById("menuContainer");
+        const newMenu = document.createElement("div");
+        newMenu.className = "menu-item";
+        newMenu.innerHTML = `
+          <h4>${result.name}</h4>
+          <p>${result.description}</p>
+          <p><strong>${result.price}원</strong></p>
+          ${result.imagePath ? `<img src="${result.imagePath}" alt="${result.name}">` : ""}
+        `;
+        menuContainer.appendChild(newMenu);
 
       } catch (error) {
         console.error("🚨 에러 발생:", error);
         alert("❌ 메뉴 등록 중 오류가 발생했습니다.");
+      } finally {
+        // ✅ 로딩 상태 복구
+        submitButton.disabled = false;
+        submitButton.textContent = "등록하기";
       }
     });
 

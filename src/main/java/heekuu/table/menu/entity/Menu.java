@@ -1,8 +1,11 @@
 package heekuu.table.menu.entity;
 
+import heekuu.table.menu.type.MenuCategory;
 import heekuu.table.store.entity.Store;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,4 +42,6 @@ public class Menu {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "store_id", nullable = false)
   private Store store; // 해당 메뉴가 속한 가게
+  @Enumerated(EnumType.STRING)  // Enum 값을 문자열로 저장
+  private MenuCategory category;
 }

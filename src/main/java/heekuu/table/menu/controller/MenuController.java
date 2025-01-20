@@ -4,6 +4,7 @@ import heekuu.table.jwt.util.JWTUtil;
 import heekuu.table.menu.dto.MenuDto;
 import heekuu.table.menu.dto.MenuUpdateRequest;
 import heekuu.table.menu.service.MenuService;
+import heekuu.table.menu.type.MenuCategory;
 import heekuu.table.owner.entity.Owner;
 import heekuu.table.owner.service.CustomOwnerDetails;
 import heekuu.table.owner.service.OwnerService;
@@ -54,6 +55,7 @@ public class MenuController {
       @RequestParam("price") BigDecimal price,
       @RequestParam("description") String description,
       @RequestParam(value = "file", required = false) MultipartFile file,
+      @RequestParam("menuCategory") MenuCategory Category,
       HttpServletRequest request // 요청에서 엑세스토큰 추출
   ) throws IllegalAccessException, IOException {
     // 쿠키에서 오너정보조회
@@ -70,6 +72,7 @@ public class MenuController {
     menuDto.setName(name);
     menuDto.setPrice(price);
     menuDto.setDescription(description);
+    menuDto.setCategory(Category);
 
     MenuDto createdMenu = menuService.createMenu(storeId, menuDto, file, owner.getOwnerId());
     return ResponseEntity.ok(createdMenu);
@@ -86,6 +89,7 @@ public class MenuController {
       @RequestPart(name = "description", required = false) String description,
       @RequestPart(name = "available", required = false) Boolean available,
       @RequestPart(name = "imageFile", required = false) MultipartFile imageFile,
+      @RequestParam("menuCategory") MenuCategory menuCategory,
       @RequestHeader("Authorization") String token
   ) throws IllegalAccessException, IOException {
     Long authenticatedOwnerId = jwtUtil.getOwnerId(token.replace("Bearer ", ""));

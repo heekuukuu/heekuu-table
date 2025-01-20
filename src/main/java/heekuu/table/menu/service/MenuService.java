@@ -69,6 +69,7 @@ public class MenuService {
         .imagePath(imagePath) // 업로드된 이미지 경로 설정
         .store(store)
         .available(true) // 기본적으로 판매 가능 설정
+        .category(menuDto.getCategory())
         .build();
 
     // 저장 및 DTO 반환

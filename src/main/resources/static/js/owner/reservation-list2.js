@@ -1,6 +1,6 @@
 //console.log("✅ JS 파일이 로드되었습니다.");
 //
-////document.addEventListener("DOMContentLoaded", loadReservationList);
+//
 //// 페이지 로드 시 예약 목록 로드
 //document.addEventListener("DOMContentLoaded", () => {
 //  loadReservationList();
@@ -12,6 +12,7 @@
 //      const detailPanel = document.getElementById("orderDetailPanel");
 //      if (detailPanel) {
 //        detailPanel.classList.add("hidden"); // 패널 숨기기
+//            console.log("✅ 모달 창이 닫혔습니다.");
 //      }
 //    });
 //  }
@@ -171,6 +172,9 @@
 //    const detailPanel = document.getElementById("orderDetailPanel");
 //    if (detailPanel) {
 //      detailPanel.classList.remove("hidden"); // 패널 열기
+//      detailPanel.style.display = "block";
+//      detailPanel.style.visibility = "visible";
+//      console.log("✅ 모달 창이 열렸습니다.");
 //    }
 //  } catch (error) {
 //    console.error("🚨 오류:", error);
@@ -178,10 +182,3 @@
 //  }
 //}
 //
-//// ✅ 패널 닫기 이벤트
-//document.getElementById("closeOrderDetail").addEventListener("click", () => {
-//  const detailPanel = document.getElementById("orderDetailPanel");
-//  if (detailPanel) {
-//    detailPanel.classList.add("hidden");
-//  }
-//});

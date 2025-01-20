@@ -135,6 +135,16 @@ async function updateReservationStatus(reservationId, newStatus) {
 
 // ✅ 상세보기 페이지 이동
 async function loadOrderDetails(reservationId) {
+  const detailPanel = document.getElementById("orderDetailPanel");
+
+  // 패널 열림/닫힘 토글 로직
+  if (detailPanel.style.display === "block" && detailPanel.dataset.reservationId === String(reservationId)) {
+    detailPanel.style.display = "none"; // 패널 숨기기
+    detailPanel.dataset.reservationId = ""; // 현재 ID 초기화
+    console.log("✅ 모달 창이 닫혔습니다.");
+    return;
+  }
+
   try {
     const response = await fetch(`/api/order-items/${reservationId}`, {
       method: "GET",
@@ -157,28 +167,24 @@ async function loadOrderDetails(reservationId) {
 
     if (orderItems.length === 0) {
       tableBody.innerHTML = "<tr><td colspan='2'>주문 항목이 없습니다.</td></tr>";
-      return;
+    } else {
+      orderItems.forEach((item) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.quantity}</td>
+
+        `;
+        tableBody.appendChild(row);
+      });
     }
 
-    orderItems.forEach((item) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${item.name}</td>
-        <td>${item.quantity}</td>
-      `;
-      tableBody.appendChild(row);
-    });
-
-    const detailPanel = document.getElementById("orderDetailPanel");
-    if (detailPanel) {
-      detailPanel.classList.remove("hidden"); // 패널 열기
-      detailPanel.style.display = "block";
-      detailPanel.style.visibility = "visible";
-      console.log("✅ 모달 창이 열렸습니다.");
-    }
+    // 패널 열기 및 ID 저장
+    detailPanel.style.display = "block";
+    detailPanel.dataset.reservationId = String(reservationId); // 현재 ID 저장
+    console.log("✅ 모달 창이 열렸습니다.");
   } catch (error) {
     console.error("🚨 오류:", error);
     alert("❌ 데이터를 로드하는 중 문제가 발생했습니다.");
   }
 }
-
