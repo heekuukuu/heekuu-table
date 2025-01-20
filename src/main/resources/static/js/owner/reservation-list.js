@@ -1,6 +1,22 @@
 console.log("✅ JS 파일이 로드되었습니다.");
 
-document.addEventListener("DOMContentLoaded", loadReservationList);
+
+// 페이지 로드 시 예약 목록 로드
+document.addEventListener("DOMContentLoaded", () => {
+  loadReservationList();
+
+  // 닫기 버튼 이벤트 추가
+  const closeButton = document.getElementById("closeOrderDetail");
+  if (closeButton) {
+    closeButton.addEventListener("click", () => {
+      const detailPanel = document.getElementById("orderDetailPanel");
+      if (detailPanel) {
+        detailPanel.classList.add("hidden"); // 패널 숨기기
+            console.log("✅ 모달 창이 닫혔습니다.");
+      }
+    });
+  }
+});
 
 const ITEMS_PER_PAGE = 5;  // 페이지 당 항목 수
 let currentPage = 1;       // 현재 페이지
@@ -31,6 +47,7 @@ async function loadReservationList() {
 
     // ✅ 예약 내역 렌더링
     tableBody.innerHTML = "";  // 기존 데이터를 비움
+
     reservations.forEach(reservation => {
       const row = document.createElement("tr");
       row.innerHTML = `
@@ -40,13 +57,16 @@ async function loadReservationList() {
         <td>${reservation.note || "-"}</td>
         <td>${reservation.paymentStatus}</td>
         <td>
-          <select onchange="updateReservationStatus(${reservation.reservationId}, this.value)">
-            ${getStatusOptions(reservation.status)}
-          </select>
-        </td>
+         <select onchange="updateReservationStatus(${reservation.reservationId}, this.value)">
+           ${getStatusOptions(reservation.status)}
+         </select>
+       </td>
         <td>${reservation.totalPrice}</td>
-        <td>${reservation.storeName}</td>
-        <td><button class="btn btn-info btn-sm" onclick="viewReservationDetail(${reservation.reservationId})">상세보기</button></td>
+         <td>
+            <button class="btn btn-info btn-sm" onclick="loadOrderDetails(${reservation.reservationId})">
+              상세보기
+            </button>
+            </td>
       `;
       tableBody.appendChild(row);
     });
@@ -114,6 +134,51 @@ async function updateReservationStatus(reservationId, newStatus) {
 }
 
 // ✅ 상세보기 페이지 이동
-function viewReservationDetail(reservationId) {
-  window.location.href = `/owner/reservations/${reservationId}/detail`;
+async function loadOrderDetails(reservationId) {
+  try {
+    const response = await fetch(`/api/order-items/${reservationId}`, {
+      method: "GET",
+      credentials: "include", // 세션 쿠키 포함
+    });
+
+    if (!response.ok) {
+      throw new Error(`❌ 서버 오류 발생 (상태 코드: ${response.status})`);
+    }
+
+    const orderItems = await response.json();
+    console.log("📦 불러온 주문 항목:", orderItems);
+
+    const tableBody = document.querySelector("#orderDetailTable tbody");
+    if (!tableBody) {
+      throw new Error("🚨 'orderDetailTable'의 tbody 요소를 찾을 수 없습니다.");
+    }
+
+    tableBody.innerHTML = ""; // 기존 데이터 초기화
+
+    if (orderItems.length === 0) {
+      tableBody.innerHTML = "<tr><td colspan='2'>주문 항목이 없습니다.</td></tr>";
+      return;
+    }
+
+    orderItems.forEach((item) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.name}</td>
+        <td>${item.quantity}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    const detailPanel = document.getElementById("orderDetailPanel");
+    if (detailPanel) {
+      detailPanel.classList.remove("hidden"); // 패널 열기
+      detailPanel.style.display = "block";
+      detailPanel.style.visibility = "visible";
+      console.log("✅ 모달 창이 열렸습니다.");
+    }
+  } catch (error) {
+    console.error("🚨 오류:", error);
+    alert("❌ 데이터를 로드하는 중 문제가 발생했습니다.");
+  }
 }
+

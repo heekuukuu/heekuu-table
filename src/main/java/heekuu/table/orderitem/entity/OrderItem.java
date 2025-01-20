@@ -34,7 +34,7 @@ public class OrderItem {
   @JoinColumn(name = "reservation_id", nullable = false)
   private Reservation reservation; // 어떤 예약에 포함되었는지
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "menu_id", nullable = false)
   private Menu menu; // 어떤 메뉴인지
 

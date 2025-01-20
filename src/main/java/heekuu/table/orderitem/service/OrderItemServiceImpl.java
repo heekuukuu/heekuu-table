@@ -8,9 +8,9 @@ import heekuu.table.orderitem.entity.OrderItem;
 import heekuu.table.orderitem.repository.OrderItemRepository;
 import heekuu.table.reservation.entity.Reservation;
 import heekuu.table.reservation.repository.ReservationRepository;
-import heekuu.table.user.entity.User;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,7 @@ public class OrderItemServiceImpl implements OrderItemService {
   private final MenuRepository menuRepository;
 
 
-// 주문저장
+  // 주문저장
   @Override
   @Transactional
   public List<OrderItem> saveOrderItems(List<OrderItemDto> orderItems, Reservation reservation) {
@@ -45,4 +45,15 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
     return savedOrderItems;
   }
+
+  // 상세주문내역 조회
+  @Override
+  public List<OrderItemDto> getOrderItemsByReservationId(Long reservationId) {
+    return orderItemRepository.findByReservation_ReservationId(reservationId)
+        .stream()
+        .map(OrderItemDto::fromEntity)
+        .collect(Collectors.toList());
+  }
+
+
 }

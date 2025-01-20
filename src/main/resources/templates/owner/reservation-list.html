@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/common}"> <!-- ✅ 공통 레이아웃 적용 -->
+      layout:decorate="~{layout/common}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/css/reservation-list.css">
   <title>📅 예약 내역</title>
-
-
 </head>
+
 <body>
-<!--  todo: css 안먹고  컨트롤러 호출로그안찍힘-->
-<!--  틀만나옴,렌더링안됨 -->
+
+<!-- ✅ 예약 내역 테이블 -->
 <div layout:fragment="content" class="container">
   <h2>📅 예약 내역</h2>
   <table id="reservationTable">
@@ -28,20 +27,37 @@
       <th>상세보기</th>
     </tr>
     </thead>
-
     <tbody>
-    <!-- JS에서 동적 데이터 삽입 -->
-
-    <script src="/js/owner/reservation-list.js"></script>
+    <!-- ✅ 예약 데이터가 동적으로 삽입됩니다 -->
     </tbody>
+    <div id="reservationInfo">
+      <!-- 예약 상세 정보가 여기에 표시됩니다 -->
+    </div>
+
   </table>
+  <div id="orderDetailPanel" class="hidden">
+    <button id="closeOrderDetail">닫기</button>
+    <table id="orderDetailTable">
+      <thead>
+      <tr>
+        <th>메뉴 이름</th>
+        <th>수량</th>
+      </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
   <div id="emptyMessage" class="alert alert-warning text-center" style="display: none;">
     📭 등록된 예약이 없습니다.
   </div>
 
   <!-- ✅ 페이지네이션 -->
   <div id="pagination" class="pagination"></div>
+
+
+  <!-- ✅ JS 연결 -->
+  <script src="/js/owner/reservation-list.js"></script>
 </div>
 
+
 </body>
-</html>

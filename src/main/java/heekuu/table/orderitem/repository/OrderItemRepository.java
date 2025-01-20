@@ -7,5 +7,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
-  List<OrderItem> findAllByReservationReservationId(Long reservationId);
+
+  //  전체조회
+  List<OrderItem> findAllByReservation_ReservationId(Long reservationId);
+
+  // 부분조회
+  List<OrderItem> findByReservation_ReservationId(Long reservationId);
 }

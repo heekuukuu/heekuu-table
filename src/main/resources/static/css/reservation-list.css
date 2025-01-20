@@ -121,4 +121,91 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
-}
+
+
+  /* 사이드 패널 숨기기 상태 */
+  .hidden {
+    display: none;
+  }
+
+  /* 사이드 패널 */
+  #orderDetailPanel {
+    position: fixed;
+    top: 0;
+    right: -100%; /* 초기 상태에서 오른쪽으로 숨김 */
+    height: 100%;
+    width: 30%; /* 화면의 30%를 차지 */
+    max-width: 400px;
+    background-color: #ffffff;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    overflow-y: auto;
+    padding: 20px;
+    transition: right 0.3s ease-in-out; /* 부드러운 애니메이션 */
+  }
+
+  /* 패널 열기 애니메이션 */
+  #orderDetailPanel.open {
+    right: 0; /* 오른쪽에 고정 */
+  }
+
+  /* 닫기 버튼 */
+  #closeOrderDetail {
+    display: inline-block;
+    background-color: #f8a5c2;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+
+  #closeOrderDetail:hover {
+    background-color: #f48fb1;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 테이블 스타일 */
+  #orderDetailTable {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  #orderDetailTable th,
+  #orderDetailTable td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+
+  #orderDetailTable th {
+    background-color: #f8a5c2;
+    color: white;
+  }
+
+  #orderDetailTable td {
+    background-color: #fff3f3;
+  }
+
+  /* 제목 스타일 */
+  #orderDetailPanel h3 {
+    margin-top: 0;
+    color: #333;
+    text-align: center;
+  }
+
+  /* 스크롤바 스타일 */
+  #orderDetailPanel::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  #orderDetailPanel::-webkit-scrollbar-thumb {
+    background-color: #f8a5c2;
+    border-radius: 10px;
+  }
+
+  #orderDetailPanel::-webkit-scrollbar-track {
+    background-color: #f3f3f3;
+  }}

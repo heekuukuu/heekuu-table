@@ -1,26 +1,19 @@
-//// ✅ sidebar-toggle.js
-//
-//function toggleSidebar() {
-//  const sidebar = document.getElementById("sidebar");
-//  sidebar.classList.toggle("active");
-//}
-//
-//// ✅ 창 크기에 따라 자동으로 사이드바 열고 닫기
-//window.addEventListener("resize", function () {
-//  const sidebar = document.getElementById("sidebar");
-//
-//  if (window.innerWidth < 768) {
-//    sidebar.classList.add("active");  // 화면 작아지면 닫기
-//  } else {
-//    sidebar.classList.remove("active");  // 화면 커지면 열기
-//  }
-//});
-//
-//// ✅ 페이지 처음 로드될 때도 반응하도록 추가
-//window.addEventListener("DOMContentLoaded", function () {
-//  const sidebar = document.getElementById("sidebar");
-//
-//  if (window.innerWidth < 768) {
-//    sidebar.classList.add("active");
-//  }
-//});
+document.addEventListener("DOMContentLoaded", () => {
+  const menuToggle = document.getElementById("menuToggle");
+  const sidebar = document.querySelector(".sidebar");
+  const content = document.querySelector(".content");
+
+  // 🌸 토글 버튼 클릭 시 사이드바 열기/닫기
+  menuToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("active");
+    content.classList.toggle("shifted");
+    console.log("✅ 사이드바 상태:", sidebar.classList.contains("active") ? "열림" : "닫힘");
+  });
+
+  // 🌸 화면 크기 변화 시 기본 상태 설정
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 768) {
+      sidebar.classList.remove("active"); // 데스크톱 화면에서 기본 열림
+    }
+  });
+});

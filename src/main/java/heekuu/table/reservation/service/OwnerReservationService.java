@@ -1,5 +1,7 @@
 package heekuu.table.reservation.service;
 
+import heekuu.table.orderitem.entity.OrderItem;
+import heekuu.table.orderitem.repository.OrderItemRepository;
 import heekuu.table.reservation.dto.ReservationResponse;
 import heekuu.table.reservation.dto.ReservationStatusUpdateRequest;
 import heekuu.table.reservation.entity.Reservation;
@@ -23,6 +25,7 @@ public class OwnerReservationService {
   private final ReservationRepository reservationRepository;
   private final StoreRepository storeRepository;
   private final UserReservationService userReservationService;
+  private final OrderItemRepository orderItemRepository;
 
 
   /**
@@ -61,29 +64,13 @@ public class OwnerReservationService {
         .collect(Collectors.toList());
   }
 
-//  /**
-//   * 예약 상태 변경
-//   *
-//   * @param reservationId 예약 ID
-//   * @param request       변경할 상태 오너 ID
-//   */
-//  @Transactional
-//  public void updateReservationStatus(Long reservationId, ReservationStatusUpdateRequest request) {
-//    Reservation reservation = reservationRepository.findById(reservationId)
-//        .orElseThrow(
-//            () -> new IllegalArgumentException("ID가 " + reservationId + "인 예약을 찾을 수 없습니다."));
-//
-//    if (!reservation.getStore().getOwner().getOwnerId().equals(request.getOwnerId())) {
-//      throw new IllegalArgumentException(
-//          "오너 ID: " + request.getOwnerId() + "는 해당 예약을 수정할 권한이 없습니다.");
-//    }
-//
-//    if (!reservation.getStatus().canChangeTo(request.getStatus())) {
-//      throw new IllegalArgumentException("현재 상태에서 " + request.getStatus() + "로 변경할 수 없습니다.");
-//    }
-//
-//    reservation.setStatus(request.getStatus());
-//  }
+  // ✅ 예약 상세 정보 및 주문 항목 조회
+  public List<OrderItem> getOrderItemsByReservationId(Long reservationId) {
+    Reservation reservation = reservationRepository.findById(reservationId)
+        .orElseThrow(() -> new IllegalArgumentException("❌ 예약 정보를 찾을 수 없습니다."));
+
+    return orderItemRepository.findAllByReservation_ReservationId(reservationId);
+  }
 
 
   /**

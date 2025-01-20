@@ -1,6 +1,7 @@
 package heekuu.table.reservation.controller;
 
 import heekuu.table.jwt.util.JWTUtil;
+import heekuu.table.orderitem.entity.OrderItem;
 import heekuu.table.reservation.dto.ReservationResponse;
 import heekuu.table.reservation.dto.ReservationStatusUpdateRequest;
 import heekuu.table.reservation.entity.Reservation;
@@ -78,5 +79,14 @@ public class OwnerReservationController {
     ownerReservationService.updateReservationStatus(reservationId, ownerId, request);
 
     return ResponseEntity.ok("✅ 예약 상태가 변경되었습니다.");
+  }
+
+
+  // ✅ 예약 상세 주문 항목 조회 API
+  @GetMapping("/{reservationId}")
+  public ResponseEntity<List<OrderItem>> getReservationDetails(@PathVariable Long reservationId) {
+    List<OrderItem> orderItems = ownerReservationService.getOrderItemsByReservationId(
+        reservationId);
+    return ResponseEntity.ok(orderItems);
   }
 }
