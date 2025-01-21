@@ -1,0 +1,29 @@
+/* 모달 창 스타일링 */
+#menuModal {
+  display: none; /* 기본적으로 숨김 */
+  position: fixed;
+  top: 50%; /* 화면 중앙으로 이동 */
+  left: 50%;
+  transform: translate(-50%, -50%); /* 정확히 중앙에 위치 */
+  z-index: 1000; /* 다른 요소 위에 표시 */
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}

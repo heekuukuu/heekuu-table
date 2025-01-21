@@ -3,15 +3,14 @@ package heekuu.table.menu.controller;
 import heekuu.table.jwt.util.JWTUtil;
 import heekuu.table.menu.dto.MenuDto;
 import heekuu.table.menu.dto.MenuUpdateRequest;
+import heekuu.table.menu.entity.Menu;
 import heekuu.table.menu.service.MenuService;
 import heekuu.table.menu.type.MenuCategory;
 import heekuu.table.owner.entity.Owner;
-import heekuu.table.owner.service.CustomOwnerDetails;
 import heekuu.table.owner.service.OwnerService;
 import heekuu.table.store.entity.Store;
 import heekuu.table.store.repository.StoreRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,15 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,7 +42,7 @@ public class MenuController {
   private final OwnerService ownerService;
   private final StoreRepository storeRepository;
 
-
+  //매뉴생성
   @PostMapping("/{storeId}")
   public ResponseEntity<MenuDto> createMenu(
       @PathVariable(name = "storeId") Long storeId,
@@ -55,7 +50,7 @@ public class MenuController {
       @RequestParam("price") BigDecimal price,
       @RequestParam("description") String description,
       @RequestParam(value = "file", required = false) MultipartFile file,
-      @RequestParam("menuCategory") MenuCategory Category,
+      @RequestParam("menuCategory") MenuCategory menuCategory,
       HttpServletRequest request // 요청에서 엑세스토큰 추출
   ) throws IllegalAccessException, IOException {
     // 쿠키에서 오너정보조회
@@ -72,7 +67,7 @@ public class MenuController {
     menuDto.setName(name);
     menuDto.setPrice(price);
     menuDto.setDescription(description);
-    menuDto.setCategory(Category);
+    menuDto.setCategory(menuCategory);
 
     MenuDto createdMenu = menuService.createMenu(storeId, menuDto, file, owner.getOwnerId());
     return ResponseEntity.ok(createdMenu);
@@ -115,10 +110,20 @@ public class MenuController {
   @DeleteMapping("/{menuId}")
   public ResponseEntity<Void> deleteMenu(
       @PathVariable(name = "menuId") Long menuId,
-      @RequestParam(name = "authenticatedOwnerId") Long authenticatedOwnerId)
-      throws IllegalAccessException {
+      HttpServletRequest request) throws IllegalAccessException {
+    // ✅ 쿠키에서 JWT 추출
+    String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
+
+    if (accessToken == null || jwtUtil.isExpired(accessToken)) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 유효하지 않은 토큰
+    }
+
+    // ✅ JWT에서 ownerId 추출
+    Long authenticatedOwnerId = jwtUtil.getOwnerId(accessToken);
+
+    // 메뉴 삭제 처리
     menuService.deleteMenu(menuId, authenticatedOwnerId);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok().build(); // 성공 시 200 응답
   }
 
   /**
@@ -156,5 +161,24 @@ public class MenuController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body("❌ 메뉴 조회 중 오류가 발생했습니다.");
     }
+  } // 카테고리별 메뉴조회
+
+  @GetMapping("/{storeId}/category")
+  public ResponseEntity<List<MenuDto>> getMenusByCategory(
+      @PathVariable(name = "storeId") Long storeId,
+      @RequestParam(name = "category") MenuCategory category
+  ) {
+    List<MenuDto> menus = menuService.getMenusByCategory(storeId, category);
+    return ResponseEntity.ok(menus);
   }
+
+  // 메뉴아이디조회
+  @GetMapping("/details")
+  public ResponseEntity<MenuDto> getMenuDetails(
+      @RequestParam(name = "menuId") Long menuId) {
+    Menu menu = menuService.findMenuById(menuId)
+        .orElseThrow(() -> new IllegalArgumentException("해당 메뉴를 찾을 수 없습니다."));
+    return ResponseEntity.ok(MenuDto.fromEntity(menu));
+  }
+
 }

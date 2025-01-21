@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       formData.append("name", document.getElementById("menuName").value);
       formData.append("price", document.getElementById("menuPrice").value);
       formData.append("description", document.getElementById("menuDesc").value);
-      formData.append("category", category);
+      formData.append("menuCategory", category);
 
       const fileInput = document.getElementById("menuImage");
       if (fileInput.files.length > 0) {
@@ -57,19 +57,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const result = await response.json();
         console.log("✅ 등록된 메뉴:", result);
         alert("🍽️ 메뉴가 성공적으로 등록되었습니다.");
+         menuForm.reset();
         document.getElementById("menuForm").reset();
-
-        // ✅ 메뉴 목록 갱신
-        const menuContainer = document.getElementById("menuContainer");
-        const newMenu = document.createElement("div");
-        newMenu.className = "menu-item";
-        newMenu.innerHTML = `
-          <h4>${result.name}</h4>
-          <p>${result.description}</p>
-          <p><strong>${result.price}원</strong></p>
-          ${result.imagePath ? `<img src="${result.imagePath}" alt="${result.name}">` : ""}
-        `;
-        menuContainer.appendChild(newMenu);
 
       } catch (error) {
         console.error("🚨 에러 발생:", error);
@@ -86,3 +75,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     alert("❌ 가게 정보를 불러오는 중 오류가 발생했습니다.");
   }
 });
+

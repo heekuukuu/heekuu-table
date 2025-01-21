@@ -6,6 +6,7 @@ import heekuu.table.menu.dto.MenuDto;
 import heekuu.table.menu.dto.MenuUpdateRequest;
 import heekuu.table.menu.entity.Menu;
 import heekuu.table.menu.repository.MenuRepository;
+import heekuu.table.menu.type.MenuCategory;
 import heekuu.table.store.entity.Store;
 import heekuu.table.store.repository.StoreRepository;
 import jakarta.transaction.Transactional;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
@@ -177,5 +179,18 @@ public class MenuService {
     return menuList.stream()
         .map(MenuDto::fromEntity)
         .collect(Collectors.toList());
+  }
+
+  // 카테고리별 메뉴조회
+  public List<MenuDto> getMenusByCategory(Long storeId, MenuCategory category) {
+    List<Menu> menus = menuRepository.findByStore_StoreIdAndCategory(storeId, category);
+    return menus.stream()
+        .map(MenuDto::fromEntity)
+        .collect(Collectors.toList());
+  }
+
+  //메뉴 아이디
+  public Optional<Menu> findMenuById(Long menuId) {
+    return menuRepository.findById(menuId);
   }
 }

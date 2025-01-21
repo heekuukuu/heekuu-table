@@ -5,7 +5,8 @@
 <head>
   <meta charset="UTF-8">
   <title>📋 메뉴 목록</title>
-  <link rel="stylesheet" href="/css/menu-list.css">
+  <link rel="stylesheet" href="/css/menu/menu-list.css">
+  <link rel="stylesheet" href="/css/menu/menu-list-modal.css">
 </head>
 
 <body>
@@ -17,34 +18,51 @@
   <div class="menu-sidebar">
     <h4>카태고리</h4>
     <ul>
-      <li><a href="#">베스트메뉴</a></li>
-      <li><a href="#">메인메뉴</a></li>
-      <li><a href="#">사이드메뉴</a></li>
-      <li><a href="#">추천메뉴</a></li>
-      <li><a href="#">음료</a></li>
-      <li><a href="#">기타</a></li>
+      <li><a href="#" data-category="BEST">베스트메뉴</a></li>
+      <li><a href="#" data-category="MAIN">메인메뉴</a></li>
+      <li><a href="#" data-category="SIDE">사이드메뉴</a></li>
+      <li><a href="#" data-category="RECOMMEND">추천메뉴</a></li>
+      <li><a href="#" data-category="DRINK">음료</a></li>
+      <li><a href="#" data-category="OTHER">기타</a></li>
     </ul>
   </div>
+
 
   <!-- ✅ 메뉴 콘텐츠 -->
   <div class="menu-content">
     <h2>🍽️ 등록된 메뉴 목록</h2>
     <hr>
 
-    <!-- ✅ 메뉴 출력 영역 -->
-    <div id="menuContainer" class="menu-container">
-      <!-- 메뉴 카드가 동적으로 추가됩니다 -->
+    <div id="menuContainer">
+      <!-- 카테고리별 메뉴가 동적으로 삽입됩니다 -->
     </div>
-
     <!-- ✅ 메뉴가 없을 때 메시지 -->
     <div id="emptyMessage" class="alert alert-info text-center" style="display: none;">
       📭 등록된 메뉴가 없습니다. 메뉴를 추가해보세요!
     </div>
+
+
+    <!-- ✅ 모달 -->
+    <div id="menuModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" id="closeModal">&times;</span>
+        <div id="menuDetails">
+          <!-- 메뉴 상세 정보가 동적으로 삽입됩니다 -->
+        </div>
+        <div class="modal-actions">
+          <button id="editMenuBtn">수정</button>
+          <button id="deleteMenuBtn">삭제</button>
+        </div>
+      </div>
+
+      <script src="/js/owner/menu-list.js"></script>
+      <script src="/js/owner/menu-list-modal.js"></script>
+    </div>
+
+
   </div>
-
-  <script src="/js/owner/menulist.js"></script>
 </div>
-
+1
 
 </body>
 </html>
