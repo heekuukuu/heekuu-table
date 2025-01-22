@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -184,4 +185,31 @@ public class MenuController {
     return ResponseEntity.ok(MenuDto.fromEntity(menu));
   }
 
+  // 판매 상태 수정
+  @PatchMapping("/{menuId}/availability")
+  public ResponseEntity<MenuDto> updateMenuAvailability(
+      @PathVariable(name = "menuId") Long menuId,
+      @RequestBody Map<String, Boolean> availabilityPayload,
+      HttpServletRequest request
+  ) {
+    try {
+      String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
+      if (accessToken == null || jwtUtil.isExpired(accessToken)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      }
+
+      Long authenticatedOwnerId = jwtUtil.getOwnerId(accessToken);
+      Boolean available = availabilityPayload.get("available");
+
+      if (available == null) {
+        return ResponseEntity.badRequest().body(null);
+      }
+
+      MenuDto updatedMenu = menuService.updateMenuAvailability(menuId, available,
+          authenticatedOwnerId);
+      return ResponseEntity.ok(updatedMenu);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
+  }
 }

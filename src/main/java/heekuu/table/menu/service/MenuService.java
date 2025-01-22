@@ -190,4 +190,22 @@ public class MenuService {
     return menuRepository.findById(menuId)
         .map(MenuDto::fromEntity);
   }
+
+  // 판매 상태 수정
+  @Transactional
+  public MenuDto updateMenuAvailability(Long menuId, Boolean available, Long authenticatedOwnerId)
+      throws IllegalAccessException {
+    Menu menu = menuRepository.findById(menuId)
+        .orElseThrow(() -> new IllegalArgumentException("해당 메뉴를 찾을 수 없습니다."));
+
+    if (!menu.getStore().getOwner().getOwnerId().equals(authenticatedOwnerId)) {
+      throw new IllegalAccessException("본인의 가게에 속한 메뉴만 수정할 수 있습니다.");
+    }
+
+    if (available != null) {
+      menu.setAvailable(available);
+    }
+
+    return MenuDto.fromEntity(menuRepository.save(menu));
+  }
 }
