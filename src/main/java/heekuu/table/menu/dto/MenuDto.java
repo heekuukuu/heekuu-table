@@ -3,12 +3,15 @@ package heekuu.table.menu.dto;
 import heekuu.table.menu.entity.Menu;
 import heekuu.table.menu.type.MenuCategory;
 import java.math.BigDecimal;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Setter
 @Getter
-
+@Data
+@ToString
 public class MenuDto {
 
   private Long menuId;

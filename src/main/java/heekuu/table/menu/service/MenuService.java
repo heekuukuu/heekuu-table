@@ -81,43 +81,35 @@ public class MenuService {
 
 
   @Transactional
-  public MenuDto updateMenu(Long menuId, MenuUpdateRequest request, Long authenticatedOwnerId,
-      MultipartFile imageFile)
-      throws IllegalAccessException, IOException {
-    // 메뉴 조회
+  public MenuDto updateMenu(
+      Long menuId, String name, BigDecimal price, String description,
+      MultipartFile file, MenuCategory menuCategory, Long authenticatedOwnerId
+  ) throws IllegalAccessException, IOException {
     Menu menu = menuRepository.findById(menuId)
         .orElseThrow(() -> new IllegalArgumentException("해당 메뉴를 찾을 수 없습니다."));
 
-    // 소유주 검증
     if (!menu.getStore().getOwner().getOwnerId().equals(authenticatedOwnerId)) {
-      throw new IllegalAccessException("본인의 가게 메뉴만 수정할 수 있습니다.");
+      throw new IllegalAccessException("본인의 가게에 속한 메뉴만 수정할 수 있습니다.");
     }
 
-    // 메뉴 정보 업데이트
-    if (request.getName() != null) {
-      menu.setName(request.getName());
+    if (name != null) {
+      menu.setName(name);
     }
-    if (request.getPrice() != null) {
-      menu.setPrice(request.getPrice());
+    if (price != null) {
+      menu.setPrice(price);
     }
-    if (request.getDescription() != null) {
-      menu.setDescription(request.getDescription());
+    if (description != null) {
+      menu.setDescription(description);
     }
-    if (request.getAvailable() != null) {
-      menu.setAvailable(request.getAvailable());
+    if (menuCategory != null) {
+      menu.setCategory(menuCategory);
     }
-
-    // 이미지 파일 업데이트
-    if (imageFile != null && !imageFile.isEmpty()) {
-      String imagePath = s3Uploader.upload(imageFile, "menu-images");
+    if (file != null && !file.isEmpty()) {
+      String imagePath = s3Uploader.upload(file, "menu-images");
       menu.setImagePath(imagePath);
     }
 
-    // 저장
-    Menu updatedMenu = menuRepository.save(menu);
-
-    // DTO로 변환하여 반환
-    return MenuDto.fromEntity(updatedMenu);
+    return MenuDto.fromEntity(menuRepository.save(menu));
   }
 
   /**
@@ -192,5 +184,10 @@ public class MenuService {
   //메뉴 아이디
   public Optional<Menu> findMenuById(Long menuId) {
     return menuRepository.findById(menuId);
+  }
+
+  public Optional<MenuDto> findMenuDtoById(Long menuId) {
+    return menuRepository.findById(menuId)
+        .map(MenuDto::fromEntity);
   }
 }

@@ -1,5 +1,6 @@
 package heekuu.table.menu.dto;
 
+import heekuu.table.menu.type.MenuCategory;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -30,4 +31,6 @@ public class MenuUpdateRequest {
   private String imagePath; // 음식 사진 경로 (선택 필드)
 
   private Boolean available;// 판매가능여부
+
+  private MenuCategory category;
 }

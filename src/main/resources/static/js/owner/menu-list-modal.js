@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.target.classList.contains("detail-btn")) {
       const menuId = event.target.dataset.menuId;
       selectedMenuId = menuId;
+      console.log("선택된 메뉴 ID:", selectedMenuId,menuId);
       loadMenuDetails(menuId);
       modal.style.display = "block";
     }
@@ -22,12 +23,17 @@ document.addEventListener("DOMContentLoaded", () => {
     modal.style.display = "none";
   });
 
-  // ✅ 수정 버튼 클릭 이벤트
-  editMenuBtn.addEventListener("click", () => {
-    if (selectedMenuId) {
-      window.location.href = `/menu/edit?menuId=${selectedMenuId}`;
-    }
-  });
+  // ✅ 수정 버튼 클릭 시 수정 페이지로 이동
+   editMenuBtn.addEventListener("click", () => {
+     if (selectedMenuId) {
+       // 수정 페이지로 이동
+       console.log("수정 페이지 이동 ID:", selectedMenuId);
+       window.location.href = `/owner/menu/edit?menuId=${selectedMenuId}`;
+     } else {
+       alert("수정할 메뉴를 선택하세요!");
+     }
+   });
+
 
   // ✅ 삭제 버튼 클릭 이벤트
   deleteMenuBtn.addEventListener("click", () => {

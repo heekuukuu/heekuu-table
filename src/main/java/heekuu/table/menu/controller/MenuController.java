@@ -11,6 +11,7 @@ import heekuu.table.owner.service.OwnerService;
 import heekuu.table.store.entity.Store;
 import heekuu.table.store.repository.StoreRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,9 +22,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -74,34 +77,34 @@ public class MenuController {
   }
 
   /**
-   * 메뉴 수정 -수정해야함 (어떤메뉴를 수정할껀지 )
+   * 메뉴 수정 (PATCH)
    */
-  @PutMapping(value = "/{menuId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PatchMapping("/{menuId}")
   public ResponseEntity<MenuDto> updateMenu(
       @PathVariable(name = "menuId") Long menuId,
-      @RequestPart(name = "name", required = false) String name,
-      @RequestPart(name = "price", required = false) BigDecimal price,
-      @RequestPart(name = "description", required = false) String description,
-      @RequestPart(name = "available", required = false) Boolean available,
-      @RequestPart(name = "imageFile", required = false) MultipartFile imageFile,
-      @RequestParam("menuCategory") MenuCategory menuCategory,
-      @RequestHeader("Authorization") String token
-  ) throws IllegalAccessException, IOException {
-    Long authenticatedOwnerId = jwtUtil.getOwnerId(token.replace("Bearer ", ""));
-    MenuUpdateRequest request = MenuUpdateRequest.builder()
-        .name(name)
-        .price(price)
-        .description(description)
-        .available(available)
-        .build();
+      @RequestParam(name = "name", required = false) String name,
+      @RequestParam(name = "price", required = false) BigDecimal price,
+      @RequestParam(name = "description", required = false) String description,
+      @RequestParam(name = "file", required = false) MultipartFile file,
+      @RequestParam(name = "menuCategory", required = false) MenuCategory menuCategory,
+      HttpServletRequest request
+  ) {
+    try {
+      String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
+      if (accessToken == null || jwtUtil.isExpired(accessToken)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      }
 
-    log.info(
-        "Request Parameters -테스트 name: {}, price: {}, description: {}, available: {}, imageFile: {}",
-        name, price, description, available,
-        imageFile != null ? imageFile.getOriginalFilename() : "null");
+      Long authenticatedOwnerId = jwtUtil.getOwnerId(accessToken);
 
-    MenuDto updatedMenu = menuService.updateMenu(menuId, request, authenticatedOwnerId, imageFile);
-    return ResponseEntity.ok(updatedMenu);
+      MenuDto updatedMenu = menuService.updateMenu(
+          menuId, name, price, description, file, menuCategory, authenticatedOwnerId
+      );
+
+      return ResponseEntity.ok(updatedMenu);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
   }
 
   /**
