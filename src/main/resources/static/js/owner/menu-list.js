@@ -1,9 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    // ✅ 1. 로그인된 사용자의 가게 정보 조회
     const storeResponse = await fetch("/api/stores/my-store", {
       method: "GET",
-      credentials: "include", // 쿠키 전송
+      credentials: "include",
     });
 
     if (!storeResponse.ok) {
@@ -11,13 +10,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const storeData = await storeResponse.json();
-    const storeId = storeData.storeId; // 로그인된 사용자의 가게 ID
+    const storeId = storeData.storeId;
     console.log("불러온 가게 ID:", storeId);
 
-    // ✅ 2. 메뉴 전체 리스트 초기 로드
     await loadMenuList(storeId);
 
-    // ✅ 3. 카테고리 클릭 이벤트 연결
     document.querySelectorAll(".menu-sidebar a").forEach((link) => {
       link.addEventListener("click", async (e) => {
         e.preventDefault();
@@ -37,7 +34,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// ✅ 메뉴 전체 리스트 불러오기
 async function loadMenuList(storeId) {
   try {
     const response = await fetch(`/api/menus/${storeId}`, {
@@ -58,7 +54,6 @@ async function loadMenuList(storeId) {
   }
 }
 
-// ✅ 카테고리별 메뉴 불러오기
 async function loadMenuByCategory(storeId, category) {
   try {
     const response = await fetch(
@@ -82,10 +77,9 @@ async function loadMenuByCategory(storeId, category) {
   }
 }
 
-// ✅ 메뉴 리스트 렌더링
 function renderMenuList(menus) {
   const menuContainer = document.getElementById("menuContainer");
-  menuContainer.innerHTML = ""; // 기존 메뉴 초기화
+  menuContainer.innerHTML = "";
 
   if (menus.length === 0) {
     menuContainer.innerHTML = `<p class="text-center">📭 해당 카테고리에 메뉴가 없습니다.</p>`;
@@ -100,13 +94,48 @@ function renderMenuList(menus) {
           <h5 class="card-title">${menu.name}</h5>
           <p class="card-text">${menu.description || "설명이 없습니다."}</p>
           <p class="card-text">💰 ${menu.price ? menu.price.toLocaleString() + "원" : "가격 정보 없음"}</p>
-          <p class="card-text">${menu.available ? "판매 중 ✅" : "품절 ❌"}</p>
+          <p class="card-text" >${menu.available ? "판매 중 ✅" : "품절 ❌"}</p>
           <button class="btn btn-primary detail-btn" data-menu-id="${menu.menuId}">상세보기</button>
+          <button class="btn btn-danger available-btn" data-menu-id="${menu.menuId}">판매상태 변경</button>
         </div>
       </div>
     `;
     menuContainer.insertAdjacentHTML("beforeend", menuCard);
   });
-
-
 }
+
+document.addEventListener("click", async (event) => {
+  if (event.target.classList.contains("available-btn")) {
+    const menuId = event.target.dataset.menuId;
+    const currentButton = event.target;
+
+    const isAvailable = currentButton.textContent.includes("판매 중");
+
+    try {
+      const response = await fetch(`/api/menus/${menuId}/availability`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ available: !isAvailable }),
+      });
+
+      if (!response.ok) {
+        throw new Error("❌ 판매 상태 변경에 실패했습니다.");
+      }
+
+      const updatedMenu = await response.json();
+      console.log("✅ 변경된 메뉴:", updatedMenu);
+
+      currentButton.textContent = updatedMenu.available ? "판매 중 ✅" : "품절 ❌";
+      const statusText = currentButton.parentElement.querySelector(".card-text:nth-child(4)");
+      if (statusText) {
+        statusText.textContent = updatedMenu.available ? "판매 중 ✅" : "품절 ❌";
+      }
+    } catch (error) {
+      console.error("🚨 판매 상태 변경 오류:", error);
+      alert("❌ 판매 상태 변경 중 오류가 발생했습니다.");
+    }
+  }
+});
