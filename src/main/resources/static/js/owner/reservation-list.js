@@ -11,12 +11,14 @@ document.addEventListener("DOMContentLoaded", () => {
     closeButton.addEventListener("click", () => {
       const detailPanel = document.getElementById("orderDetailPanel");
       if (detailPanel) {
-        detailPanel.classList.add("hidden"); // 패널 숨기기
-            console.log("✅ 모달 창이 닫혔습니다.");
+        detailPanel.style.display = "none"; // 패널 숨기기
+        detailPanel.dataset.reservationId = ""; // ID 초기화
+        console.log("✅ 모달 창이 닫혔습니다.");
       }
     });
   }
 });
+
 
 const ITEMS_PER_PAGE = 5;  // 페이지 당 항목 수
 let currentPage = 1;       // 현재 페이지
@@ -87,7 +89,8 @@ function getStatusOptions(currentStatus) {
       return `<option value="${status}" ${status === currentStatus ? "selected" : ""} disabled>${convertStatus(status)}</option>`;
     }
     return `<option value="${status}" ${status === currentStatus ? "selected" : ""}>${convertStatus(status)}</option>`;
-  }).join("");
+  })
+  .join("");
 }
 
 // ✅ 상태값 한글 변환
@@ -115,8 +118,8 @@ async function updateReservationStatus(reservationId, newStatus) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        status: newStatus
-      })
+        status: newStatus,
+      }),
     });
 
     if (!response.ok) {
@@ -138,7 +141,9 @@ async function loadOrderDetails(reservationId) {
   const detailPanel = document.getElementById("orderDetailPanel");
 
   // 패널 열림/닫힘 토글 로직
-  if (detailPanel.style.display === "block" && detailPanel.dataset.reservationId === String(reservationId)) {
+  if (detailPanel.style.display === "block" &&
+  detailPanel.dataset.reservationId === String(reservationId)
+  ) {
     detailPanel.style.display = "none"; // 패널 숨기기
     detailPanel.dataset.reservationId = ""; // 현재 ID 초기화
     console.log("✅ 모달 창이 닫혔습니다.");
@@ -173,7 +178,7 @@ async function loadOrderDetails(reservationId) {
         row.innerHTML = `
           <td>${item.name}</td>
           <td>${item.quantity}</td>
-
+          <td>${item.totalPrice ? `${item.totalPrice.toLocaleString()}원` : "가격 정보 없음"}</td>
         `;
         tableBody.appendChild(row);
       });

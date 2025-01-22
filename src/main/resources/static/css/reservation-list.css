@@ -1,4 +1,4 @@
-/* ✅ 전체 페이지 스타일 */
+/* ✅ 기본 페이지 스타일 */
 body {
   font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
   background-color: #f9f9f9;
@@ -6,7 +6,6 @@ body {
   padding: 0;
 }
 
-/* ✅ 컨테이너 스타일 */
 .container {
   max-width: 1200px;
   margin: 50px auto;
@@ -80,160 +79,89 @@ body {
   font-size: 16px;
 }
 
-/* ✅ 페이지네이션 */
-.pagination {
-  display: flex;
+/* ✅ 모달 창 스타일 */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
   justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal.active {
+  display: flex;
+}
+
+/* 모달 내용 */
+.modal-content {
+  position: relative;
+  background: #fff; /* 흰색 배경 */
+  padding: 20px;
+  border-radius: 8px; /* 모서리 둥글게 */
+  width: 400px; /* 너비 */
+  max-width: 90%; /* 화면 크기에 따라 유동 조정 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
+  text-align: center; /* 텍스트 중앙 정렬 */
+  margin:auto;
+  margin-top: 10%;
+}
+
+
+.modal.active .modal-content {
+  transform: scale(1);
+  opacity: 1;
+}
+
+
+/* 닫기 버튼 */
+.close-button {
+  position: absolute; /* 부모 기준 위치 */
+  top: 10px;
+  right: 10px;
+  background: none; /* 배경 없음 */
+  border: none; /* 테두리 없음 */
+  font-size: 18px; /* 글자 크기 */
+  font-weight: bold; /* 굵은 글씨 */
+  cursor: pointer; /* 마우스 포인터 변경 */
+  color: #000; /* 검정 글자 */
+}
+
+.close-button:hover {
+  color: #ff0000;
+}
+
+/* ✅ 테이블 내 상세 정보 */
+#orderDetailTable {
+  width: 100%;
+  border-collapse: collapse;
   margin-top: 20px;
 }
 
-.pagination button {
-  background-color: #fff;
-  border: 1px solid #ff80ab;
-  color: #ff80ab;
-  padding: 8px 16px;
-  margin: 0 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
+#orderDetailTable th,
+#orderDetailTable td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
 }
 
-.pagination button:hover {
-  background-color: #ff80ab;
-  color: #fff;
-  transform: scale(1.1);
-}
-
-.pagination button.active {
-  background-color: #ff4d88;
-  color: #fff;
+#orderDetailTable th {
+  background-color: #f4f4f4;
   font-weight: bold;
-  border-color: #ff4d88;
 }
 
-/* ✅ 페이드인 애니메이션 */
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-
-/* ✅ 팝업 모달 스타일 */
-#orderDetailPanel {
-  position: fixed; /* 화면 중앙에 고정 */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* 중앙 정렬 */
-  width: 400px; /* 모달 창 너비 */
-  max-width: 90%; /* 화면 크기에 따라 너비 조정 */
-  background-color: #ffffff; /* 배경색 */
-  border: 2px solid #ff80ab; /* 테두리 */
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* 그림자 효과 */
-  z-index: 10000; /* 항상 최상단에 표시 */
-  padding: 20px;
-  visibility: hidden; /* 초기에는 숨김 */
-  display: none; /* 기본적으로 표시 안 함 */
+#orderDetailTable tbody tr:hover {
+  background-color: #f9f9f9;
 }
 
-/* ✅ 팝업 열기 상태 */
-#orderDetailPanel.open {
-  visibility: visible;
-  display: block;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-/* ✅ 닫기 버튼 스타일 */
-#closeOrderDetail {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #ff80ab;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
+/* 빈 상태 메시지 스타일 */
+.empty-message {
   text-align: center;
-  font-size: 18px;
-  line-height: 30px;
+  color: #888; /* 회색 글씨 */
+  font-style: italic; /* 기울임 */
+  margin-top: 20px; /* 위쪽 여백 */
 }
-
-#closeOrderDetail:hover {
-  background-color: #ff4d88;
-  box-shadow: 0 4px 10px rgba(255, 77, 136, 0.3);
-}
-
-/* ✅ 애니메이션 효과 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -45%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
-}
-  #closeOrderDetail:hover {
-    background-color: #f48fb1;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-#orderDetailPanel {
-  position: absolute; /* 부모 컨테이너 기준으로 위치 */
-  top: 10%; /* 테이블 위에서 약간 떨어진 위치 */
-  right: 10%; /* 화면 오른쪽에서 10% 떨어짐 */
-  width: 300px; /* 패널 너비 */
-  background-color: #ffffff;
-  border: 1px solid #ff80ab;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  z-index: 9999;
-  display: none; /* 초기 상태에서 숨김 */
-  visibility: hidden;
-  transition: all 0.3s ease-in-out; /* 부드러운 애니메이션 */
-}
-
-#orderDetailPanel.open {
-  visibility: visible;
-  display: block;
-}
-
-  #orderDetailPanel .close-btn {
-    display: block;
-    margin-left: auto;
-    background: none;
-    border: none;
-    font-size: 16px;
-    color: #ff4081;
-    cursor: pointer;
-  }
-
-
-  /* 제목 스타일 */
-  #orderDetailPanel h3 {
-    margin-top: 0;
-    color: #333;
-    text-align: center;
-  }
-
-  /* 스크롤바 스타일 */
-  #orderDetailPanel::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  #orderDetailPanel::-webkit-scrollbar-thumb {
-    background-color: #f8a5c2;
-    border-radius: 10px;
-  }
-
-  #orderDetailPanel::-webkit-scrollbar-track {
-    background-color: #f3f3f3;
-  }}

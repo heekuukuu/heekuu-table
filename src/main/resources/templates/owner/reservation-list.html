@@ -35,23 +35,27 @@
     </div>
 
   </table>
-  <div id="orderDetailPanel" style="display: none;">
 
-    <h3>주문 상세 정보</h3>
-    <table id="orderDetailTable">
 
-      <thead>
-      <tr>
-        <th>메뉴 이름</th>
-        <th>수량</th>
-      </tr>
-
-      </thead>
-
-      <tbody>
-      </tbody>
-    </table>
+  <div id="orderDetailPanel" class="modal">
+    <div class="modal-content">
+      <button id="closeOrderDetail" class="close-button">X</button>
+      <h3>주문 상세 정보</h3>
+      <table id="orderDetailTable">
+        <thead>
+        <tr>
+          <th>메뉴 이름</th>
+          <th>수량</th>
+          <th>총 가격</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- 주문 상세 데이터가 동적으로 추가됩니다 -->
+        </tbody>
+      </table>
+    </div>
   </div>
+
   <div id="emptyMessage" class="alert alert-warning text-center" style="display: none;">
     📭 등록된 예약이 없습니다.
   </div>

@@ -27,85 +27,79 @@ public class ReservationResponse {
   private LocalDateTime reservationTime; // 예약 시간
   private Integer numberOfPeople; // 예약 인원
   private String note; // 메모
-
   private Boolean isTakeout; // 포장 여부
   private String paymentStatus; // 결제 상태
   private Long storeId; // 가게 ID
   private String storeName; // 가게 이름
   private Long ownerId; // 오너 ID
-  private Long userId;
+  private Long userId; // 사용자 ID
   private List<OrderItemDto> orderItems; // 주문 항목 리스트
   private String status; // 예약 상태 (예: PENDING, CONFIRMED)
+
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  private String totalPrice;
+  private String totalPrice; // 총 금액
 
-  // Reservation 엔티티를 기반으로 Response 생성
-  public ReservationResponse(Reservation reservation) {
-    this.reservationId = reservation.getReservationId();
-    this.reservationTime = reservation.getReservationTime();
-    this.numberOfPeople = reservation.getNumberOfPeople();
-    this.userId = reservation.getUser() != null ? reservation.getUser().getUserId() : null;
-    this.note = reservation.getNote();
-    this.ownerId = reservation.getStore().getOwner() != null
-        ? reservation.getStore().getOwner().getOwnerId()
-        : null;
-    this.isTakeout = reservation.getIsTakeout();
-    this.paymentStatus = reservation.getPaymentStatus();
-    this.storeId = reservation.getStore().getStoreId();
-    this.storeName = reservation.getStore().getName();
-    this.status = reservation.getStatus().toString();
-
-    // Null 체크 후 처리
-    this.orderItems = reservation.getOrderItems() != null
-        ? reservation.getOrderItems().stream()
-        .map(OrderItemDto::fromEntity)
-        .collect(Collectors.toList())
-        : new ArrayList<>();
-    this.totalPrice = reservation.getTotalPrice() != null
-        ? reservation.getTotalPrice().setScale(0, RoundingMode.DOWN) + "원"
-        : "0원";
-    //log.info("Reservation ID: {}, Total Price during Response Creation: {}", reservation.getReservationId(), reservation.getTotalPrice());
-
-  }
-
-  public ReservationResponse(Reservation reservation, List<OrderItem> savedOrderItems) {
-
-
-    this.reservationId = reservation.getReservationId();
-    this.reservationTime = reservation.getReservationTime();
-    this.numberOfPeople = reservation.getNumberOfPeople();
-    this.note = reservation.getNote();
-    this.ownerId = reservation.getStore().getOwner() != null
-        ? reservation.getStore().getOwner().getOwnerId()
-        : null;
-    this.isTakeout = reservation.getIsTakeout();
-    this.userId = reservation.getUser() != null ? reservation.getUser().getUserId() : null;
-    this.paymentStatus = reservation.getPaymentStatus();
-    this.storeId = reservation.getStore().getStoreId();
-    this.storeName = reservation.getStore().getName();
-    this.status = reservation.getStatus().toString();
-
-    // 저장된 OrderItems 리스트를 OrderItemDto로 변환하여 포함
-    this.orderItems = savedOrderItems != null
-        ? savedOrderItems.stream()
-        .map(OrderItemDto::fromEntity)
-        .collect(Collectors.toList())
-        : new ArrayList<>();
-
-    // 총 금액 계산
-    if (reservation.getTotalPrice() != null) {
-      // Reservation 엔터티에 저장된 totalPrice 사용
-      this.totalPrice = reservation.getTotalPrice().setScale(0, RoundingMode.DOWN) + "원";
-    } else {
-      // OrderItems를 통해 계산
-      BigDecimal total = savedOrderItems != null
-          ? savedOrderItems.stream()
-          .map(orderItem -> orderItem.getMenu().getPrice()
-              .multiply(BigDecimal.valueOf(orderItem.getQuantity())))
-          .reduce(BigDecimal.ZERO, BigDecimal::add)
-          : BigDecimal.ZERO;
-      this.totalPrice = total.setScale(0, RoundingMode.DOWN) + "원";
+  // 금액 포맷팅 메서드
+  private String formatPrice(BigDecimal price) {
+    if (price == null) {
+      return "0원";
     }
+    NumberFormat formatter = NumberFormat.getInstance(Locale.KOREA);
+    return formatter.format(price.setScale(0, RoundingMode.DOWN)) + "원";
   }
 
+  // 기본 생성자: Reservation 객체만으로 초기화
+  public ReservationResponse(Reservation reservation) {
+    initializeFromReservation(reservation);
+    this.orderItems = convertOrderItems(reservation.getOrderItems());
+    this.totalPrice = formatPrice(reservation.getTotalPrice());
+  }
+
+  // 확장 생성자: OrderItems 포함
+  public ReservationResponse(Reservation reservation, List<OrderItem> savedOrderItems) {
+    initializeFromReservation(reservation);
+    this.orderItems = convertOrderItems(savedOrderItems);
+    this.totalPrice = formatPrice(calculateTotalPrice(reservation, savedOrderItems));
+  }
+
+  // Reservation 기본 필드 초기화
+  private void initializeFromReservation(Reservation reservation) {
+    this.reservationId = reservation.getReservationId();
+    this.reservationTime = reservation.getReservationTime();
+    this.numberOfPeople = reservation.getNumberOfPeople();
+    this.note = reservation.getNote();
+    this.isTakeout = reservation.getIsTakeout();
+    this.paymentStatus = reservation.getPaymentStatus();
+    this.storeId = reservation.getStore().getStoreId();
+    this.storeName = reservation.getStore().getName();
+    this.ownerId = reservation.getStore().getOwner() != null
+        ? reservation.getStore().getOwner().getOwnerId()
+        : null;
+    this.userId = reservation.getUser() != null ? reservation.getUser().getUserId() : null;
+    this.status = reservation.getStatus().toString();
+  }
+
+  // OrderItem 리스트를 OrderItemDto 리스트로 변환
+  private List<OrderItemDto> convertOrderItems(List<OrderItem> orderItems) {
+    if (orderItems == null) {
+      return new ArrayList<>();
+    }
+    return orderItems.stream()
+        .map(OrderItemDto::fromEntity)
+        .collect(Collectors.toList());
+  }
+
+  // 총 금액 계산
+  private BigDecimal calculateTotalPrice(Reservation reservation, List<OrderItem> savedOrderItems) {
+    if (reservation.getTotalPrice() != null) {
+      return reservation.getTotalPrice();
+    }
+    if (savedOrderItems == null) {
+      return BigDecimal.ZERO;
+    }
+    return savedOrderItems.stream()
+        .map(orderItem -> orderItem.getMenu().getPrice()
+            .multiply(BigDecimal.valueOf(orderItem.getQuantity())))
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
 }
