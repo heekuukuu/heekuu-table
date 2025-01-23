@@ -34,7 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class OwnerService {
-  //ㅅ
+
 
   private final OwnerRepository ownerRepository;
   private final PasswordEncoder passwordEncoder;
@@ -58,6 +58,7 @@ public class OwnerService {
         jwtUtil.getRefreshTokenExpiration(),
         TimeUnit.MILLISECONDS
     );
+    log.info("Redis에 저장된 Refresh Token: {}", refreshToken);
 
     // Access/Refresh Token 쿠키 저장
     saveTokenToCookie(response, "access_token", accessToken, jwtUtil.getAccessTokenExpiration());
@@ -73,7 +74,7 @@ public class OwnerService {
         .httpOnly(true)
         .secure(true)
         .path("/")
-        .sameSite("Strict")
+        .sameSite("Lax")
         .maxAge(Duration.ofMillis(expiration))
         .build();
     response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -128,7 +129,6 @@ public class OwnerService {
     return owner;
   }
 
-
   // ✅ Access Token 갱신
 
   @Transactional
@@ -149,18 +149,22 @@ public class OwnerService {
     response.put("access_token", newAccessToken);
     return response;
   }
+
   /**
    * ✅ 로그아웃
    */
   public void logout(HttpServletRequest request, HttpServletResponse response) {
     String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
     String refreshToken = jwtUtil.extractTokenFromCookie(request, "refresh_token");
-
+    // TokenConfig에서 만료 시간 설정 확인
+    log.info("Access Token 만료 시간: {}", tokenConfig.getAccessTokenExpiration());
+    log.info("Refresh Token 만료 시간: {}", tokenConfig.getRefreshTokenExpiration());
     if (accessToken == null || refreshToken == null) {
       throw new IllegalArgumentException("Access Token 또는 Refresh Token이 존재하지 않습니다.");
     }
-
+    //토큰 무효화
     invalidateTokens(accessToken, refreshToken);
+    //쿠키 삭제
     jwtUtil.clearTokenCookies(response);
 
     log.info("🔒 로그아웃 성공");

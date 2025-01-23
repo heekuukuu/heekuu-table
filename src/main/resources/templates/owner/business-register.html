@@ -5,24 +5,25 @@
 <head>
   <meta charset="UTF-8">
   <title>사업자 등록</title>
-<link href="/css/sidebar-form.css" rel="stylesheet"> <!-- 페이지 전용 스타일 -->
+  <link href="/css/sidebar-form.css" rel="stylesheet"> <!-- 페이지 전용 스타일 -->
 </head>
 
 <body>
 <!-- 콘텐츠 영역 -->
 
 <div layout:fragment="content">
-<div class="form-container">
-  <h3 class="form-title">사업자 등록</h3>
-  <form id="businessForm" enctype="multipart/form-data">
-    <div class="mb-3">
-      <label for="businessFile" class="form-label">사업자 등록증 업로드</label>
-      <input type="file" class="form-control" id="businessFile" name="businessFile" accept="image/*,application/pdf" required>
-    </div>
-    <button type="button" id="submitBusinessBtn" class="btn btn-primary w-100">등록</button>
-  </form>
-</div>
-  <script src="/js/business.js"></script>
+  <div class="form-container">
+    <h3 class="form-title">사업자 등록</h3>
+    <form id="businessForm" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="businessFile" class="form-label">사업자 등록증 업로드</label>
+        <input type="file" class="form-control" id="businessFile" name="businessFile"
+               accept="image/*,application/pdf" required>
+      </div>
+      <button type="button" id="submitBusinessBtn" class="btn btn-primary w-100">등록</button>
+    </form>
+  </div>
+  <script src="/js/owner/business.js"></script>
 </div>
 <!-- 페이지 전용 스크립트 -->
 

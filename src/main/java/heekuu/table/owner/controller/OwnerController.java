@@ -68,7 +68,10 @@ public class OwnerController {
   @PostMapping("/refresh")
   public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
     Map<String, String> tokens = ownerService.refreshAccessToken(request);
+    log.info("✅ Access Token 저장 완료");
+    log.info("✅ Refresh Token 저장 완료");
     return ResponseEntity.ok(tokens);
+
   }
 
   // ✅ 로그아웃 API
