@@ -108,7 +108,9 @@ public class SecurityConfig {
             "/owner/**",
             "/owner/main",
             "/api/order-items/**",
-            "/menu/edit/**"
+            "/menu/edit/**",
+            "/user/user-home",
+            "/store-list"
         ).permitAll()
         .requestMatchers("/api/order-items/**").authenticated()
         .requestMatchers("/api/owners/reservations/**").authenticated()

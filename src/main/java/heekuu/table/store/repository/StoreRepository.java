@@ -2,6 +2,7 @@ package heekuu.table.store.repository;
 
 import heekuu.table.owner.entity.Owner;
 import heekuu.table.store.entity.Store;
+import heekuu.table.store.type.StoreCategory;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,4 +22,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
   //로그인된 오너가 가게의 소유여부
   boolean existsByOwner_OwnerId(Long authenticatedOwnerId);
+
+  List<Store> findByCategory(StoreCategory category);  // 카테고리별 가게 조회
 }

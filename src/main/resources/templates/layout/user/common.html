@@ -5,35 +5,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title layout:title-pattern="$CONTENT_TITLE - HeekuuTable">HeekuuTable</title>
+  <!--  <title layout:title-pattern="$CONTENT_TITLE - HeekuuTable">HeekuuTable</title>-->
 
   <!-- ✅ 공통 CSS -->
   <link th:href="@{/css/navbar.css}" rel="stylesheet">
-  <link th:href="@{/css/sidebar.css}" rel="stylesheet">
-  <link th:href="@{/css/common.css}" rel="stylesheet">
+  <link th:href="@{/css/store/store-list.css}" rel="stylesheet">
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
         rel="stylesheet">
+
+  <title>Welcome to HeekuuTable🥰</title>
 </head>
 <body>
 
 <!-- ✅ 네비게이션 바 -->
-<div th:replace="layout/navbar :: navbar"></div>
-<!--메뉴바-->
-<div th:replace="layout/sidebar :: menuToggle"></div>
-<!-- ✅ 사이드바 -->
-<div th:replace="layout/sidebar :: sidebar"></div>
+<div th:replace="~{layout/user/navbar :: navbar}"></div>
+
+<!-- ✅ 카테고리 -->
+<div th:replace="~{layout/user/store-list :: category-container}"></div>
+
 
 <!-- ✅ 콘텐츠 영역 -->
 <div class="content" layout:fragment="content">
-
+  <p>콘텐츠가 들어갈영역</p>
 
 </div>
 
 <!-- ✅ 공통 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/owner/logout.js"></script>
-<script src="/js/owner/profilebox.js"></script>
-<script src="/js/owner/sidebar.js"></script>
+<!--<script src="/static/js/category.js"></script>-->
 </body>
 </html>
 

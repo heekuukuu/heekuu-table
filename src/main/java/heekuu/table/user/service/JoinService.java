@@ -41,17 +41,14 @@ public class JoinService {
     if (isEmailExist) {
       throw new RuntimeException("이미 등록된 이메일입니다.");
     }
-//    if (isNicknameExist) {
-//      throw new RuntimeException("이미 등록된 닉네임입니다.");
-//    }
+
     User data = new User();
     data.setUsername(username);
     data.setPassword(bCryptPasswordEncoder.encode(password));
     data.setEmail(email);
     data.setNickname(nickname);
-    data.setRole(Role.USER);
     data.setLoginType(LoginType.GENERAL);
-
+    data.setRole(Role.USER); // 기본 역할 설정
     userRepository.save(data);
   }
 

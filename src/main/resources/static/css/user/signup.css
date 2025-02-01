@@ -1,0 +1,40 @@
+
+    body {
+      background-color: #f9f9f9;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .btn-social {
+      width: 32%;
+    }
+    .btn-kakao {
+      background-color: #fee500;
+      color: black;
+    }
+    .btn-kakao:hover {
+      background-color: #fdd835;
+    }
+    .btn-naver {
+      background-color: #03c75a;
+      color: white;
+    }
+    .btn-naver:hover {
+      background-color: #02a94f;
+    }
+    .btn-google {
+      background-color: #4285f4;
+      color: white;
+    }
+    .btn-google:hover {
+      background-color: #3367d6;
+    }
+    .form-label {
+      font-weight: bold;
+    }

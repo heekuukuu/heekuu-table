@@ -4,6 +4,7 @@ import heekuu.table.jwt.util.JWTUtil;
 import heekuu.table.store.dto.StoreDto;
 import heekuu.table.store.dto.StoreUpdateRequest;
 import heekuu.table.store.service.StoreService;
+import heekuu.table.store.type.StoreCategory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -31,6 +33,7 @@ public class StoreController {
 
   private final StoreService storeService;
   private final JWTUtil jwtUtil;
+
   /**
    * 가게 등록
    *
@@ -41,7 +44,7 @@ public class StoreController {
   public ResponseEntity<?> registerStore(
       @RequestBody StoreDto storeDto,
       HttpServletRequest request
-  ){
+  ) {
     try {
       // ✅ 1. 쿠키에서 Access Token 추출
       String accessToken = jwtUtil.extractTokenFromCookie(request, "access_token");
@@ -62,11 +65,13 @@ public class StoreController {
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body("❌ 가게 등록 중 서버 오류가 발생했습니다.");
-    }}
+    }
+  }
+
   /**
    * 가게 수정
    *
-   * @param storeId  수정할 가게 ID
+   * @param storeId            수정할 가게 ID
    * @param storeUpdateRequest 수정할 내용
    * @return 수정된 가게 정보
    */
@@ -101,10 +106,12 @@ public class StoreController {
       log.error("🚨 서버 오류 발생: {}", e.getMessage(), e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body("❌ 가게 정보 수정 중 서버 오류가 발생했습니다.");
-    }}
+    }
+  }
 
   /**
    * 가게 삭제
+   *
    * @param storeId 삭제할 가게 ID
    * @return 삭제 결과
    */
@@ -118,23 +125,41 @@ public class StoreController {
     return ResponseEntity.ok().build();
   }
 
-
-
-  /**
-   * 모든 가게 조회
-   *
-   * @return 가게 리스트
-   */
+  // 모든 가게 조회 및 카테고리별 조회
   @GetMapping
-  public ResponseEntity<List<StoreDto>> getAllStores() {
-    List<StoreDto> stores = storeService.getAllStores();
+  public String getStores(@RequestParam(required = false) StoreCategory category, Model model) {
+    List<StoreDto> stores;
 
-    if (stores.isEmpty()) {
-      return ResponseEntity.notFound().build();  // 가게가 없으면 404 Not Found
+    // 카테고리가 선택되지 않았을 경우 전체 조회
+    if (category == null) {
+      stores = storeService.getAllStores();
+    } else {
+      stores = storeService.getStoresByCategory(category);
     }
 
-    return ResponseEntity.ok(stores);  // 가게가 있으면 200 OK와 함께 반환
+    // 카테고리 목록을 모델에 추가
+    model.addAttribute("categories", StoreCategory.values());
+    model.addAttribute("stores", stores);
+    model.addAttribute("selectedCategory", category);
+
+    return "user/stores/store-list";
   }
+
+//  /**
+//   * 모든 가게 조회
+//   *
+//   * @return 가게 리스트
+//   */
+//  @GetMapping
+//  public ResponseEntity<List<StoreDto>> getAllStores() {
+//    List<StoreDto> stores = storeService.getAllStores();
+//
+//    if (stores.isEmpty()) {
+//      return ResponseEntity.notFound().build();  // 가게가 없으면 404 Not Found
+//    }
+//
+//    return ResponseEntity.ok(stores);  // 가게가 있으면 200 OK와 함께 반환
+//  }
 
   //내가게조회
   @GetMapping("/my-store")

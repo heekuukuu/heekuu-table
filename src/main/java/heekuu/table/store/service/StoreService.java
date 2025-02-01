@@ -9,6 +9,7 @@ import heekuu.table.store.dto.StoreDto;
 import heekuu.table.store.dto.StoreUpdateRequest;
 import heekuu.table.store.entity.Store;
 import heekuu.table.store.repository.StoreRepository;
+import heekuu.table.store.type.StoreCategory;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
@@ -59,12 +60,13 @@ public class StoreService {
   /**
    * 가게 수정
    *
-   * @param storeId  수정할 가게 ID
+   * @param storeId            수정할 가게 ID
    * @param storeUpdateRequest 수정된 정보가 담긴객체
    * @return 수정된 StoreDto 객체
    */
   @Transactional
-  public StoreDto updateStore(Long storeId, StoreUpdateRequest storeUpdateRequest, Long authenticatedOwnerId)
+  public StoreDto updateStore(Long storeId, StoreUpdateRequest storeUpdateRequest,
+      Long authenticatedOwnerId)
       throws IllegalAccessException {
     // 기존 가게 조회
     Store existingStore = storeRepository.findById(storeId)
@@ -91,7 +93,6 @@ public class StoreService {
       existingStore.setCloseTime(storeUpdateRequest.getCloseTime());
     }
 
-
     // 저장 및 반환
     return StoreDto.fromEntity(storeRepository.save(existingStore));
   }
@@ -100,7 +101,8 @@ public class StoreService {
   /**
    * 가게 삭제
    * todo: 삭제말고비활성화로 변경
-   * @param storeId 삭제할 가게 ID
+   *
+   * @param storeId              삭제할 가게 ID
    * @param authenticatedOwnerId 인증된 소유주 ID
    */
   @Transactional
@@ -118,13 +120,25 @@ public class StoreService {
 
   /**
    * 모든 가게 조회
-   *
+   * <p>
    * 토큰 X : 전체조회
+   *
    * @return List<StoreDto> 가게 DTO 리스트
    */
   @Transactional
   public List<StoreDto> getAllStores() {
     List<Store> stores = storeRepository.findAll();  // Store 엔티티 리스트 조회
+    if (stores == null || stores.isEmpty()) {
+      return Collections.emptyList();  // 비어 있으면 빈 리스트 반환
+    }
+    return stores.stream().map(StoreDto::fromEntity).collect(Collectors.toList());
+  }
+
+  //카테고리조회
+  @Transactional
+  public List<StoreDto> getStoresByCategory(StoreCategory category) {
+    // 선택된 카테고리로 가게 조회
+    List<Store> stores = storeRepository.findByCategory(category);
     if (stores == null || stores.isEmpty()) {
       return Collections.emptyList();  // 비어 있으면 빈 리스트 반환
     }
