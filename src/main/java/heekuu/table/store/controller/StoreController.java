@@ -7,6 +7,7 @@ import heekuu.table.store.service.StoreService;
 import heekuu.table.store.type.StoreCategory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -125,41 +126,48 @@ public class StoreController {
     return ResponseEntity.ok().build();
   }
 
-  // 모든 가게 조회 및 카테고리별 조회
-  @GetMapping
-  public String getStores(@RequestParam(required = false) StoreCategory category, Model model) {
-    List<StoreDto> stores;
-
-    // 카테고리가 선택되지 않았을 경우 전체 조회
-    if (category == null) {
-      stores = storeService.getAllStores();
-    } else {
-      stores = storeService.getStoresByCategory(category);
-    }
-
-    // 카테고리 목록을 모델에 추가
-    model.addAttribute("categories", StoreCategory.values());
-    model.addAttribute("stores", stores);
-    model.addAttribute("selectedCategory", category);
-
-    return "user/stores/store-list";
-  }
-
-//  /**
-//   * 모든 가게 조회
-//   *
-//   * @return 가게 리스트
-//   */
+//  // 모든 가게 조회 및 카테고리별 조회
 //  @GetMapping
-//  public ResponseEntity<List<StoreDto>> getAllStores() {
-//    List<StoreDto> stores = storeService.getAllStores();
+//  public String getStores(@RequestParam(required = false) StoreCategory category, Model model) {
+//    List<StoreDto> stores;
 //
-//    if (stores.isEmpty()) {
-//      return ResponseEntity.notFound().build();  // 가게가 없으면 404 Not Found
+//    // 카테고리가 선택되지 않았을 경우 전체 조회
+//    if (category == null) {
+//      stores = storeService.getAllStores();
+//    } else {
+//      stores = storeService.getStoresByCategory(category);
 //    }
 //
-//    return ResponseEntity.ok(stores);  // 가게가 있으면 200 OK와 함께 반환
+//    // 카테고리 목록을 모델에 추가
+//    model.addAttribute("categories", StoreCategory.values());
+//    model.addAttribute("stores", stores);
+//    model.addAttribute("selectedCategory", category);
+//
+//    return "user/stores/store-list";
 //  }
+
+  /**
+   * @param query
+   * @param category
+   * @return 카테고리 및 검색후 반환값
+   */
+
+
+  @GetMapping
+  public ResponseEntity<List<StoreDto>> listStores(
+      @RequestParam(value = "query", required = false) String query,
+      @RequestParam(value = "category", required = false) StoreCategory category) {
+    List<StoreDto> stores = Collections.emptyList();  // 기본적으로 빈 리스트 설정
+
+    if (query != null && !query.isEmpty()) {
+      stores = storeService.searchStoresByName(query);  // 가게 이름 검색
+    } else if (category != null) {
+      stores = storeService.getStoresByCategory(category);  // 카테고리 필터링
+    }
+
+    return ResponseEntity.ok(stores);  // JSON 형태로 반환
+  }
+
 
   //내가게조회
   @GetMapping("/my-store")

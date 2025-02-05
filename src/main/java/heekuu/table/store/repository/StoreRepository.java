@@ -24,4 +24,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
   boolean existsByOwner_OwnerId(Long authenticatedOwnerId);
 
   List<Store> findByCategory(StoreCategory category);  // 카테고리별 가게 조회
+
+  List<Store> findByNameContainingIgnoreCase(String name); // 가게이름 유사검색포함(대소문자구분 X )
 }

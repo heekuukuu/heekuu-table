@@ -9,53 +9,55 @@
 <body>
 <div th:fragment="category-container">
 
-  <!-- ✅ 검색창 추가 -->
+
   <div class="search-container">
-    <form th:action="@{/stores}" method="get">
+    <form id="searchForm" method="get">
       <input type="text" name="query" class="search-box" placeholder="가게 이름을 검색하세요">
       <button type="submit" class="search-button">검색</button>
     </form>
-  </div>
-  <!-- 카테고리 버튼들 -->
-  <div class="category-container">
-    <a href="/stores?category=KOREAN" class="category-button">
-      <img th:src="@{/images/korean-food.png}" alt="한식">
-      <span>한식</span>
-    </a>
-    <a href="/stores?category=JAPANESE" class="category-button">
-      <img th:src="@{/images/japanese-food.png}" alt="일식">
-      <span>일식</span>
-    </a>
-    <a href="/stores?category=CHINESE" class="category-button">
-      <img th:src="@{/images/chinese-food.png}" alt="중식">
-      <span>중식</span>
-    </a>
-    <a href="/stores?category=CHICKEN" class="category-button">
-      <img th:src="@{/images/chicken.png}" alt="치킨">
-      <span>치킨</span>
-    </a>
-    <a href="/stores?category=PIZZA" class="category-button">
-      <img th:src="@{/images/pizza.png}" alt="피자">
-      <span>피자</span>
-    </a>
-    <a href="/stores?category=FASTFood" class="category-button">
-      <img th:src="@{/images/fast-food.png}" alt="패스트푸드">
-      <span>패스트푸드</span>
-    </a>
-    <a href="/stores?category=SALAD" class="category-button">
-      <img th:src="@{/images/salad.png}" alt="샐러드">
-      <span>샐러드</span>
-    </a>
-    <a href="/stores?category=SNACK" class="category-button">
-      <img th:src="@{/images/snack-food.png}" alt="분식">
-      <span>분식</span>
-    </a>
-    <a href="/stores?category=DESSERT" class="category-button">
-      <img th:src="@{/images/dessert-cafe.png}" alt="디저트|카페">
-      <span>디저트|카페</span>
-    </a>
+
+    <!-- 카테고리 버튼들 -->
+    <div class="category-container">
+      <a href="/stores?category=KOREAN" class="category-button">
+        <img th:src="@{/images/korean-food.png}" alt="한식">
+        <span>한식</span>
+      </a>
+      <a href="/stores?category=JAPANESE" class="category-button">
+        <img th:src="@{/images/japanese-food.png}" alt="일식">
+        <span>일식</span>
+      </a>
+      <a href="/stores?category=CHINESE" class="category-button">
+        <img th:src="@{/images/chinese-food.png}" alt="중식">
+        <span>중식</span>
+      </a>
+      <a href="/stores?category=CHICKEN" class="category-button">
+        <img th:src="@{/images/chicken.png}" alt="치킨">
+        <span>치킨</span>
+      </a>
+      <a href="/stores?category=PIZZA" class="category-button">
+        <img th:src="@{/images/pizza.png}" alt="피자">
+        <span>피자</span>
+      </a>
+      <a href="/stores?category=FASTFOOD" class="category-button">
+        <img th:src="@{/images/fast-food.png}" alt="패스트푸드">
+        <span>패스트푸드</span>
+      </a>
+      <a href="/stores?category=SALAD" class="category-button">
+        <img th:src="@{/images/salad.png}" alt="샐러드">
+        <span>샐러드</span>
+      </a>
+      <a href="/stores?category=SNACK" class="category-button">
+        <img th:src="@{/images/snack-food.png}" alt="분식">
+        <span>분식</span>
+      </a>
+      <a href="/stores?category=DESSERT" class="category-button">
+        <img th:src="@{/images/dessert-cafe.png}" alt="디저트|카페">
+        <span>디저트|카페</span>
+      </a>
+    </div>
+
+
   </div>
 </div>
-
 </body>
 </html>

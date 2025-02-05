@@ -134,13 +134,29 @@ public class StoreService {
     return stores.stream().map(StoreDto::fromEntity).collect(Collectors.toList());
   }
 
-  //카테고리조회
+  /**
+   * @param category
+   * @return 카테고리별 조회
+   */
   @Transactional
   public List<StoreDto> getStoresByCategory(StoreCategory category) {
     // 선택된 카테고리로 가게 조회
     List<Store> stores = storeRepository.findByCategory(category);
     if (stores == null || stores.isEmpty()) {
       return Collections.emptyList();  // 비어 있으면 빈 리스트 반환
+    }
+    return stores.stream().map(StoreDto::fromEntity).collect(Collectors.toList());
+  }
+
+  /**
+   * @param name
+   * @return 가게이름으로 검색(유사 검색포함)
+   */
+  @Transactional(readOnly = true)
+  public List<StoreDto> searchStoresByName(String name) {
+    List<Store> stores = storeRepository.findByNameContainingIgnoreCase(name);
+    if (stores == null || stores.isEmpty()) {
+      return Collections.emptyList();
     }
     return stores.stream().map(StoreDto::fromEntity).collect(Collectors.toList());
   }

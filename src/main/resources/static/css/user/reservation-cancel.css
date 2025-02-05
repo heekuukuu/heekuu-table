@@ -1,0 +1,133 @@
+
+
+
+
+/* ✅ 기본 페이지 스타일 */
+body {
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+  background-color: #f9f9f9;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* ✅ 테이블 스타일 */
+#cancelReservationTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+#cancelReservationTable th,
+#cancelReservationTable td {
+  padding: 15px 20px;
+  text-align: center;
+}
+
+#cancelReservationTable thead th {
+  background-color: #ff80ab;
+  color: #fff;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+#cancelReservationTable tbody tr:nth-child(even) {
+  background-color: #fce4ec;
+}
+
+#cancelReservationTable tbody tr:hover {
+  background-color: #ffe6f2;
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* ✅ 취소 신청 버튼 스타일 */
+.btn-cancel {
+  background-color: #ff4d4d;
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-cancel:hover {
+  background-color: #e60000;
+  box-shadow: 0 4px 10px rgba(230, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+/* ✅ 예약 상태별 색상 표시 */
+.status-cancelled {
+  color: #ff4d4d;
+  font-weight: bold;
+}
+
+.status-pending {
+  color: #ffa500;
+  font-weight: bold;
+}
+
+.status-confirmed {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.status-cancel-requested {
+  color: #ff9900;
+  font-weight: bold;
+}
+
+/* ✅ 빈 데이터 메시지 */
+#emptyCancelMessage {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #fff3f3;
+  color: #ff4d88;
+  border: 1px dashed #ff80ab;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* ✅ 반응형 디자인 */
+@media (max-width: 768px) {
+  #cancelReservationTable th,
+  #cancelReservationTable td {
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .btn-cancel {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  /* 예약 취소 신청 제목 스타일 */
+  h2 {
+    text-align: center;
+    color: #ff4d88;
+    background-color: #fff0f5;
+    padding: 15px 20px;
+    border-radius: 12px;
+    border: 2px solid #ff80ab;
+    font-size: 28px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    display: inline-block;
+  }
+}

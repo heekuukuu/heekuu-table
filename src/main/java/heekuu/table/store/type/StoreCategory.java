@@ -11,7 +11,7 @@ public enum StoreCategory {
   SNACK("분식"),
   PIZZA("피자"),//피자
   CHICKEN("치킨"),//치킨
-  FASTFood("패스트푸드"),//패스트푸드
+  FASTFOOD("패스트푸드"),//패스트푸드
   WESTERN("양식"),
   CAFE("카페|디저트"),
   SALAD("샐러드");

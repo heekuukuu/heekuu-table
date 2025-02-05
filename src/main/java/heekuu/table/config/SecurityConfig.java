@@ -72,60 +72,60 @@ public class SecurityConfig {
 
     // 권한 설정
     http.authorizeHttpRequests(auth -> auth
-            .requestMatchers(
-                "/css/**", "/js/**", "/images/**",
-                "/",
-                "/favicon.ico",
-                "/api/owners/logout",
-                "/error",
-                "/users/check-email",
-                "/users/social-logout",
-                "/users/logout",
-                "/users/login",
-                "/users/join",
-                "/token/reissue",
-                "/questions/all",
-                "/answers/{answerId}",
-                "/oauth2/**",
-                "/login",
-                "/error",
-                "/images/**",
-                "login/**",
-                "api/auth/social-login",
-                "/api/owners/**",
-                "/api/restaurants/**",
-                "/api/reservation/**",
-                "/api/owners/logout",
-                "/api/owners/**",
-                "/api/stores/**",
-                "/api/stores",
-                "/api/menus/**",
-                "/custom-login",
-                "/login",
-                "/api/owners/login",
-                "/dashboard",
-                "/user-login", "/user-signup",
-                "/owner/**",
-                "/owner/main",
-                "/api/order-items/**",
-                "/menu/edit/**",
-                "/user/user-home",
-                "/store-list",
-                "/user/main"
-            ).permitAll()
-//        .requestMatchers("/user/main").authenticated()
-            .requestMatchers("/api/order-items/**").authenticated()
-            .requestMatchers("/api/owners/reservations/**").authenticated()
-            .requestMatchers("/api/users/reservations/**").authenticated()
-            .requestMatchers("/api/reservation/**").authenticated()
-            .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-            .requestMatchers("/user/**").hasAuthority("USER")
-            .requestMatchers("/dashboard").hasAnyAuthority("USER", "ADMIN")
-            .requestMatchers("/api/user/preferences/**").hasAnyAuthority("USER", "ADMIN")
-            .requestMatchers("/answers/**").hasAnyAuthority("USER", "ADMIN")
-            .requestMatchers("/questions").hasAnyAuthority("USER", "ADMIN")
-            .requestMatchers("/rewards/**").hasAnyAuthority("USER", "ADMIN")
-            .anyRequest().authenticated()
+        .requestMatchers(
+            "/css/**", "/js/**", "/images/**",
+            "/",
+            "/favicon.ico",
+            "/api/owners/logout",
+            "/error",
+            "/users/check-email",
+            "/users/social-logout",
+            "/users/logout",
+            "/users/login",
+            "/users/join",
+            "/token/reissue",
+            "/questions/all",
+            "/answers/{answerId}",
+            "/oauth2/**",
+            "/login",
+            "/error",
+            "/images/**",
+            "login/**",
+            "api/auth/social-login",
+            "/api/owners/**",
+            "/api/restaurants/**",
+            "/api/reservation/**",
+            "/api/owners/logout",
+            "/api/owners/**",
+            "/api/stores/**",
+            "/api/stores",
+            "/api/menus/**",
+            "/custom-login",
+            "/login",
+            "/api/owners/login",
+            "/dashboard",
+            "/user-login", "/user-signup",
+            "/owner/**",
+            "/owner/main",
+            "/api/order-items/**",
+            "/menu/edit/**",
+            "/user/user-home",
+            "/store-list",
+            "/user/main", "/user/reservation-cancel"
+        ).permitAll()
+        //.requestMatchers("/user/reservation-cancel").authenticated()
+        .requestMatchers("/api/order-items/**").authenticated()
+        .requestMatchers("/api/owners/reservations/**").authenticated()
+        .requestMatchers("/api/users/reservations/**").authenticated()
+        .requestMatchers("/api/reservation/**").authenticated()
+        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+        .requestMatchers("/user/**").hasAuthority("USER")
+        .requestMatchers("/dashboard").hasAnyAuthority("USER", "ADMIN")
+        .requestMatchers("/api/user/preferences/**").hasAnyAuthority("USER", "ADMIN")
+        .requestMatchers("/answers/**").hasAnyAuthority("USER", "ADMIN")
+        .requestMatchers("/questions").hasAnyAuthority("USER", "ADMIN")
+        .requestMatchers("/rewards/**").hasAnyAuthority("USER", "ADMIN")
+        .anyRequest().authenticated()
     );
 
     // 폼 로그인 설정
