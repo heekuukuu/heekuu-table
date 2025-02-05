@@ -10,18 +10,10 @@
 <body>
 
 
-<header>
-  <nav>
-    <ul>
-      <li><a href="/">홈</a></li>
-
-    </ul>
-  </nav>
-</header>
-
 <div layout:fragment="content">
-  <h1>유저 홈</h1>
-  <p>여기에 개별 페이지의 내용을 추가합니다.</p>
+  <!-- ✅ 카테고리 -->
+  <div th:replace="~{layout/user/store-list :: category-container}"></div>
+
 </div>
 </body>
 </html>

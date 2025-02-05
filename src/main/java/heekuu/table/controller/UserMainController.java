@@ -3,21 +3,16 @@ package heekuu.table.controller;
 
 import heekuu.table.user.dto.JoinDTO;
 import heekuu.table.user.service.JoinService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Slf4j
 @RequiredArgsConstructor
 @Controller
-public class UserManiController {
+public class UserMainController {
 
 
   private final JoinService joinService;
@@ -46,8 +41,9 @@ public class UserManiController {
     return "user/user-home";
   }
 
-//  @GetMapping("/store-list")
-//  public String userHome() {
-//    return "/layout/user/store-list";
-//  }
+  @GetMapping("user/main")
+  public String userMain(Model model) {
+    log.info("유저메인페이지 체크");
+    return "/layout/user/main";
+  }
 }

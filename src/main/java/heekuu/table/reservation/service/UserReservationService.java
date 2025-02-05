@@ -20,6 +20,7 @@ import jakarta.validation.ValidationException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -66,10 +67,9 @@ public class UserReservationService implements ReservationService {
     // 저장된 Reservation 객체 확인
     log.info("Reservation 생성 결과: {}", reservation);
 
-
-
     // 주문 항목 저장 및 리스트 반환
-    List<OrderItem> savedOrderItems = orderItemService.saveOrderItems(request.getOrderItems(), reservation);
+    List<OrderItem> savedOrderItems = orderItemService.saveOrderItems(request.getOrderItems(),
+        reservation);
 
     log.info("유저 ID: {} 예약 생성 완료, 예약 ID: {}", userId, reservation.getReservationId());
     return new ReservationResponse(reservation, savedOrderItems);
@@ -88,8 +88,8 @@ public class UserReservationService implements ReservationService {
     }
   }
 
-  private Reservation saveReservation(ReservationRequest request, User user, Store store, List<OrderItemDto> orderItems) {
-
+  private Reservation saveReservation(ReservationRequest request, User user, Store store,
+      List<OrderItemDto> orderItems) {
 
     // 총 금액 계산 (BigDecimal 사용)
     BigDecimal totalPrice = orderItems.stream()
@@ -106,7 +106,8 @@ public class UserReservationService implements ReservationService {
         .numberOfPeople(request.getNumberOfPeople())
         .note(request.getNote())
         .isTakeout(request.getIsTakeout())
-        .paymentStatus(request.getPaymentStatus() != null ? request.getPaymentStatus() : "매장결제") // 요청값 또는 기본값 설정
+        .paymentStatus(request.getPaymentStatus() != null ? request.getPaymentStatus()
+            : "매장결제") // 요청값 또는 기본값 설정
         .status(ReservationStatus.PENDING)
         .store(store)
         .owner(store.getOwner())
@@ -118,11 +119,29 @@ public class UserReservationService implements ReservationService {
   }
 
 
+  /**
+   * @param userId
+   * @return 유저의 전체예약내역
+   */
+  @Transactional
+  public List<ReservationResponse> getUserReservations(Long userId) {
+    List<Reservation> reservations = reservationRepository.findAllByUserUserId(userId);
 
+    // 예약 내역이 없으면 빈 리스트 반환
+    if (reservations.isEmpty()) {
+      return new ArrayList<>();
+    }
+
+    // Reservation 객체를 ReservationResponse로 변환
+    return reservations
+        .stream()
+        .map(reservation -> new ReservationResponse(reservation, reservation.getOrderItems()))
+        .collect(Collectors.toList());
+  }
 
 
   /**
-   * 예약 상세 조회
+   * 특정 예약 상세 조회
    *
    * @param reservationId 예약 ID
    * @return 예약 응답
@@ -142,9 +161,6 @@ public class UserReservationService implements ReservationService {
 
     return new ReservationResponse(reservation);
   }
-
-
-
 
 
   /**

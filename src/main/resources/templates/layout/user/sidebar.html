@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+</head>
+
+<body>
+<!-- 🌸 토글 버튼 -->
+<div th:fragment="menuToggle" class="menu-toggle">
+  <button id="menuToggle" class="menu-toggle-button">메뉴</button>
+</div>
+
+<div th:fragment="sidebar" class="sidebar">
+
+  <!-- 🌸 프로필 박스 -->
+  <div class="profile-section">
+    <button id="profileToggle" class="profile-toggle-button">프로필 ▼</button>
+    <div class="profile-content">
+      <h2 id="nickname">Heekuu</h2>
+      <p id="email">heekuu@naver.com</p>
+      <p><strong>Username :</strong> <span id="username">heekyung22</span></p>
+      <p><strong>Role :</strong> <span id="role">USER</span></p>
+      <p><strong>Point :</strong> <span id="points">0</span></p>
+    </div>
+  </div>
+
+  <!-- 🌸 나의 주문관리 -->
+  <div class="menu-section">
+    <h5>나의 주문관리</h5>
+    <ul>
+      <li><a href="/user/main">예약내역</a></li>
+      <li><a href="/user/reservation-edit">예약변경</a></li>
+      <li><a href="/user/menu-list">메뉴조회</a></li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <!-- 🌸 나의 계정관리 -->
+  <div class="menu-section">
+    <h5>나의 계정관리</h5>
+    <ul>
+      <li><a href="/user/delete-account">탈퇴하기</a></li>
+      <li><a href="/user/edit-profile">개인정보 수정하기</a></li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <!-- 🌸 커뮤니티 -->
+  <div class="menu-section">
+    <h5>커뮤니티</h5>
+    <ul>
+      <li><a href="/community/posts">게시글 조회</a></li>
+      <li><a href="/community/comments">댓글 조회</a></li>
+      <li><a href="/community/reviews">리뷰 조회</a></li>
+    </ul>
+  </div>
+
+</div>
+
+
+</body>
+</html>

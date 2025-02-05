@@ -30,10 +30,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (loginResponse.ok) {
                 const data = await loginResponse.json();
-                console.log("✅ 로그인 성공! Access Token:", data.accessToken);
+                console.log("✅ 로그인 성공! Access Token :", data.accessToken);
 
-                // 로그인 성공 후 페이지 이동
-                window.location.href = "/user/user-home";
+                // 서버에서 설정한 쿠키 확인
+                const cookies = document.cookie;
+                console.log("🍪 현재 쿠키 상태:", cookies);
+
+                // 서버에서 쿠키를 설정했는지 확인 후 페이지 이동
+                if (cookies.includes('access')) {
+                    console.log("✅ 서버에서 받은 쿠키를 통해 로그인 확인 완료.");
+                    window.location.href = "/user/user-home";
+                } else {
+                    console.warn("⚠️ 서버에서 토큰 쿠키를 설정하지 않았습니다. 응답을 확인하세요.");
+                }
             } else {
                 const errorMessage = await loginResponse.text();
                 alert(`❌ 로그인 실패: ${errorMessage}`);

@@ -13,7 +13,7 @@ public enum StoreCategory {
   CHICKEN("치킨"),//치킨
   FASTFood("패스트푸드"),//패스트푸드
   WESTERN("양식"),
-  DESSERT("카페|디저트"),
+  CAFE("카페|디저트"),
   SALAD("샐러드");
 
   private final String description;

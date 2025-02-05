@@ -43,7 +43,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
   private final UserRepository userRepository;
 
 
-
   public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
       RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
     super.setAuthenticationManager(authenticationManager);
@@ -118,7 +117,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
       }
 
-
       // 1. 새로운 Access Token 및 Refresh Token 생성
       String accessToken = jwtUtil.createJwt("access", user, role);
       String refreshToken = jwtUtil.createJwt("refresh", user, role);
@@ -126,14 +124,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
       log.info("새로운 Access Token 생성 완료: {}", accessToken);
       log.info("새로운 Refresh Token 생성 완료: {}", refreshToken);
 
-
       // 2. Refresh Token 덮어쓰기
-      upsertRefreshToken(user, refreshToken );
+      upsertRefreshToken(user, refreshToken);
 
       // 3. 응답 처리
       Map<String, String> tokens = new HashMap<>();
       tokens.put("accessToken", accessToken);
 
+      response.addCookie(createCookie("access", accessToken)); // Access Token 쿠키에 저장
       response.addCookie(createCookie("refresh", refreshToken)); // Refresh Token 쿠키에 저장
       response.setContentType("application/json");
       response.setCharacterEncoding("UTF-8");
@@ -149,7 +147,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
   }
 
 
-// Refresh Token 덮어쓰기 메서드
+  // Refresh Token 덮어쓰기 메서드
   private void upsertRefreshToken(User user, String refreshToken) {
     long expiredMs = jwtUtil.getRefreshTokenExpiration();
     Date expirationDate = new Date(System.currentTimeMillis() + expiredMs);
@@ -169,6 +167,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     // 저장 또는 업데이트
     refreshTokenRepository.save(refreshTokenEntity);
   }
+
   private void handleException(HttpServletResponse response, CustomException ex)
       throws IOException {
     response.setStatus(ex.getStatus().value());
@@ -196,7 +195,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
   private Cookie createCookie(String key, String value) {
     Cookie cookie = new Cookie(key, value);
     cookie.setMaxAge(24 * 60 * 60);
-    cookie.setHttpOnly(true);
+    cookie.setHttpOnly(false);
     cookie.setPath("/");
     return cookie;
   }

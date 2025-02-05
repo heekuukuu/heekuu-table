@@ -48,13 +48,24 @@ public class UserReservationController {
    * @return 예약 상세 정보
    */
   @GetMapping("/{reservationId}")
-  public ResponseEntity<ReservationResponse> getReservation(@PathVariable("reservationId") Long reservationId) {
+  public ResponseEntity<ReservationResponse> getReservation(
+      @PathVariable("reservationId") Long reservationId) {
     // 사용자 ID 추출
     Long userId = getCurrentUserId();
 
     // 본인 예약 조회
     ReservationResponse response = userReservationService.getUserReservation(reservationId, userId);
     return ResponseEntity.ok(response);
+  }
+
+  /**
+   * @return 유저의 전체 예약정보
+   */
+  @GetMapping
+  public ResponseEntity<List<ReservationResponse>> getUserReservations() {
+    Long userId = getCurrentUserId();  // 현재 로그인된 사용자 ID 가져오기
+    List<ReservationResponse> reservations = userReservationService.getUserReservations(userId);
+    return ResponseEntity.ok(reservations);
   }
 
   /**
@@ -70,10 +81,10 @@ public class UserReservationController {
     Long userId = getCurrentUserId();
 
     // 본인 예약 취소 요청
-    ReservationResponse response = userReservationService.requestCancelReservation(reservationId, userId);
+    ReservationResponse response = userReservationService.requestCancelReservation(reservationId,
+        userId);
     return ResponseEntity.ok(response);
   }
-
 
 
   // 현재 사용자 ID를 SecurityContext에서 추출하는 메서드
